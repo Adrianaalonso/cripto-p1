@@ -1,3 +1,9 @@
 {
- 
+  "Opción A": 2,
+  "Opción B": 1,
+  "usuarios_votaron": [
+    "ale",
+    "pepa",
+    "loli"
+  ]
 }

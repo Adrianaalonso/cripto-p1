@@ -22,6 +22,9 @@ class SistemaVotacion:
         self.archivo_votos = "votos.json"
         self.usuario_actual = None
         self.opciones_votacion = ["Opción A", "Opción B"]
+        self.archivo_log_cifrado = "log_cifrado.jsonl"
+        self.archivo_clave = "clave_aes.bin"
+
         
     def cargar_usuarios(self):
         """Cargar usuarios desde el archivo JSON"""
@@ -35,13 +38,49 @@ class SistemaVotacion:
         with open(self.archivo_usuarios, 'w', encoding='utf-8') as f:
             json.dump(usuarios, f, indent=2, ensure_ascii=False)
     
+    def generar_clave_aes(self):
+        """Generar clave AES de 256 bits"""
+        return os.urandom(32)  # 32 bytes = 256 bits
+    
+    def cifrar_mensaje(self, clave, mensaje: str):
+        """Cifrar mensaje con AES-GCM"""
+        iv = os.urandom(12)  # nonce recomendado para GCM
+        aes = Cipher(algorithms.AES(clave), modes.GCM(iv), backend=default_backend()).encryptor()
+        cifrado = aes.update(mensaje.encode()) + aes.finalize()
+        # empaquetamos IV + tag + texto cifrado
+        paquete = iv + aes.tag + cifrado
+        resultado = base64.b64encode(paquete).decode()
+        print(f"[LOG] Cifrado realizado con AES-GCM (clave 256 bits)")
+        print(f"[LOG] Texto original: {mensaje}")
+        print(f"[LOG] Texto cifrado (base64): {resultado}\n")
+        return resultado
+    
+    def descifrar_mensaje(self, clave, cifrado_b64: str):
+        """Descifrar mensaje con AES-GCM"""
+        paquete = base64.b64decode(cifrado_b64)
+        iv, tag, cifrado = paquete[:12], paquete[12:28], paquete[28:]
+        aes = Cipher(algorithms.AES(clave), modes.GCM(iv, tag), backend=default_backend()).decryptor()
+        texto = aes.update(cifrado) + aes.finalize()
+        print(f"[LOG] Descifrado realizado con AES-GCM (clave 256 bits)")
+        print(f"[LOG] Texto descifrado: {texto.decode()}\n")
+        return texto.decode()
+
     def cargar_votos(self):
         """Cargar votos desde el archivo JSON"""
+        defaults = {"Opción A": 0, "Opción B": 0, "usuarios_votaron": []}
         if os.path.exists(self.archivo_votos):
-            with open(self.archivo_votos, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        return {"Opción A": 0, "Opción B": 0, "usuarios_votaron": []}
-    
+            try:
+                with open(self.archivo_votos, 'r', encoding='utf-8') as f:
+                    v = json.load(f)
+            except Exception:
+                # fichero corrupto → empezamos limpio
+                return defaults.copy()
+            # Rellenar claves faltantes
+            for k, val in defaults.items():
+                v.setdefault(k, val if not isinstance(val, list) else list(val))
+            return v
+        return defaults.copy()
+        
     def guardar_votos(self, votos):
         """Guardar votos en el archivo JSON"""
         with open(self.archivo_votos, 'w', encoding='utf-8') as f:
@@ -131,6 +170,82 @@ class SistemaVotacion:
             return True, "Código correcto"
         
         return False, "Código incorrecto"
+    
+    def _cargar_o_crear_clave_maestra(self):
+        """Clave AES-256 persistente para el log cifrado."""
+        if os.path.exists(self.archivo_clave):
+            with open(self.archivo_clave, "rb") as f:
+                key = f.read()
+            if len(key) == 32:
+                return key
+        key = os.urandom(32)  # 256 bits
+        with open(self.archivo_clave, "wb") as f:
+            f.write(key)
+        try:
+            os.chmod(self.archivo_clave, 0o600)  # Unix; en Windows ignora
+        except Exception:
+            pass
+        return key
+    
+    def cifrar_para_log(self, clave, mensaje: str):
+        iv = os.urandom(12)
+        aes = Cipher(algorithms.AES(clave), modes.GCM(iv), backend=default_backend()).encryptor()
+        ct = aes.update(mensaje.encode()) + aes.finalize()
+        return {
+            "algoritmo": "AES-GCM",
+            "key_bits": 256,
+            "iv_b64": base64.b64encode(iv).decode(),
+            "tag_b64": base64.b64encode(aes.tag).decode(),
+            "ct_b64": base64.b64encode(ct).decode(),
+        }
+
+    def descifrar_de_log(self, clave, iv_b64, tag_b64, ct_b64) -> str:
+        iv = base64.b64decode(iv_b64)
+        tag = base64.b64decode(tag_b64)
+        ct  = base64.b64decode(ct_b64)
+        aes = Cipher(algorithms.AES(clave), modes.GCM(iv, tag), backend=default_backend()).decryptor()
+        return (aes.update(ct) + aes.finalize()).decode()
+
+    def registrar_log_cifrado(self, usuario: str, seleccion: str):
+        clave = self._cargar_o_crear_clave_maestra()
+        mensaje = f"Voto de {usuario} para {seleccion} @ {datetime.now().isoformat(timespec='seconds')}"
+        blob = self.cifrar_para_log(clave, mensaje)
+        linea = {
+            "timestamp": datetime.now().isoformat(timespec="seconds"),
+            "usuario": usuario,          # si prefieres más privacidad, elimina o pseudonimiza este campo
+            "opcion": seleccion,         # idem (se puede omitir para máxima privacidad)
+            **blob
+        }
+        with open(self.archivo_log_cifrado, "a", encoding="utf-8") as f:
+            f.write(json.dumps(linea, ensure_ascii=False) + "\n")
+
+    def exportar_log_descifrado(self, salida="log_descifrado.jsonl"):
+        if not os.path.exists(self.archivo_log_cifrado):
+            print("No hay log cifrado que exportar.")
+            return
+        clave = self._cargar_o_crear_clave_maestra()
+        out = []
+        with open(self.archivo_log_cifrado, "r", encoding="utf-8") as f:
+            for line in f:
+                if not line.strip():
+                    continue
+                rec = json.loads(line)
+                try:
+                    texto = self.descifrar_de_log(clave, rec["iv_b64"], rec["tag_b64"], rec["ct_b64"])
+                except Exception as e:
+                    texto = f"[ERROR DESCIFRADO] {e}"
+                out.append({
+                    "timestamp": rec.get("timestamp"),
+                    "algoritmo": rec.get("algoritmo"),
+                    "key_bits": rec.get("key_bits"),
+                    "texto": texto
+                })
+        with open(salida, "w", encoding="utf-8") as g:
+            for r in out:
+                g.write(json.dumps(r, ensure_ascii=False) + "\n")
+        print(f"Log descifrado exportado en: {salida}")
+
+
     
     def mostrar_menu_principal(self):
         """Mostrar el menú principal"""
@@ -230,6 +345,7 @@ class SistemaVotacion:
         print("1. Votar")
         print("2. Ver resultados")
         print("3. Cerrar sesión")
+        print("4. Exportar log descifrado (auditoría)")
         print("="*40)
     
     def votar(self):
@@ -248,21 +364,22 @@ class SistemaVotacion:
         
         try:
             opcion = int(input("\nSeleccione su opción (1 o 2): "))
-            
-            if opcion == 1:
-                votos["Opción A"] += 1
-                votos["usuarios_votaron"].append(self.usuario_actual)
-                self.guardar_votos(votos)
-                print("Voto registrado para: Opción A")
-            elif opcion == 2:
-                votos["Opción B"] += 1
-                votos["usuarios_votaron"].append(self.usuario_actual)
-                self.guardar_votos(votos)
-                print("Voto registrado para: Opción B")
-            elif opcion == 0:
-                print("Votación cancelada.")
-            else:
+            if opcion not in (0, 1, 2):
                 print("Opción no válida.")
+                return
+            if opcion == 0:
+                print("Votación cancelada.")
+                return
+            # Registrar voto
+            seleccion = self.opciones_votacion[opcion - 1]
+            votos[seleccion] += 1
+            votos["usuarios_votaron"].append(self.usuario_actual)
+            self.guardar_votos(votos)
+            print(f"Voto registrado para: {seleccion}")
+
+            # ===== Punto 2: demostración de cifrado/descifrado visible =====
+            self.registrar_log_cifrado(self.usuario_actual, seleccion)
+                
         except ValueError:
             print("Por favor ingrese un número válido.")
     
@@ -324,6 +441,9 @@ class SistemaVotacion:
                     elif opcion == "3":
                         print(f" Hasta luego, {self.usuario_actual}!")
                         self.usuario_actual = None
+                    elif opcion == "4":
+                        self.exportar_log_descifrado()
+
                     else:
                         print(" Opción no válida. Intente nuevamente.")
                 
