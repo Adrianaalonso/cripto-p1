@@ -4,9 +4,17 @@ import hashlib
 import getpass
 import random
 import time
+import hmac
+import base64
 import tkinter as tk
 from tkinter import messagebox
 from datetime import datetime
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.backends import default_backend
+
+
+PBKDF2_ITERS = 200_000
 
 class SistemaVotacion:
     def __init__(self):
@@ -39,12 +47,27 @@ class SistemaVotacion:
         with open(self.archivo_votos, 'w', encoding='utf-8') as f:
             json.dump(votos, f, indent=2, ensure_ascii=False)
     
-    def hash_password(self, password):
-        """Encriptar contraseña usando SHA-256"""
-        return hashlib.sha256(password.encode()).hexdigest()
+    def _pbkdf2_hash(self, password:str, salt: bytes=None, iters = PBKDF2_ITERS):
+        if salt is None:
+            salt = os.urandom(16)
+        dk = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, iters)
+        return f"pbkdf2$sha256${iters}${base64.b64encode(salt).decode()}${base64.b64encode(dk).decode()}"
+    
+    def _verificar_password(self, password: str, stored: str) -> bool:
+        try:
+            scheme, algo, iters, salt_b64, dk_b64 = stored.split('$', 4)
+            assert scheme == 'pbkdf2' and algo == 'sha256'
+            salt = base64.b64decode(salt_b64)
+            dk_stored = base64.b64decode(dk_b64)
+            dk_new = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, int(iters))
+            return hmac.compare_digest(dk_new, dk_stored)
+        except Exception:
+            return False
+
     def generar_codigo_mfa(self):
         """Generar código MFA de 6 dígitos"""
         return str(random.randint(100000, 999999))
+    
     def mostrar_codigo_ventana(self, codigo):
         """Mostrar código en una ventana simple"""
         # Crear ventana simple
@@ -142,7 +165,7 @@ class SistemaVotacion:
         # Guardar usuario en usuarios.json
         usuarios[usuario] = {
             "email": email,
-            "password": self.hash_password(password),
+            "password": self._pbkdf2_hash(password),
             "fecha_registro": datetime.now().isoformat()
         }
         
@@ -158,7 +181,7 @@ class SistemaVotacion:
         usuario = input("Nombre de usuario: ").strip()
         password = getpass.getpass("Contraseña: ")
         
-        if usuario in usuarios and usuarios[usuario]["password"] == self.hash_password(password):
+        if usuario in usuarios and  self._verificar_password(password, usuarios[usuario]["password"]):
             # Primer factor válido, ahora MFA
             email_usuario = usuarios[usuario]["email"]
             

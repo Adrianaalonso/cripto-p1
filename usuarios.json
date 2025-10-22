@@ -13,5 +13,15 @@
     "email": "adrianaalo04@gmail.com",
     "password": "b2ce3c5cdc0264468b964b96e58290e6b5f7f52696cdf64df6db2df0b0964bd0",
     "fecha_registro": "2025-10-22T12:32:33.215823"
+  },
+  "ale": {
+    "email": "ale@gmail.com",
+    "password": "b88820297dbee1ad816be143c7e462ef0f9a36475fc7cf5556a487c6e089bed1",
+    "fecha_registro": "2025-10-22T21:51:42.715216"
+  },
+  "ola": {
+    "email": "ola@gmail.com",
+    "password": "pbkdf2$sha256$200000$9ri8ypc82j+0dqQpWlqbYw==$WPfxXk84dl7mLHFHe0lw0mDQ9iXUcnj5ZDa8wjSdjio=",
+    "fecha_registro": "2025-10-22T22:17:43.859066"
   }
 }
