@@ -212,8 +212,6 @@ class SistemaVotacion:
         blob = self.cifrar_para_log(clave, mensaje)
         linea = {
             "timestamp": datetime.now().isoformat(timespec="seconds"),
-            "usuario": usuario,          # si prefieres más privacidad, elimina o pseudonimiza este campo
-            "opcion": seleccion,         # idem (se puede omitir para máxima privacidad)
             **blob
         }
         with open(self.archivo_log_cifrado, "a", encoding="utf-8") as f:
