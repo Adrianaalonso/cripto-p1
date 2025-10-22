@@ -2,6 +2,10 @@ import os
 import json
 import hashlib
 import getpass
+import random
+import time
+import tkinter as tk
+from tkinter import messagebox
 from datetime import datetime
 
 class SistemaVotacion:
@@ -38,6 +42,72 @@ class SistemaVotacion:
     def hash_password(self, password):
         """Encriptar contraseña usando SHA-256"""
         return hashlib.sha256(password.encode()).hexdigest()
+    def generar_codigo_mfa(self):
+        """Generar código MFA de 6 dígitos"""
+        return str(random.randint(100000, 999999))
+    def mostrar_codigo_ventana(self, codigo):
+        """Mostrar código en una ventana simple"""
+        # Crear ventana simple
+        ventana = tk.Tk()
+        ventana.title("Código de Verificación")
+        ventana.geometry("250x100")
+        ventana.resizable(False, False)
+        
+        # Texto simple
+        texto = tk.Label(ventana, text=f"Tu código es: {codigo}", font=("Arial", 14))
+        texto.pack(pady=20)
+        
+        # Botón OK
+        boton = tk.Button(ventana, text="OK", command=ventana.destroy, width=10)
+        boton.pack()
+        
+        # Mostrar ventana
+        ventana.mainloop()
+        return True
+    
+    def guardar_codigo_mfa(self, usuario, codigo):
+        """Guardar código MFA temporalmente"""
+        codigos = {}
+        if os.path.exists("codigos_mfa.json"):
+            with open("codigos_mfa.json", 'r') as f:
+                codigos = json.load(f)
+        
+        codigos[usuario] = {
+            "codigo": codigo,
+            "timestamp": time.time()
+        }
+        
+        with open("codigos_mfa.json", 'w') as f:
+            json.dump(codigos, f, indent=2)
+    
+    def verificar_codigo_mfa(self, usuario, codigo_ingresado):
+        """Verificar código MFA"""
+        if not os.path.exists("codigos_mfa.json"):
+            return False, "No hay código pendiente"
+            
+        with open("codigos_mfa.json", 'r') as f:
+            codigos = json.load(f)
+        
+        if usuario not in codigos:
+            return False, "No hay código pendiente"
+        
+        codigo_info = codigos[usuario]
+        
+        # Verificar expiración (5 minutos = 300 segundos)
+        if time.time() - codigo_info["timestamp"] > 300:
+            del codigos[usuario]
+            with open("codigos_mfa.json", 'w') as f:
+                json.dump(codigos, f, indent=2)
+            return False, "Código expirado"
+        
+        # Verificar código
+        if codigo_info["codigo"] == codigo_ingresado:
+            del codigos[usuario]
+            with open("codigos_mfa.json", 'w') as f:
+                json.dump(codigos, f, indent=2)
+            return True, "Código correcto"
+        
+        return False, "Código incorrecto"
     
     def mostrar_menu_principal(self):
         """Mostrar el menú principal"""
@@ -79,9 +149,8 @@ class SistemaVotacion:
         self.guardar_usuarios(usuarios)
         print(f"Usuario '{usuario}' registrado exitosamente!")
         return True
-    
     def iniciar_sesion(self):
-        """Iniciar sesión con usuario existente"""
+        """Iniciar sesión con usuario existente y MFA"""
         print("\n--- INICIAR SESIÓN ---")
         
         usuarios = self.cargar_usuarios()
@@ -90,11 +159,42 @@ class SistemaVotacion:
         password = getpass.getpass("Contraseña: ")
         
         if usuario in usuarios and usuarios[usuario]["password"] == self.hash_password(password):
-            self.usuario_actual = usuario
-            print(f"Bienvenido/a, {usuario}!")
-            return True
+            # Primer factor válido, ahora MFA
+            email_usuario = usuarios[usuario]["email"]
+            
+            # Generar y mostrar código
+            codigo = self.generar_codigo_mfa()
+            print(f"\n Mostrando código de verificación para {email_usuario}...")
+            
+            # Mostrar código en ventana
+            if self.mostrar_codigo_ventana(codigo):
+                # Guardar código temporalmente
+                self.guardar_codigo_mfa(usuario, codigo)
+                
+                print(" Código mostrado.")
+                
+                # Solicitar código al usuario
+                try:
+                    codigo_ingresado = input("Ingresa el código de 6 dígitos: ").strip()
+                    
+                    valido, mensaje = self.verificar_codigo_mfa(usuario, codigo_ingresado)
+                    
+                    if valido:
+                        self.usuario_actual = usuario
+                        print(f"Bienvenido/a, {usuario}!")
+                        return True
+                    else:
+                        print(f"{mensaje}")
+                        return False
+                        
+                except KeyboardInterrupt:
+                    print("\nVerificación cancelada.")
+                    return False
+            else:
+                print(" Error al mostrar código. Intenta más tarde.")
+                return False
         else:
-            print("Usuario o contraseña incorrectos.")
+            print(" Usuario o contraseña incorrectos.")
             return False
     
     def mostrar_menu_votacion(self):
@@ -158,7 +258,7 @@ class SistemaVotacion:
             print(f"📦 Opción B: {votos['Opción B']} votos ({votos['Opción B']/total_votos*100:.1f}%)")
             print(f"\nTotal de votos: {total_votos}")
         else:
-            print("📭 No hay votos registrados aún.")
+            print(" No hay votos registrados aún.")
         
         print("="*40)
     

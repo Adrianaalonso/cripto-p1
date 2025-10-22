@@ -1,3 +1,17 @@
 {
-  
+  "Pepi": {
+    "email": "100498809@alumnos.uc3m.es",
+    "password": "2d3c916192943e172179b887ac2f0061c4b13cee37228730d97d924795b8a349",
+    "fecha_registro": "2025-10-22T12:14:43.272496"
+  },
+  "Mari": {
+    "email": "100498809@alumnos.uc3m.es",
+    "password": "fbc835d2c63c85a2af298286581b9b77e8f1d5436a7ccbe391fceecce2a4729e",
+    "fecha_registro": "2025-10-22T12:26:47.226849"
+  },
+  "Cris": {
+    "email": "adrianaalo04@gmail.com",
+    "password": "b2ce3c5cdc0264468b964b96e58290e6b5f7f52696cdf64df6db2df0b0964bd0",
+    "fecha_registro": "2025-10-22T12:32:33.215823"
+  }
 }
