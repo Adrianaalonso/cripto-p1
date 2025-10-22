@@ -1,0 +1,1 @@
+Para inicializar el sistema poner en la terminal el comando "python sistema_votacion.py"

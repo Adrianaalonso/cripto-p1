@@ -9,7 +9,7 @@ class SistemaVotacion:
         self.archivo_usuarios = "usuarios.json"
         self.archivo_votos = "votos.json"
         self.usuario_actual = None
-        self.opciones_votacion = ["Opción A", "Opción B", "Opción C"]
+        self.opciones_votacion = ["Opción A", "Opción B"]
         
     def cargar_usuarios(self):
         """Cargar usuarios desde el archivo JSON"""
@@ -42,7 +42,7 @@ class SistemaVotacion:
     def mostrar_menu_principal(self):
         """Mostrar el menú principal"""
         print("\n" + "="*50)
-        print("   SISTEMA DE VOTACIÓN INTELIGENTE")
+        print("      *SISTEMA DE VOTACIÓN INTELIGENTE*")
         print("="*50)
         print("1. Iniciar Sesión")
         print("2. Registrarse")
@@ -55,10 +55,10 @@ class SistemaVotacion:
         
         usuarios = self.cargar_usuarios()
         
-        # Solicitar datos
+        # Solicitar datos de registro
         usuario = input("Ingrese nombre de usuario: ").strip()
         if usuario in usuarios:
-            print("❌ El usuario ya existe. Intente con otro nombre.")
+            print("El usuario ya existe. Intente con otro nombre.")
             return False
         
         email = input("Ingrese su email: ").strip()
@@ -66,10 +66,10 @@ class SistemaVotacion:
         password_confirm = getpass.getpass("Confirme su contraseña: ")
         
         if password != password_confirm:
-            print("❌ Las contraseñas no coinciden.")
+            print("Las contraseñas no coinciden.")
             return False
         
-        # Guardar usuario
+        # Guardar usuario en usuarios.json
         usuarios[usuario] = {
             "email": email,
             "password": self.hash_password(password),
@@ -77,7 +77,7 @@ class SistemaVotacion:
         }
         
         self.guardar_usuarios(usuarios)
-        print(f"✅ Usuario '{usuario}' registrado exitosamente!")
+        print(f"Usuario '{usuario}' registrado exitosamente!")
         return True
     
     def iniciar_sesion(self):
@@ -91,10 +91,10 @@ class SistemaVotacion:
         
         if usuario in usuarios and usuarios[usuario]["password"] == self.hash_password(password):
             self.usuario_actual = usuario
-            print(f"✅ Bienvenido/a, {usuario}!")
+            print(f"Bienvenido/a, {usuario}!")
             return True
         else:
-            print("❌ Usuario o contraseña incorrectos.")
+            print("Usuario o contraseña incorrectos.")
             return False
     
     def mostrar_menu_votacion(self):
@@ -102,7 +102,7 @@ class SistemaVotacion:
         print("\n" + "="*40)
         print(f"   BIENVENIDO/A: {self.usuario_actual}")
         print("="*40)
-        print("🗳️  SISTEMA DE VOTACIÓN")
+        print("   SISTEMA DE VOTACIÓN")
         print("="*40)
         print("1. Votar")
         print("2. Ver resultados")
@@ -115,7 +115,7 @@ class SistemaVotacion:
         
         # Verificar si ya votó
         if self.usuario_actual in votos["usuarios_votaron"]:
-            print("❌ Ya has votado anteriormente. No puedes votar nuevamente.")
+            print("Ya has votado anteriormente. No puedes votar nuevamente.")
             return
         
         print("\n--- OPCIONES DE VOTACIÓN ---")
@@ -130,18 +130,18 @@ class SistemaVotacion:
                 votos["Opción A"] += 1
                 votos["usuarios_votaron"].append(self.usuario_actual)
                 self.guardar_votos(votos)
-                print("✅ Voto registrado para: Opción A")
+                print("Voto registrado para: Opción A")
             elif opcion == 2:
                 votos["Opción B"] += 1
                 votos["usuarios_votaron"].append(self.usuario_actual)
                 self.guardar_votos(votos)
-                print("✅ Voto registrado para: Opción B")
+                print("Voto registrado para: Opción B")
             elif opcion == 0:
                 print("Votación cancelada.")
             else:
-                print("❌ Opción no válida.")
+                print("Opción no válida.")
         except ValueError:
-            print("❌ Por favor ingrese un número válido.")
+            print("Por favor ingrese un número válido.")
     
     def mostrar_resultados(self):
         """Mostrar resultados de la votación"""
@@ -150,13 +150,13 @@ class SistemaVotacion:
         total_votos = votos["Opción A"] + votos["Opción B"]
         
         print("\n" + "="*40)
-        print("   📊 RESULTADOS DE VOTACIÓN")
+        print("   RESULTADOS DE VOTACIÓN")
         print("="*40)
         
         if total_votos > 0:
             print(f"📦 Opción A: {votos['Opción A']} votos ({votos['Opción A']/total_votos*100:.1f}%)")
             print(f"📦 Opción B: {votos['Opción B']} votos ({votos['Opción B']/total_votos*100:.1f}%)")
-            print(f"\n📈 Total de votos: {total_votos}")
+            print(f"\nTotal de votos: {total_votos}")
         else:
             print("📭 No hay votos registrados aún.")
         
@@ -164,7 +164,7 @@ class SistemaVotacion:
     
     def ejecutar(self):
         """Ejecutar el sistema principal"""
-        print("🚀 Iniciando Sistema de Votación...")
+        print("Iniciando Sistema de Votación...")
         
         while True:
             if not self.usuario_actual:
@@ -179,13 +179,13 @@ class SistemaVotacion:
                     elif opcion == "2":
                         self.registrar_usuario()
                     elif opcion == "3":
-                        print("👋 ¡Gracias por usar el Sistema de Votación!")
+                        print("¡Gracias por usar el Sistema de Votación!")
                         break
                     else:
-                        print("❌ Opción no válida. Intente nuevamente.")
+                        print("Opción no válida. Intente nuevamente.")
                 
                 except KeyboardInterrupt:
-                    print("\n👋 ¡Hasta luego!")
+                    print("\n ¡Hasta luego!")
                     break
             else:
                 # Menú de votación (autenticado)
@@ -199,13 +199,13 @@ class SistemaVotacion:
                     elif opcion == "2":
                         self.mostrar_resultados()
                     elif opcion == "3":
-                        print(f"👋 Hasta luego, {self.usuario_actual}!")
+                        print(f" Hasta luego, {self.usuario_actual}!")
                         self.usuario_actual = None
                     else:
-                        print("❌ Opción no válida. Intente nuevamente.")
+                        print(" Opción no válida. Intente nuevamente.")
                 
                 except KeyboardInterrupt:
-                    print(f"\n👋 Hasta luego, {self.usuario_actual}!")
+                    print(f"\n Hasta luego, {self.usuario_actual}!")
                     break
 
 if __name__ == "__main__":
