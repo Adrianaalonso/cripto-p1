@@ -72,13 +72,12 @@ class SistemaVotacion:
             try:
                 with open(self.archivo_votos, 'r', encoding='utf-8') as f:
                     v = json.load(f)
+                # Rellenar claves faltantes
+                for k, val in defaults.items():
+                    v.setdefault(k, val if not isinstance(val, list) else list(val))
+                return v
             except Exception:
-                # fichero corrupto → empezamos limpio
                 return defaults.copy()
-            # Rellenar claves faltantes
-            for k, val in defaults.items():
-                v.setdefault(k, val if not isinstance(val, list) else list(val))
-            return v
         return defaults.copy()
         
     def guardar_votos(self, votos):
@@ -114,16 +113,10 @@ class SistemaVotacion:
         ventana.title("Código de Verificación")
         ventana.geometry("250x100")
         ventana.resizable(False, False)
-        
-        # Texto simple
         texto = tk.Label(ventana, text=f"Tu código es: {codigo}", font=("Arial", 14))
         texto.pack(pady=20)
-        
-        # Botón OK
         boton = tk.Button(ventana, text="OK", command=ventana.destroy, width=10)
         boton.pack()
-        
-        # Mostrar ventana
         ventana.mainloop()
         return True
     
@@ -155,8 +148,8 @@ class SistemaVotacion:
         
         codigo_info = codigos[usuario]
         
-        # Verificar expiración (5 minutos = 300 segundos)
-        if time.time() - codigo_info["timestamp"] > 300:
+     
+        if time.time() - codigo_info["timestamp"] > 150:
             del codigos[usuario]
             with open("codigos_mfa.json", 'w') as f:
                 json.dump(codigos, f, indent=2)
@@ -178,11 +171,11 @@ class SistemaVotacion:
                 key = f.read()
             if len(key) == 32:
                 return key
-        key = os.urandom(32)  # 256 bits
+        key = os.urandom(32)  
         with open(self.archivo_clave, "wb") as f:
             f.write(key)
         try:
-            os.chmod(self.archivo_clave, 0o600)  # Unix; en Windows ignora
+            os.chmod(self.archivo_clave, 0o600)  
         except Exception:
             pass
         return key
@@ -218,9 +211,22 @@ class SistemaVotacion:
             f.write(json.dumps(linea, ensure_ascii=False) + "\n")
 
     def exportar_log_descifrado(self, salida="log_descifrado.jsonl"):
+        # Solicitar clave de administrador
+        print("\n--- ACCESO ADMINISTRATIVO ---")
+        clave_admin = getpass.getpass("Ingrese clave de administrador: ")
+        
+        # Clave de administrador (en producción debería estar cifrada)
+        if clave_admin != "admin123":
+            print("Clave de administrador incorrecta.")
+            input("\nPresiona Enter para continuar...")
+            return
+        
         if not os.path.exists(self.archivo_log_cifrado):
             print("No hay log cifrado que exportar.")
+            input("\nPresiona Enter para continuar...")
             return
+            
+        print("Acceso autorizado")
         clave = self._cargar_o_crear_clave_maestra()
         out = []
         with open(self.archivo_log_cifrado, "r", encoding="utf-8") as f:
@@ -242,6 +248,7 @@ class SistemaVotacion:
             for r in out:
                 g.write(json.dumps(r, ensure_ascii=False) + "\n")
         print(f"Log descifrado exportado en: {salida}")
+        input("\nPresiona Enter para continuar...")
 
 
     
@@ -252,7 +259,9 @@ class SistemaVotacion:
         print("="*50)
         print("1. Iniciar Sesión")
         print("2. Registrarse")
-        print("3. Salir")
+        print("3. Ver resultados")
+        print("4. [ADMIN] Exportar log descifrado")
+        print("5. Salir")
         print("="*50)
     
     def registrar_usuario(self):
@@ -399,6 +408,7 @@ class SistemaVotacion:
             print(" No hay votos registrados aún.")
         
         print("="*40)
+        input("\nPresiona Enter para continuar...")
     
     def ejecutar(self):
         """Ejecutar el sistema principal"""
@@ -417,6 +427,10 @@ class SistemaVotacion:
                     elif opcion == "2":
                         self.registrar_usuario()
                     elif opcion == "3":
+                        self.mostrar_resultados()
+                    elif opcion == "4":
+                        self.exportar_log_descifrado()
+                    elif opcion == "5":
                         print("¡Gracias por usar el Sistema de Votación!")
                         break
                     else:
@@ -441,7 +455,6 @@ class SistemaVotacion:
                         self.usuario_actual = None
                     elif opcion == "4":
                         self.exportar_log_descifrado()
-
                     else:
                         print(" Opción no válida. Intente nuevamente.")
                 

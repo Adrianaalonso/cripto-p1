@@ -33,5 +33,15 @@
     "email": "loli@gmail.com",
     "password": "pbkdf2$sha256$200000$7tPgE/r9cLvQ3tEVr1t0Tw==$eGgLSz2xKlIVofxADZIq7I0ZnSnrj/AvfHPnw274N+s=",
     "fecha_registro": "2025-10-23T00:30:36.251379"
+  },
+  "juani": {
+    "email": "juani@gmail.com",
+    "password": "pbkdf2$sha256$200000$V0Mdooa40BzA0Uz5/HwkEg==$ODK9aibWFa4CAQB+QfflIYilWQVlb2hLKn7oqe+8XPQ=",
+    "fecha_registro": "2025-10-23T11:48:49.909921"
+  },
+  "pepi": {
+    "email": "pepi@gmail.com",
+    "password": "pbkdf2$sha256$200000$ZXPbxSJE3LtqE+5u5G3CZg==$sNic+vYZbvF+6jJM/MQkeHcvmcHl/ejWH2/YN0Az9Rs=",
+    "fecha_registro": "2025-10-23T11:52:30.680105"
   }
 }

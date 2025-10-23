@@ -1,1 +1,3 @@
 {"timestamp": "2025-10-23T00:30:56", "usuario": "loli", "opcion": "Opción B", "algoritmo": "AES-GCM", "key_bits": 256, "iv_b64": "2Qeh4RIlVO4XGnDJ", "tag_b64": "Kd97MAsmShC+wrG9yXUYbw==", "ct_b64": "uiOFRMbmE90bMrayuAoPbcbFrR1sbSszydkV0oQBraD8tew0YqoHhWJhBXtqbHytsA=="}
+{"timestamp": "2025-10-23T11:49:25", "algoritmo": "AES-GCM", "key_bits": 256, "iv_b64": "qh1Ub5BwPFAKw2XX", "tag_b64": "r1Dt4J4UlYwT0MJjsOX9TQ==", "ct_b64": "Q81CnmEuAA3jW0goMuuvreSzK4N0AnBYgPPXHecjyI6sb0aM18Y4+izGWYQfKCmnH48="}
+{"timestamp": "2025-10-23T11:52:57", "algoritmo": "AES-GCM", "key_bits": 256, "iv_b64": "xqhGN1+UdkFTunyg", "tag_b64": "w6+rqNas45c5qwYpKztBvQ==", "ct_b64": "x5rxnOLcs4jLW3uHUqXjg+6t5Whg8dkM4ViZEXKwQwlwFgHdUBfKLloNjumYORwuVg=="}
