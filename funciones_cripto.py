@@ -67,6 +67,22 @@ def _cargar_o_crear_clave_maestra(archivo_clave):
         pass
     return key
 
+def _cargar_o_crear_clave_mac(archivo_clave_mac):
+    """Clave MAC-256 persistente para autenticación."""
+    if os.path.exists(archivo_clave_mac):
+        with open(archivo_clave_mac, "rb") as f:
+            key = f.read()
+        if len(key) == 32:
+            return key
+    key = os.urandom(32)  
+    with open(archivo_clave_mac, "wb") as f:
+        f.write(key)
+    try:
+        os.chmod(archivo_clave_mac, 0o600)  
+    except Exception:
+        pass
+    return key
+
 def cifrar_para_log(clave, mensaje: str):
     iv = os.urandom(12)
     aes = Cipher(algorithms.AES(clave), modes.GCM(iv), backend=default_backend()).encryptor()
@@ -85,3 +101,65 @@ def descifrar_de_log(clave, iv_b64, tag_b64, ct_b64) -> str:
     ct  = base64.b64decode(ct_b64)
     aes = Cipher(algorithms.AES(clave), modes.GCM(iv, tag), backend=default_backend()).decryptor()
     return (aes.update(ct) + aes.finalize()).decode()
+
+# ===== FUNCIONES MAC (Códigos de Autenticación de Mensajes) =====
+
+def generar_clave_mac():
+    """Generar clave para HMAC de 256 bits"""
+    return os.urandom(32)  # 256 bits para HMAC
+
+def calcular_hmac_sha256(clave_mac, mensaje: str):
+    """Calcular HMAC-SHA256 para autenticación de mensajes"""
+    mac = hmac.new(clave_mac, mensaje.encode('utf-8'), hashlib.sha256)
+    resultado = base64.b64encode(mac.digest()).decode()
+    print(f"[LOG] HMAC generado con SHA-256 (clave 256 bits)")
+    print(f"[LOG] Mensaje original: {mensaje}")
+    print(f"[LOG] HMAC-SHA256: {resultado}\n")
+    return resultado
+
+def verificar_hmac_sha256(clave_mac, mensaje: str, mac_esperado: str) -> bool:
+    """Verificar HMAC-SHA256 para validar integridad"""
+    mac_calculado = hmac.new(clave_mac, mensaje.encode('utf-8'), hashlib.sha256)
+    mac_esperado_bytes = base64.b64decode(mac_esperado)
+    valido = hmac.compare_digest(mac_calculado.digest(), mac_esperado_bytes)
+    print(f"[LOG] Verificación HMAC-SHA256: {'✓ VÁLIDO' if valido else '✗ INVÁLIDO'}")
+    print(f"[LOG] Mensaje verificado: {mensaje}")
+    print(f"[LOG] HMAC esperado: {mac_esperado}")
+    print(f"[LOG] Resultado: {'Integridad confirmada' if valido else 'POSIBLE MANIPULACIÓN'}\n")
+    return valido
+
+def calcular_hmac_sha512(clave_mac, mensaje: str):
+    """Calcular HMAC-SHA512 para logs críticos"""
+    mac = hmac.new(clave_mac, mensaje.encode('utf-8'), hashlib.sha512)
+    resultado = base64.b64encode(mac.digest()).decode()
+    print(f"[LOG] HMAC generado con SHA-512 (clave 256 bits)")
+    print(f"[LOG] Mensaje original: {mensaje}")
+    print(f"[LOG] HMAC-SHA512: {resultado}\n")
+    return resultado
+
+def verificar_hmac_sha512(clave_mac, mensaje: str, mac_esperado: str) -> bool:
+    """Verificar HMAC-SHA512 para logs críticos"""
+    mac_calculado = hmac.new(clave_mac, mensaje.encode('utf-8'), hashlib.sha512)
+    mac_esperado_bytes = base64.b64decode(mac_esperado)
+    valido = hmac.compare_digest(mac_calculado.digest(), mac_esperado_bytes)
+    print(f"[LOG] Verificación HMAC-SHA512: {'✓ VÁLIDO' if valido else '✗ INVÁLIDO'}")
+    print(f"[LOG] Mensaje verificado: {mensaje}")
+    print(f"[LOG] HMAC esperado: {mac_esperado}")
+    print(f"[LOG] Resultado: {'Integridad confirmada' if valido else 'POSIBLE MANIPULACIÓN'}\n")
+    return valido
+
+def _cargar_o_crear_clave_mac(archivo_clave_mac):
+    """Cargar o crear clave HMAC persistente"""
+    if os.path.exists(archivo_clave_mac):
+        with open(archivo_clave_mac, "rb") as f:
+            key = f.read()
+        if len(key) == 32:
+            return key
+    key = generar_clave_mac()
+    with open(archivo_clave_mac, "wb") as f:
+        f.write(key)
+    try:
+        os.chmod(archivo_clave_mac, 0o600)
+    except Exception:
+        pass
+    return key
