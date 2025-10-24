@@ -107,12 +107,20 @@ def iniciar_sesion(archivo_usuarios):
     print("\n--- INICIAR SESIÓN ---")
     
     usuarios = cargar_usuarios(archivo_usuarios)
+    administradores = cargar_administradores()
     
     import getpass
     usuario = input("Nombre de usuario: ").strip()
     password = getpass.getpass("Contraseña: ")
     
-    if usuario in usuarios and  _verificar_password(password, usuarios[usuario]["password"]):
+    # Verificar si es administrador
+    if usuario in administradores and _verificar_password(password, administradores[usuario]["password"]):
+        nombre = administradores[usuario]["nombre"]
+        print(f" ¡Bienvenido, {nombre}!")
+        return ("admin", usuario)  # Retorna tupla indicando que es admin
+    
+    # Verificar usuario normal
+    elif usuario in usuarios and _verificar_password(password, usuarios[usuario]["password"]):
         # Primer factor válido, ahora MFA
         email_usuario = usuarios[usuario]["email"]
         
@@ -135,7 +143,7 @@ def iniciar_sesion(archivo_usuarios):
                 
                 if valido:
                     print(f"Bienvenido/a, {usuario}!")
-                    return usuario
+                    return ("user", usuario)  # Retorna tupla indicando que es usuario normal
                 else:
                     print(f"{mensaje}")
                     return None
@@ -148,4 +156,41 @@ def iniciar_sesion(archivo_usuarios):
             return None
     else:
         print(" Usuario o contraseña incorrectos.")
+        return None
+
+def cargar_administradores():
+    """Cargar lista de administradores del archivo"""
+    try:
+        with open("administradores.json", "r", encoding="utf-8") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {}
+    except json.JSONDecodeError:
+        return {}
+
+def iniciar_sesion_admin():
+    """Iniciar sesión como administrador (sin MFA)"""
+    administradores = cargar_administradores()
+    
+    if not administradores:
+        print(" No hay administradores configurados.")
+        return None
+    
+    print("\n=== LOGIN ADMINISTRADOR ===")
+    usuario = input(" Usuario admin: ").strip()
+    
+    if usuario in administradores:
+        import getpass
+        password = getpass.getpass(" Contraseña: ")
+        
+        # Verificar contraseña del administrador
+        if _verificar_password(password, administradores[usuario]["password"]):
+            nombre = administradores[usuario]["nombre"]
+            print(f" ¡Bienvenido, {nombre}!")
+            return usuario
+        else:
+            print(" Credenciales de administrador incorrectas.")
+            return None
+    else:
+        print(" Usuario administrador no encontrado.")
         return None

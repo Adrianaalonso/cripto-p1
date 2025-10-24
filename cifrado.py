@@ -33,16 +33,19 @@ def registrar_log_cifrado(usuario: str, seleccion: str, archivo_log_cifrado, arc
     with open(archivo_log_cifrado, "a", encoding="utf-8") as f:
         f.write(json.dumps(linea, ensure_ascii=False) + "\n")
 
-def exportar_log_descifrado(archivo_log_cifrado, archivo_clave, salida="log_descifrado.jsonl"):
-    # Solicitar clave de administrador
-    print("\n--- ACCESO ADMINISTRATIVO ---")
-    clave_admin = getpass.getpass("Ingrese clave de administrador: ")
-    
-    # Clave de administrador (en producción debería estar cifrada)
-    if clave_admin != "admin123":
-        print("Clave de administrador incorrecta.")
-        input("\nPresiona Enter para continuar...")
-        return
+def exportar_log_descifrado(archivo_log_cifrado, archivo_clave, salida="log_descifrado.jsonl", admin_mode=False):
+    # Solicitar clave de administrador solo si no es modo admin
+    if not admin_mode:
+        print("\n--- ACCESO ADMINISTRATIVO ---")
+        clave_admin = getpass.getpass("Ingrese clave de administrador: ")
+        
+        # Clave de administrador (en producción debería estar cifrada)
+        if clave_admin != "admin123":
+            print("Clave de administrador incorrecta.")
+            input("\nPresiona Enter para continuar...")
+            return
+    else:
+        print("\n--- ACCESO ADMINISTRATIVO AUTORIZADO ---")
     
     if not os.path.exists(archivo_log_cifrado):
         print("No hay log cifrado que exportar.")
@@ -117,16 +120,16 @@ def exportar_log_descifrado(archivo_log_cifrado, archivo_clave, salida="log_desc
             for r in out:
                 g.write(json.dumps(r, ensure_ascii=False) + "\n")
         
-        print(f"✅ Log descifrado exportado en: {salida}")
-        print(f"📊 Procesadas {len(out)} entradas")
+        print(f" Log descifrado exportado en: {salida}")
+        print(f" Procesadas {len(out)} entradas")
         
         # Contar entradas con HMAC
         con_hmac = sum(1 for r in out if r.get("mac_presente") == "Si")
         if con_hmac > 0:
-            print(f"🔐 {con_hmac} entradas incluyen información HMAC")
+            print(f" {con_hmac} entradas incluyen información HMAC")
         
     except Exception as e:
-        print(f"❌ Error escribiendo archivo: {e}")
+        print(f" Error escribiendo archivo: {e}")
     
     input("\nPresiona Enter para continuar...")
 
@@ -216,8 +219,8 @@ def verificar_log_mac(archivo_log_cifrado):
     print(f"⚠ Entradas sin MAC: {entradas_sin_mac}")
     
     if entradas_invalidas > 0:
-        print("🚨 ADVERTENCIA: Se detectaron entradas con integridad comprometida")
+        print(" ADVERTENCIA: Se detectaron entradas con integridad comprometida")
     elif entradas_validas > 0:
-        print("✅ Todas las entradas autenticadas son válidas")
+        print(" Todas las entradas autenticadas son válidas")
     
     input("\nPresiona Enter para continuar...")

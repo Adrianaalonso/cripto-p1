@@ -4,5 +4,5 @@ python sistema_votacion.py
 - Se requiere la instalacion de cryptography:
 pip install cryptography
 
-- Para poder exportar el log descifrado se necesita la clave de administrador: admin123
+- Para iniciar sesión como admin: usuario:admin, contraseña:admin123
 

@@ -1,7 +1,8 @@
 # Archivo principal - EXACTAMENTE como sistema_votacion.py original pero refactorizado
-from mfa import registrar_usuario, iniciar_sesion
+from mfa import registrar_usuario, iniciar_sesion, iniciar_sesion_admin
 from sistema_votos import votar, mostrar_resultados  
 from cifrado import registrar_log_cifrado, exportar_log_descifrado
+from admin import ejecutar_panel_admin
 
 class SistemaVotacion:
     def __init__(self):
@@ -19,8 +20,7 @@ class SistemaVotacion:
         print("="*50)
         print("1. Iniciar Sesión")
         print("2. Registrarse")
-        print("3. [ADMIN] Exportar log descifrado")
-        print("4. Salir")
+        print("3. Salir")
         print("="*50)
     
     def mostrar_menu_votacion(self):
@@ -48,12 +48,18 @@ class SistemaVotacion:
                     opcion = input("\nSeleccione una opción: ")
                     
                     if opcion == "1":
-                        self.usuario_actual = iniciar_sesion(self.archivo_usuarios)
+                        resultado = iniciar_sesion(self.archivo_usuarios)
+                        if resultado:
+                            tipo_usuario, nombre_usuario = resultado
+                            if tipo_usuario == "admin":
+                                # Ejecutar panel de administrador
+                                ejecutar_panel_admin(nombre_usuario)
+                            else:
+                                # Usuario normal
+                                self.usuario_actual = nombre_usuario
                     elif opcion == "2":
                         registrar_usuario(self.archivo_usuarios)
                     elif opcion == "3":
-                        exportar_log_descifrado(self.archivo_log_cifrado, self.archivo_clave)
-                    elif opcion == "4":
                         print("¡Gracias por usar el Sistema de Votación!")
                         break
                     else:
