@@ -1,13 +1,18 @@
 # Menú y funciones específicas para administradores
-from cifrado import exportar_log_descifrado
 from sistema_votos import mostrar_resultados
+from funciones_cripto import descifrado_hibrido_voto, _cargar_o_crear_clave_mac
+import json
+import os
+import hmac
+import hashlib
+import base64
 
 def mostrar_menu_admin():
     """Mostrar menú de opciones para administradores"""
     print("\n" + "="*40)
     print("   PANEL DE ADMINISTRADOR")
     print("="*40)
-    print("1. Exportar log de auditoría descifrado")
+    print("1. Descifrar votos híbridos con HMAC")
     print("2. Cerrar sesión")
     print("="*40)
 
@@ -22,9 +27,8 @@ def ejecutar_panel_admin(usuario_admin):
             opcion = input("\nSeleccione una opción: ")
             
             if opcion == "1":
-                print("\n=== EXPORTANDO LOG DE AUDITORÍA ===")
-                # Sin pedir contraseña para administradores
-                exportar_log_descifrado("log_cifrado.jsonl", "clave_aes.bin", admin_mode=True)
+                print("\n=== DESCIFRADO DE VOTOS HÍBRIDOS + HMAC ===")
+                descifrar_votos_hibridos_con_hmac()
                 
             elif opcion == "2":
                 print(f" Cerrando sesión de administrador: {usuario_admin}")
@@ -38,3 +42,95 @@ def ejecutar_panel_admin(usuario_admin):
             break
     
     return None
+
+def descifrar_votos_hibridos_con_hmac():
+    """Descifrar votos cifrados híbridos anónimos con verificación HMAC"""
+    archivo_votos_cifrados = "votos_cifrados.jsonl"
+    archivo_clave_privada = "admin_private_key.pem"
+    
+    if not os.path.exists(archivo_votos_cifrados):
+        print(" No hay votos cifrados para descifrar.")
+        input("\nPresiona Enter para continuar...")
+        return
+    
+    if not os.path.exists(archivo_clave_privada):
+        print(" No se encuentra la clave privada del administrador.")
+        input("\nPresiona Enter para continuar...")
+        return
+    
+    print("🔓 Descifrado de votos híbridos anónimos...")
+    
+    # Cargar clave HMAC
+    clave_mac = _cargar_o_crear_clave_mac("clave_mac_logs.bin")
+    
+    votos_descifrados = []
+    
+    try:
+        with open(archivo_votos_cifrados, "r", encoding="utf-8") as f:
+            for line_num, line in enumerate(f, 1):
+                if not line.strip():
+                    continue
+                
+                try:
+                    voto_cifrado = json.loads(line)
+                    print(f"Procesando voto anónimo {line_num}...")
+                    
+                    # Descifrar usando cifrado híbrido
+                    voto_hibrido = {
+                        "voto_cifrado": voto_cifrado["voto_cifrado"],
+                        "iv": voto_cifrado["iv"],
+                        "tag": voto_cifrado["tag"],
+                        "clave_sim_cifrada": voto_cifrado["clave_sim_cifrada"]
+                    }
+                    
+                    try:
+                        seleccion_descifrada = descifrado_hibrido_voto(voto_hibrido, archivo_clave_privada)
+                    except Exception as e:
+                        seleccion_descifrada = f"[ERROR DESCIFRADO] {e}"
+                    
+                    # Para votos anónimos, no podemos verificar HMAC sin mensaje_completo
+                    # El HMAC está ahí para integridad pero requiere datos que no guardamos por anonimato
+                    mac_verificacion = "No verificable (voto anónimo)"
+                    if "mac" in voto_cifrado:
+                        mac_verificacion = "HMAC presente (no verificable sin datos originales)"
+                    
+                    resultado = {
+                        "timestamp": voto_cifrado.get("timestamp", "N/A"),
+                        "voto_descifrado": seleccion_descifrada,
+                        "algoritmo_simetrico": voto_cifrado.get("algoritmo_simetrico", "AES-GCM-256"),
+                        "algoritmo_asimetrico": voto_cifrado.get("algoritmo_asimetrico", "RSA-2048-OAEP"),
+                        "mac_algoritmo": voto_cifrado.get("mac_algoritmo", "N/A"),
+                        "mac_verificacion": mac_verificacion
+                    }
+                    
+                    votos_descifrados.append(resultado)
+                    
+                except Exception as e:
+                    print(f" Error procesando línea {line_num}: {e}")
+                    continue
+        
+        # Guardar votos descifrados
+        archivo_salida = "votos_descifrados.json"
+        with open(archivo_salida, "w", encoding="utf-8") as f:
+            json.dump(votos_descifrados, f, ensure_ascii=False, indent=2)
+        
+        print(f"\n Descifrado completo:")
+        print(f" {len(votos_descifrados)} votos anónimos descifrados exitosamente")
+        print(f" Guardado en: {archivo_salida}")
+        
+        # Mostrar resumen ANÓNIMO
+        if votos_descifrados:
+            print("\nResumen de votos anónimos:")
+            for i, voto in enumerate(votos_descifrados, 1):
+                print(f"  • Voto #{i}: {voto['voto_descifrado']} ({voto['timestamp']})")
+        
+        # Estadísticas
+        con_hmac = sum(1 for v in votos_descifrados if "HMAC presente" in v['mac_verificacion'])
+        
+        if con_hmac > 0:
+            print(f"\n {con_hmac} votos con HMAC")
+        
+    except Exception as e:
+        print(f" Error durante el descifrado: {e}")
+    
+    input("\nPresiona Enter para continuar...")

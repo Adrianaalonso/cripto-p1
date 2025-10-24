@@ -3,5 +3,30 @@
     "email": "mari",
     "password": "pbkdf2$sha256$200000$S/GVaJXk23vv+P/+LatN6g==$tnlsWNDAZJTmu3bEtD7Z5sRcleDN5/FWxYUpyq8xFGQ=",
     "fecha_registro": "2025-10-23T19:18:15.296389"
+  },
+  "cris": {
+    "email": "cris",
+    "password": "pbkdf2$sha256$200000$m/2HBj4QbtMWrUptMO88kg==$ew05R6wzuQWwUxA427XED7K+v6wDOWOy+CjDtlZk9m4=",
+    "fecha_registro": "2025-10-24T11:24:06.769573"
+  },
+  "y": {
+    "email": "y",
+    "password": "pbkdf2$sha256$200000$OUuQA0AQfwfIL3lkOpZWYg==$/QldzeIGUvsNjDn87Zeu1hTE6EPoW5ButZlpM1eOopU=",
+    "fecha_registro": "2025-10-24T11:40:54.854029"
+  },
+  "q": {
+    "email": "q",
+    "password": "pbkdf2$sha256$200000$KupbPMhVdu/z0L5UBuWhjA==$windXqmMMKqpZbx6AIkdawzU+2SA7ywqXSF7t5qHrTM=",
+    "fecha_registro": "2025-10-24T11:47:54.713641"
+  },
+  "w": {
+    "email": "w",
+    "password": "pbkdf2$sha256$200000$7IZ0I8U4NkOnh3A7HqvWMw==$07sPVrBqSCVE8KLVNnyUS8RqLM9o9rZas5dpLwg6+30=",
+    "fecha_registro": "2025-10-24T11:54:59.839282"
+  },
+  "e": {
+    "email": "e",
+    "password": "pbkdf2$sha256$200000$cjX652SyK0EUSe1CiH8tyA==$b8qqoHCRAoEHNlJRCbUX/jKNMrTzStrA+rMd0KQNkv4=",
+    "fecha_registro": "2025-10-24T12:04:51.463430"
   }
 }

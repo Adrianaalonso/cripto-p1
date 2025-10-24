@@ -1,0 +1,22 @@
+[
+  {
+    "linea": 1,
+    "timestamp": "2025-10-24T11:55:12.949977",
+    "voto_descifrado": "Opción B",
+    "algoritmo_simetrico": "AES-GCM-256",
+    "algoritmo_asimetrico": "RSA-2048-OAEP",
+    "mac_algoritmo": "HMAC-SHA256",
+    "mac_verificacion": "HMAC presente (no verificable sin datos originales)",
+    "anonimo": true
+  },
+  {
+    "linea": 2,
+    "timestamp": "2025-10-24T12:05:10.364780",
+    "voto_descifrado": "Opción A",
+    "algoritmo_simetrico": "AES-GCM-256",
+    "algoritmo_asimetrico": "RSA-2048-OAEP",
+    "mac_algoritmo": "HMAC-SHA256",
+    "mac_verificacion": "HMAC presente (no verificable sin datos originales)",
+    "anonimo": true
+  }
+]

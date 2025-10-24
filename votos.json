@@ -1,11 +1,16 @@
 {
-  "Opción A": 3,
-  "Opción B": 2,
+  "Opción A": 5,
+  "Opción B": 5,
   "usuarios_votaron": [
     "ale",
     "pepa",
     "loli",
     "juani",
-    "mari"
+    "mari",
+    "cris",
+    "y",
+    "q",
+    "w",
+    "e"
   ]
 }

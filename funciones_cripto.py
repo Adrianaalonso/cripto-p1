@@ -163,3 +163,191 @@ def _cargar_o_crear_clave_mac(archivo_clave_mac):
     except Exception:
         pass
     return key
+
+# ===== CIFRADO HÍBRIDO RSA + AES-GCM =====
+
+def generar_par_claves_rsa():
+    """Generar par de claves RSA de 2048 bits"""
+    from cryptography.hazmat.primitives.asymmetric import rsa
+    from cryptography.hazmat.primitives import serialization
+    
+    # Generar clave privada
+    private_key = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=2048,
+        backend=default_backend()
+    )
+    
+    # Obtener clave pública
+    public_key = private_key.public_key()
+    
+    # Serializar clave privada
+    private_pem = private_key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption()
+    )
+    
+    # Serializar clave pública
+    public_pem = public_key.public_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo
+    )
+    
+    return private_pem, public_pem
+
+def cargar_clave_publica_rsa(archivo_clave_pub):
+    """Cargar clave pública RSA desde archivo"""
+    from cryptography.hazmat.primitives import serialization
+    
+    if not os.path.exists(archivo_clave_pub):
+        raise FileNotFoundError(f"Archivo de clave pública no encontrado: {archivo_clave_pub}")
+    
+    with open(archivo_clave_pub, "rb") as f:
+        public_pem = f.read()
+    
+    public_key = serialization.load_pem_public_key(public_pem, backend=default_backend())
+    return public_key
+
+def cargar_clave_privada_rsa(archivo_clave_priv):
+    """Cargar clave privada RSA desde archivo"""
+    from cryptography.hazmat.primitives import serialization
+    
+    if not os.path.exists(archivo_clave_priv):
+        raise FileNotFoundError(f"Archivo de clave privada no encontrado: {archivo_clave_priv}")
+    
+    with open(archivo_clave_priv, "rb") as f:
+        private_pem = f.read()
+    
+    private_key = serialization.load_pem_private_key(
+        private_pem, 
+        password=None, 
+        backend=default_backend()
+    )
+    return private_key
+
+def cifrado_hibrido_voto(voto, archivo_clave_pub_admin):
+    """
+    Cifrado híbrido: AES-GCM para el voto + RSA para la clave simétrica
+    
+    Args:
+        voto (str): El voto a cifrar
+        archivo_clave_pub_admin (str): Archivo con clave pública del administrador
+    
+    Returns:
+        dict: Resultado del cifrado híbrido
+    """
+    from cryptography.hazmat.primitives.asymmetric import padding
+    from cryptography.hazmat.primitives import hashes
+    
+    # 1. Generar clave simétrica aleatoria de 256 bits
+    ks = os.urandom(32)  # Clave de sesión
+    
+    # 2. Cifrar el voto con AES-GCM usando Ks
+    iv = os.urandom(12)  # IV de 96 bits para GCM
+    cipher = Cipher(algorithms.AES(ks), modes.GCM(iv), backend=default_backend())
+    encryptor = cipher.encryptor()
+    voto_cifrado = encryptor.update(voto.encode('utf-8')) + encryptor.finalize()
+    tag = encryptor.tag
+    
+    # 3. Cargar clave pública del administrador
+    public_key = cargar_clave_publica_rsa(archivo_clave_pub_admin)
+    
+    # 4. Cifrar la clave simétrica Ks con RSA
+    clave_sim_cifrada = public_key.encrypt(
+        ks,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
+    )
+    
+    # 5. Preparar resultado
+    resultado = {
+        "voto_cifrado": base64.b64encode(voto_cifrado).decode(),
+        "iv": base64.b64encode(iv).decode(),
+        "tag": base64.b64encode(tag).decode(),
+        "clave_sim_cifrada": base64.b64encode(clave_sim_cifrada).decode(),
+        "algoritmo_simetrico": "AES-GCM-256",
+        "algoritmo_asimetrico": "RSA-2048-OAEP"
+    }
+    
+    print(f"[CIFRADO HÍBRIDO] Voto cifrado con AES-GCM-256")
+    print(f"[CIFRADO HÍBRIDO] Clave simétrica cifrada con RSA-2048-OAEP")
+    print(f"[CIFRADO HÍBRIDO] IV: {resultado['iv']}")
+    print(f"[CIFRADO HÍBRIDO] Tag autenticación: {resultado['tag']}")
+    
+    return resultado
+
+def descifrado_hibrido_voto(voto_cifrado_hibrido, archivo_clave_priv_admin):
+    """
+    Descifrado híbrido: RSA para obtener clave simétrica + AES-GCM para el voto
+    
+    Args:
+        voto_cifrado_hibrido (dict): Resultado del cifrado híbrido
+        archivo_clave_priv_admin (str): Archivo con clave privada del administrador
+    
+    Returns:
+        str: El voto descifrado
+    """
+    from cryptography.hazmat.primitives.asymmetric import padding
+    from cryptography.hazmat.primitives import hashes
+    
+    # 1. Extraer datos del cifrado híbrido
+    voto_cifrado = base64.b64decode(voto_cifrado_hibrido["voto_cifrado"])
+    iv = base64.b64decode(voto_cifrado_hibrido["iv"])
+    tag = base64.b64decode(voto_cifrado_hibrido["tag"])
+    clave_sim_cifrada = base64.b64decode(voto_cifrado_hibrido["clave_sim_cifrada"])
+    
+    # 2. Cargar clave privada del administrador
+    private_key = cargar_clave_privada_rsa(archivo_clave_priv_admin)
+    
+    # 3. Descifrar la clave simétrica Ks con RSA
+    ks = private_key.decrypt(
+        clave_sim_cifrada,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
+    )
+    
+    # 4. Descifrar el voto con AES-GCM usando Ks
+    cipher = Cipher(algorithms.AES(ks), modes.GCM(iv, tag), backend=default_backend())
+    decryptor = cipher.decryptor()
+    voto_descifrado = decryptor.update(voto_cifrado) + decryptor.finalize()
+    
+    print(f"[DESCIFRADO HÍBRIDO] Clave simétrica descifrada con RSA-2048-OAEP")
+    print(f"[DESCIFRADO HÍBRIDO] Voto descifrado con AES-GCM-256")
+    
+    return voto_descifrado.decode('utf-8')
+
+def crear_claves_administrador():
+    """Crear par de claves RSA para el administrador si no existen"""
+    archivo_priv = "admin_private_key.pem"
+    archivo_pub = "admin_public_key.pem"
+    
+    if not os.path.exists(archivo_priv) or not os.path.exists(archivo_pub):
+        print("Generando par de claves RSA para administrador...")
+        private_pem, public_pem = generar_par_claves_rsa()
+        
+        # Guardar clave privada
+        with open(archivo_priv, "wb") as f:
+            f.write(private_pem)
+        
+        # Guardar clave pública
+        with open(archivo_pub, "wb") as f:
+            f.write(public_pem)
+        
+        # Permisos restrictivos para clave privada
+        try:
+            os.chmod(archivo_priv, 0o600)
+        except Exception:
+            pass
+            
+        print("Claves generadas:")
+        print(f"   Clave privada: {archivo_priv}")
+        print(f"   Clave pública: {archivo_pub}")
+    
+    return archivo_priv, archivo_pub

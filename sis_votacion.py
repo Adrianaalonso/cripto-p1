@@ -1,7 +1,7 @@
 # Archivo principal - EXACTAMENTE como sistema_votacion.py original pero refactorizado
 from mfa import registrar_usuario, iniciar_sesion, iniciar_sesion_admin
 from sistema_votos import votar, mostrar_resultados  
-from cifrado import registrar_log_cifrado, exportar_log_descifrado
+from cifrado import registrar_log_hibrido_hmac, exportar_log_descifrado
 from admin import ejecutar_panel_admin
 
 class SistemaVotacion:
@@ -77,9 +77,7 @@ class SistemaVotacion:
                     
                     if opcion == "1":
                         seleccion = votar(self.usuario_actual, self.opciones_votacion, self.archivo_votos)
-                        if seleccion:
-                            # ===== Punto 2: demostración de cifrado/descifrado visible =====
-                            registrar_log_cifrado(self.usuario_actual, seleccion, self.archivo_log_cifrado, self.archivo_clave)
+                        # El cifrado híbrido + HMAC ya se hace dentro de votar()
                     elif opcion == "2":
                         mostrar_resultados(self.archivo_votos)
                     elif opcion == "3":
