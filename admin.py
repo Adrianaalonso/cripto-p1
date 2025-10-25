@@ -1,6 +1,6 @@
 # Menú y funciones específicas para administradores
 from sistema_votos import mostrar_resultados
-from funciones_cripto import descifrado_hibrido_voto, _cargar_o_crear_clave_mac
+from funciones_cripto import descifrado_hibrido_voto, _cargar_o_crear_clave_mac, verificar_hmac_sha256
 import json
 import os
 import hmac
@@ -58,11 +58,12 @@ def descifrar_votos_hibridos_con_hmac():
         input("\nPresiona Enter para continuar...")
         return
     
-    print("🔓 Descifrado de votos híbridos anónimos...")
+    print("Descifrado de votos híbridos anónimos...")
     
     # Cargar clave HMAC
     clave_mac = _cargar_o_crear_clave_mac("clave_mac_logs.bin")
-    
+    #comprobamos la integridad de la estructura almacenada, si el HMAC coincide, el fichero no ha sido alterado
+
     votos_descifrados = []
     
     try:
@@ -88,13 +89,27 @@ def descifrar_votos_hibridos_con_hmac():
                     except Exception as e:
                         seleccion_descifrada = f"[ERROR DESCIFRADO] {e}"
                     
-                    # Para votos anónimos, no podemos verificar HMAC sin mensaje_completo
-                    # El HMAC está ahí para integridad pero requiere datos que no guardamos por anonimato
+                    # Verificar HMAC reconstruyendo la misma estructura usada al crear el voto en sistema_votos, 
+                    # para comprobar que la estructura es la original
                     mac_verificacion = "No verificable (voto anónimo)"
                     if "mac" in voto_cifrado:
-                        mac_verificacion = "HMAC presente (no verificable sin datos originales)"
+                        try:
+                            mac_obj = {
+                                "vote_id": voto_cifrado.get("vote_id",""),
+                                "voto_cifrado": voto_cifrado.get("voto_cifrado",""),
+                                "iv": voto_cifrado.get("iv",""),
+                                "tag": voto_cifrado.get("tag",""),
+                                "clave_sim_cifrada": voto_cifrado.get("clave_sim_cifrada",""),
+                                "timestamp": voto_cifrado.get("timestamp","")
+                            }
+                            contenido_para_mac = json.dumps(mac_obj, sort_keys=True, separators=(',',':'), ensure_ascii=False)
+                            valido = verificar_hmac_sha256(clave_mac, contenido_para_mac, voto_cifrado["mac"])
+                            mac_verificacion = "HMAC válido" if valido else "HMAC inválido"
+                        except Exception as e:
+                            mac_verificacion = f"HMAC verif. error: {e}"
                     
                     resultado = {
+                        "vote_id": voto_cifrado.get("vote_id"),
                         "timestamp": voto_cifrado.get("timestamp", "N/A"),
                         "voto_descifrado": seleccion_descifrada,
                         "algoritmo_simetrico": voto_cifrado.get("algoritmo_simetrico", "AES-GCM-256"),
@@ -124,11 +139,13 @@ def descifrar_votos_hibridos_con_hmac():
             for i, voto in enumerate(votos_descifrados, 1):
                 print(f"  • Voto #{i}: {voto['voto_descifrado']} ({voto['timestamp']})")
         
-        # Estadísticas
-        con_hmac = sum(1 for v in votos_descifrados if "HMAC presente" in v['mac_verificacion'])
-        
-        if con_hmac > 0:
-            print(f"\n {con_hmac} votos con HMAC")
+        # Estadísticas: contamos el num de HMAC válidos / inválidos
+        con_hmac_validos = sum(1 for v in votos_descifrados if v.get('mac_verificacion') == "HMAC válido")
+        con_hmac_invalidos = sum(1 for v in votos_descifrados if v.get('mac_verificacion') == "HMAC inválido")
+        if con_hmac_validos > 0:
+            print(f"\n {con_hmac_validos} votos con HMAC válidos")
+        if con_hmac_invalidos > 0:
+            print(f"\n {con_hmac_invalidos} votos con HMAC inválidos (posible manipulación)")
         
     except Exception as e:
         print(f" Error durante el descifrado: {e}")

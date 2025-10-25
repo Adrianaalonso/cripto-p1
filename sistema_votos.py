@@ -1,10 +1,10 @@
 # Funciones de votación exactas del sistema_votacion.py original
-from archivos_json import cargar_votos, guardar_votos
-from funciones_cripto import cifrado_hibrido_voto, crear_claves_administrador, _cargar_o_crear_clave_mac
 import json
-import hmac
-import hashlib
-import base64
+from datetime import datetime
+import uuid
+from archivos_json import cargar_votos, guardar_votos
+from funciones_cripto import cifrado_hibrido_voto, crear_claves_administrador, calcular_hmac_sha256, _cargar_o_crear_clave_mac
+
 
 def votar(usuario_actual, opciones_votacion, archivo_votos):
     """Realizar votación"""
@@ -35,42 +35,52 @@ def votar(usuario_actual, opciones_votacion, archivo_votos):
         # Crear claves RSA del administrador si no existen
         archivo_priv, archivo_pub = crear_claves_administrador()
         
-        # Mensaje completo del voto para HMAC (solo para generar HMAC, NO se guarda)
-        mensaje_completo = f"Voto de {usuario_actual} para {seleccion} @ {__import__('datetime').datetime.now().isoformat(timespec='seconds')}"
-        
+        # Generar timestamp con precisión a minutos y un ID aleatorio por voto (no identifica al usuario)
+        ts = datetime.now().replace(second=0, microsecond=0).isoformat()
+        vote_id = uuid.uuid4().hex       
+
         # Cifrar SOLO la selección (manteniendo anonimato)
-        print(f"\n🔐 Aplicando cifrado híbrido anónimo al voto: {seleccion}")
+        print(f"\nAplicando cifrado híbrido anónimo al voto: {seleccion}")
         voto_cifrado_hibrido = cifrado_hibrido_voto(seleccion, archivo_pub)
         
-        # Generar HMAC del mensaje completo (para integridad)
+        # Generar HMAC sobre los campos que vamos a guardar
         clave_mac = _cargar_o_crear_clave_mac("clave_mac_logs.bin")
-        mac = hmac.new(clave_mac, mensaje_completo.encode('utf-8'), hashlib.sha256)
-        mac_b64 = base64.b64encode(mac.digest()).decode()
+        mac_obj = {
+            "vote_id": vote_id,
+            "voto_cifrado": voto_cifrado_hibrido["voto_cifrado"],
+            "iv": voto_cifrado_hibrido["iv"],
+            "tag": voto_cifrado_hibrido["tag"],
+            "clave_sim_cifrada": voto_cifrado_hibrido["clave_sim_cifrada"],
+            "timestamp": ts
+        }
+        contenido_para_mac = json.dumps(mac_obj, sort_keys=True, separators=(',',':'), ensure_ascii=False)
+        mac_b64 = calcular_hmac_sha256(clave_mac, contenido_para_mac)
         
-        print(f"🔐 HMAC-SHA256 generado para integridad")
+        print(f"HMAC-SHA256 generado para integridad")
         
         # Guardar SOLO datos cifrados (SIN usuario, SIN mensaje_completo)
         archivo_votos_cifrados = "votos_cifrados.jsonl"
         linea_voto = {
-            "timestamp": __import__('datetime').datetime.now().isoformat(),
+            "vote_id" : vote_id,
+            "timestamp": ts,
             **voto_cifrado_hibrido,
             # Información HMAC (para verificación)
             "mac_algoritmo": "HMAC-SHA256",
             "mac_longitud_clave": 256,
             "mac": mac_b64
-            # NO se incluye: "usuario", "mensaje_completo"
+            # No incluimos usuario para mantener el anonimato
         }
         
         with open(archivo_votos_cifrados, "a", encoding="utf-8") as f:
             f.write(json.dumps(linea_voto, ensure_ascii=False) + "\n")
         
-        print(f"✅ Voto anónimo cifrado híbrido + HMAC guardado en: {archivo_votos_cifrados}")
+        print(f"Voto anónimo cifrado híbrido + HMAC guardado en: {archivo_votos_cifrados}")
         
         # Mantener el conteo normal para resultados públicos
         votos[seleccion] += 1
         votos["usuarios_votaron"].append(usuario_actual)
         guardar_votos(votos, archivo_votos)
-        print(f"✅ Voto registrado para: {seleccion}")
+        print(f"Voto registrado para: {seleccion}")
         return seleccion
             
     except ValueError:
