@@ -3,7 +3,12 @@ import json
 from datetime import datetime
 import uuid
 from archivos_json import cargar_votos, guardar_votos
-from funciones_cripto import cifrado_hibrido_voto, crear_claves_administrador, calcular_hmac_sha256, _cargar_o_crear_clave_mac
+from crypto import (
+    cifrado_hibrido_voto,
+    crear_claves_administrador,
+    calcular_hmac_sha256,
+    _cargar_o_crear_clave_mac,
+)
 
 
 def votar(usuario_actual, opciones_votacion, archivo_votos):
@@ -13,6 +18,9 @@ def votar(usuario_actual, opciones_votacion, archivo_votos):
     # Verificar si ya votó
     if usuario_actual in votos["usuarios_votaron"]:
         print("Ya has votado anteriormente. No puedes votar nuevamente.")
+        # Mostrar pausa estándar para que el usuario vea el mensaje antes de continuar
+        from data import msj_ui
+        msj_ui.pause()
         return None
     
     print("\n--- OPCIONES DE VOTACIÓN ---")
@@ -105,4 +113,5 @@ def mostrar_resultados(archivo_votos):
         print(" No hay votos registrados aún.")
     
     print("="*40)
-    input("\nPresiona Enter para continuar...")
+    from data import msj_espera
+    msj_espera.pause()

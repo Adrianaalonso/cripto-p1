@@ -4,7 +4,7 @@ import json
 import random
 import time
 import tkinter as tk
-from funciones_cripto import _pbkdf2_hash, _verificar_password
+from crypto import _pbkdf2_hash, _verificar_password
 from archivos_json import cargar_usuarios, guardar_usuarios
 from datetime import datetime
 

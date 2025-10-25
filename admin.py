@@ -1,6 +1,10 @@
 # Menú y funciones específicas para administradores
 from sistema_votos import mostrar_resultados
-from funciones_cripto import descifrado_hibrido_voto, _cargar_o_crear_clave_mac, verificar_hmac_sha256
+from crypto import (
+    descifrado_hibrido_voto,
+    _cargar_o_crear_clave_mac,
+    verificar_hmac_sha256,
+)
 import json
 import os
 import hmac
@@ -50,12 +54,14 @@ def descifrar_votos_hibridos_con_hmac():
     
     if not os.path.exists(archivo_votos_cifrados):
         print(" No hay votos cifrados para descifrar.")
-        input("\nPresiona Enter para continuar...")
+        from data import msj_espera
+        msj_espera.pause()
         return
     
     if not os.path.exists(archivo_clave_privada):
         print(" No se encuentra la clave privada del administrador.")
-        input("\nPresiona Enter para continuar...")
+        from data import msj_espera
+        msj_espera.pause()
         return
     
     print("Descifrado de votos híbridos anónimos...")
@@ -150,4 +156,5 @@ def descifrar_votos_hibridos_con_hmac():
     except Exception as e:
         print(f" Error durante el descifrado: {e}")
     
-    input("\nPresiona Enter para continuar...")
+    from data import msj_espera
+    msj_espera.pause()

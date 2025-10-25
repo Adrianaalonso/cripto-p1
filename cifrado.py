@@ -3,7 +3,17 @@ import os
 import json
 import getpass
 from datetime import datetime
-from funciones_cripto import _cargar_o_crear_clave_maestra, cifrar_para_log, descifrar_de_log, calcular_hmac_sha512, verificar_hmac_sha512, _cargar_o_crear_clave_mac, cifrado_hibrido_voto, descifrado_hibrido_voto, crear_claves_administrador
+from crypto import (
+    _cargar_o_crear_clave_maestra,
+    cifrar_para_log,
+    descifrar_de_log,
+    calcular_hmac_sha512,
+    verificar_hmac_sha512,
+    _cargar_o_crear_clave_mac,
+    cifrado_hibrido_voto,
+    descifrado_hibrido_voto,
+    crear_claves_administrador,
+)
 
 def registrar_log_cifrado(usuario: str, seleccion: str, archivo_log_cifrado, archivo_clave):
     clave = _cargar_o_crear_clave_maestra(archivo_clave)
@@ -42,14 +52,16 @@ def exportar_log_descifrado(archivo_log_cifrado, archivo_clave, salida="log_desc
         # Clave de administrador (en producción debería estar cifrada)
         if clave_admin != "admin123":
             print("Clave de administrador incorrecta.")
-            input("\nPresiona Enter para continuar...")
+            from data import msj_espera
+            msj_espera.pause()
             return
     else:
         print("\n--- ACCESO ADMINISTRATIVO AUTORIZADO ---")
     
     if not os.path.exists(archivo_log_cifrado):
         print("No hay log cifrado que exportar.")
-        input("\nPresiona Enter para continuar...")
+        from data import msj_espera
+        msj_espera.pause()
         return
         
     print("Acceso autorizado. Procesando log...")
@@ -131,7 +143,8 @@ def exportar_log_descifrado(archivo_log_cifrado, archivo_clave, salida="log_desc
     except Exception as e:
         print(f" Error escribiendo archivo: {e}")
     
-    input("\nPresiona Enter para continuar...")
+    from data import msj_espera
+    msj_espera.pause()
 
 # ===== FUNCIONES CON AUTENTICACIÓN MAC =====
 
@@ -223,7 +236,8 @@ def verificar_log_mac(archivo_log_cifrado):
     elif entradas_validas > 0:
         print(" Todas las entradas autenticadas son válidas")
     
-    input("\nPresiona Enter para continuar...")
+    from data import msj_espera
+    msj_espera.pause()
 
 # ===== CIFRADO HÍBRIDO + HMAC UNIFICADO =====
 
@@ -297,14 +311,16 @@ def exportar_log_hibrido_descifrado(archivo_log_cifrado, salida="log_descifrado.
         clave_admin = getpass.getpass("Ingrese clave de administrador: ")
         if clave_admin != "admin123":
             print("Clave de administrador incorrecta.")
-            input("\nPresiona Enter para continuar...")
+            from data import msj_espera
+            msj_espera.pause()
             return
     else:
         print("\n--- ACCESO ADMINISTRATIVO AUTORIZADO ---")
     
     if not os.path.exists(archivo_log_cifrado):
         print("No hay log cifrado que exportar.")
-        input("\nPresiona Enter para continuar...")
+        from data import msj_espera
+        msj_espera.pause()
         return
     
     print("Acceso autorizado. Procesando log híbrido...")
@@ -413,4 +429,5 @@ def exportar_log_hibrido_descifrado(archivo_log_cifrado, salida="log_descifrado.
     except Exception as e:
         print(f"Error escribiendo archivo: {e}")
     
-    input("\nPresiona Enter para continuar...")
+    from data import msj_espera
+    msj_espera.pause()

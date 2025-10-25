@@ -1,7 +1,7 @@
 # Funciones de archivos JSON exactas del sistema_votacion.py original
 import os
 import json
-from funciones_cripto import calcular_hmac_sha256, verificar_hmac_sha256, _cargar_o_crear_clave_mac
+from crypto import calcular_hmac_sha256, verificar_hmac_sha256, _cargar_o_crear_clave_mac
 
 def cargar_usuarios(archivo_usuarios):
     """Cargar usuarios desde el archivo JSON"""
