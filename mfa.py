@@ -8,6 +8,11 @@ from funciones_cripto import _pbkdf2_hash, _verificar_password
 from archivos_json import cargar_usuarios, guardar_usuarios
 from datetime import datetime
 
+# Importar validadores y excepción
+from data.atributos import Username, Password, Email
+from data.msj_error import ExceptionErrors 
+
+
 def generar_codigo_mfa():
     """Generar código MFA de 6 dígitos"""
     return str(random.randint(100000, 999999))
@@ -71,33 +76,56 @@ def verificar_codigo_mfa(usuario, codigo_ingresado):
     return False, "Código incorrecto"
 
 def registrar_usuario(archivo_usuarios):
-    """Registrar un nuevo usuario"""
+    """Registrar un nuevo usuario con validaciones y mensajes claros."""
     print("\n--- REGISTRO DE USUARIO ---")
-    
     usuarios = cargar_usuarios(archivo_usuarios)
-    
-    # Solicitar datos de registro
-    usuario = input("Ingrese nombre de usuario: ").strip()
-    if usuario in usuarios:
-        print("El usuario ya existe. Intente con otro nombre.")
-        return False
-    
+
+    # === Username ===
+    while True:
+        usuario_raw = input("Ingrese nombre de usuario: ").strip()
+        try:
+            usuario = Username(usuario_raw).value  # valida: regex y longitud
+        except ExceptionErrors as e:
+            print(e.message)  
+            continue
+
+        if usuario in usuarios:
+            print("El usuario ya existe. Intente con otro nombre.")
+            continue
+        break
+
+    # === Email ===
+    while True:
+        email_raw = input("Ingrese su email: ").strip()
+        try:
+            email = Email(email_raw).value  # valida según tu política (p.ej. @gmail.com)
+            break
+        except ExceptionErrors as e:
+            print(e.message) 
+
+    # === Password ===
     import getpass
-    email = input("Ingrese su email: ").strip()
-    password = getpass.getpass("Ingrese su contraseña: ")
-    password_confirm = getpass.getpass("Confirme su contraseña: ")
-    
-    if password != password_confirm:
-        print("Las contraseñas no coinciden.")
-        return False
-    
-    # Guardar usuario en usuarios.json
+    while True:
+        pwd1 = getpass.getpass("Ingrese su contraseña: ")
+        try:
+            pwd = Password(pwd1).value 
+        except ExceptionErrors as e:
+            print(e.message)
+            continue
+
+        pwd2 = getpass.getpass("Confirme su contraseña: ")
+        if pwd1 != pwd2:
+            print("Las contraseñas no coinciden.")
+            continue
+        password_ok = pwd1
+        break
+
+    # Guardar usuario
     usuarios[usuario] = {
         "email": email,
-        "password": _pbkdf2_hash(password),
+        "password": _pbkdf2_hash(password_ok),
         "fecha_registro": datetime.now().isoformat()
     }
-    
     guardar_usuarios(usuarios, archivo_usuarios)
     print(f"Usuario '{usuario}' registrado exitosamente!")
     return True
