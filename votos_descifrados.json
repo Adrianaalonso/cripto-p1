@@ -34,5 +34,32 @@
     "algoritmo_asimetrico": "RSA-2048-OAEP",
     "mac_algoritmo": "HMAC-SHA256",
     "mac_verificacion": "HMAC válido"
+  },
+  {
+    "vote_id": "13d080a8dafe4360816e88d25cb132d1",
+    "timestamp": "2025-10-25T19:21:00",
+    "voto_descifrado": "Opción A",
+    "algoritmo_simetrico": "AES-GCM-256",
+    "algoritmo_asimetrico": "RSA-2048-OAEP",
+    "mac_algoritmo": "HMAC-SHA256",
+    "mac_verificacion": "HMAC válido"
+  },
+  {
+    "vote_id": "4eb387db39d748b3b2e5ac8554c1b198",
+    "timestamp": "2025-10-25T19:53:00",
+    "voto_descifrado": "Opción B",
+    "algoritmo_simetrico": "AES-GCM-256",
+    "algoritmo_asimetrico": "RSA-2048-OAEP",
+    "mac_algoritmo": "HMAC-SHA256",
+    "mac_verificacion": "HMAC válido"
+  },
+  {
+    "vote_id": "2f8ff9103dad4fccb83c82fb073c6b8b",
+    "timestamp": "2025-10-25T20:06:00",
+    "voto_descifrado": "Opción B",
+    "algoritmo_simetrico": "AES-GCM-256",
+    "algoritmo_asimetrico": "RSA-2048-OAEP",
+    "mac_algoritmo": "HMAC-SHA256",
+    "mac_verificacion": "HMAC válido"
   }
 ]

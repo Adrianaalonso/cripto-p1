@@ -3,7 +3,9 @@ import os
 import base64
 import hashlib
 import hmac
-from configuracion import PBKDF2_ITERS
+
+# Número de iteraciones PBKDF2 b
+PBKDF2_ITERS = 200_000
 
 
 def pbkdf2_hash(password: str, salt: bytes = None, iters: int = PBKDF2_ITERS) -> str:
