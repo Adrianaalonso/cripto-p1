@@ -68,5 +68,10 @@
     "email": "m@gmail.com",
     "password": "pbkdf2$sha256$200000$b2vrU+tOKDs98K2yBn/NZw==$kyZWniYvlKdWrzXXfG3DrESATPHXpXsOAYiU3vtIbjs=",
     "fecha_registro": "2025-10-26T12:19:02.624432"
+  },
+  "cri": {
+    "email": "c@gmail.com",
+    "password": "pbkdf2$sha256$200000$vW3kwFXliWtBEtdYCv97iA==$5+/Lu5dx79g35Ds+pDuWmfuVVIRo+mTFB+q+qJS5F/w=",
+    "fecha_registro": "2025-10-26T18:00:29.801824"
   }
 }

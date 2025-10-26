@@ -9,9 +9,7 @@ PBKDF2_ITERS = 200_000
 
 
 def pbkdf2_hash(password: str, salt: bytes = None, iters: int = PBKDF2_ITERS) -> str:
-    """Deriva una contraseña con PBKDF2-HMAC-SHA256 y devuelve una cadena serializada.
-
-    Formato: pbkdf2$sha256$<iters>$<salt_b64>$<dk_b64>
+    """Deriva una contraseña con PBKDF2-HMAC-SHA256 
     """
     if salt is None:
         salt = os.urandom(16)

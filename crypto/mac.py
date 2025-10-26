@@ -13,7 +13,6 @@ def generar_clave_mac() -> bytes:
 def calcular_hmac_sha256(clave_mac: bytes, mensaje: str) -> str:
     mac = hmac.new(clave_mac, mensaje.encode("utf-8"), hashlib.sha256)
     resultado = base64.b64encode(mac.digest()).decode()
-    print("[LOG] HMAC generado con SHA-256 (clave 256 bits)")
     return resultado
 
 
@@ -21,14 +20,12 @@ def verificar_hmac_sha256(clave_mac: bytes, mensaje: str, mac_esperado: str) -> 
     mac_calculado = hmac.new(clave_mac, mensaje.encode("utf-8"), hashlib.sha256)
     mac_esperado_bytes = base64.b64decode(mac_esperado)
     valido = hmac.compare_digest(mac_calculado.digest(), mac_esperado_bytes)
-    print(f"[LOG] Verificación HMAC-SHA256: {'✓ VÁLIDO' if valido else '✗ INVÁLIDO'}")
     return valido
 
 
 def calcular_hmac_sha512(clave_mac: bytes, mensaje: str) -> str:
     mac = hmac.new(clave_mac, mensaje.encode("utf-8"), hashlib.sha512)
     resultado = base64.b64encode(mac.digest()).decode()
-    print("[LOG] HMAC generado con SHA-512 (clave 256 bits)")
     return resultado
 
 
@@ -36,7 +33,6 @@ def verificar_hmac_sha512(clave_mac: bytes, mensaje: str, mac_esperado: str) -> 
     mac_calculado = hmac.new(clave_mac, mensaje.encode("utf-8"), hashlib.sha512)
     mac_esperado_bytes = base64.b64decode(mac_esperado)
     valido = hmac.compare_digest(mac_calculado.digest(), mac_esperado_bytes)
-    print(f"[LOG] Verificación HMAC-SHA512: {'✓ VÁLIDO' if valido else '✗ INVÁLIDO'}")
     return valido
 
 
