@@ -63,5 +63,10 @@
     "email": "d@gmail.com",
     "password": "pbkdf2$sha256$200000$PHceldSG/LxWpnwp+d1bQQ==$R/M5H+PkVo8837XLYrbKwBTwnBF/opaX/d68/L/9UrA=",
     "fecha_registro": "2025-10-25T20:06:12.450937"
+  },
+  "maria": {
+    "email": "m@gmail.com",
+    "password": "pbkdf2$sha256$200000$b2vrU+tOKDs98K2yBn/NZw==$kyZWniYvlKdWrzXXfG3DrESATPHXpXsOAYiU3vtIbjs=",
+    "fecha_registro": "2025-10-26T12:19:02.624432"
   }
 }

@@ -10,29 +10,30 @@ from crypto import (
     cifrado_hibrido_voto,
     crear_claves_administrador,
 )
+from data import msj_comunes as msj
 
 def exportar_log_descifrado(archivo_log_cifrado, archivo_clave, salida="log_descifrado.jsonl", admin_mode=False):
     # Solicitar clave de administrador solo si no es modo admin
     if not admin_mode:
-        print("\n--- ACCESO ADMINISTRATIVO ---")
-        clave_admin = getpass.getpass("Ingrese clave de administrador: ")
+        print(msj.ACCESO_ADMIN)
+        clave_admin = getpass.getpass(msj.PROMPT_CLAVE_ADMIN)
         
         # Clave de administrador (en producción debería estar cifrada)
         if clave_admin != "admin123":
-            print("Clave de administrador incorrecta.")
+            print(msj.CLAVE_ADMIN_INCORRECTA)
             from data import msj_espera
             msj_espera.pause()
             return
     else:
-        print("\n--- ACCESO ADMINISTRATIVO AUTORIZADO ---")
+        print(msj.ACCESO_AUTORIZADO)
     
     if not os.path.exists(archivo_log_cifrado):
-        print("No hay log cifrado que exportar.")
+        print(msj.SIN_LOG_EXPORTAR)
         from data import msj_espera
         msj_espera.pause()
         return
         
-    print("Acceso autorizado. Procesando log...")
+    print(msj.PROCESANDO_LOG)
     clave = _cargar_o_crear_clave_maestra(archivo_clave)
     out = []
     
@@ -40,17 +41,16 @@ def exportar_log_descifrado(archivo_log_cifrado, archivo_clave, salida="log_desc
         for line_num, line in enumerate(f, 1):
             if not line.strip():
                 continue
-            
             try:
                 rec = json.loads(line)
-                print(f"Procesando entrada {line_num}...")
-                
+                print(msj.procesando_entrada(line_num))
+
                 # Descifrar el mensaje
                 try:
                     texto = descifrar_de_log(clave, rec["iv_b64"], rec["tag_b64"], rec["ct_b64"])
                 except Exception as e:
                     texto = f"[ERROR DESCIFRADO] {e}"
-                
+
                 # Crear entrada básica
                 entrada = {
                     "timestamp": rec.get("timestamp"),
@@ -58,40 +58,40 @@ def exportar_log_descifrado(archivo_log_cifrado, archivo_clave, salida="log_desc
                     "key_bits": rec.get("key_bits"),
                     "texto": texto
                 }
-                
+
                 # Si tiene información HMAC, agregarla y verificar
                 if "mac_algoritmo" in rec:
                     entrada["mac_algoritmo"] = rec.get("mac_algoritmo")
                     entrada["mac_longitud_clave"] = rec.get("mac_longitud_clave")
-                    
+
                     # Verificar HMAC usando el texto descifrado
                     if "mac" in rec:
                         try:
                             import hmac
                             import hashlib
                             import base64
-                            
+
                             # Cargar clave MAC
                             clave_mac = _cargar_o_crear_clave_mac("clave_mac_logs.bin")
-                            
+
                             # Verificar HMAC con el texto descifrado
                             mac_calculado = hmac.new(clave_mac, texto.encode('utf-8'), hashlib.sha256)
                             mac_esperado = base64.b64decode(rec["mac"])
-                            
+
                             if hmac.compare_digest(mac_calculado.digest(), mac_esperado):
                                 entrada["mac_verificacion"] = "✓ VÁLIDO"
                             else:
                                 entrada["mac_verificacion"] = "✗ INVÁLIDO"
-                                
+
                         except Exception as e:
                             entrada["mac_verificacion"] = f"Error: {e}"
                     else:
                         entrada["mac_verificacion"] = "Sin MAC"
-                
+
                 out.append(entrada)
-                
+
             except Exception as e:
-                print(f"Error procesando línea {line_num}: {e}")
+                print(msj.error_entrada(line_num, e))
                 continue
     
     # Escribir archivo de salida
@@ -99,18 +99,18 @@ def exportar_log_descifrado(archivo_log_cifrado, archivo_clave, salida="log_desc
         with open(salida, "w", encoding="utf-8") as g:
             for r in out:
                 g.write(json.dumps(r, ensure_ascii=False) + "\n")
-        
-        print(f" Log descifrado exportado en: {salida}")
-        print(f" Procesadas {len(out)} entradas")
-        
+
+        print(msj.LOG_EXPORTADO_FMT.format(salida=salida))
+        print(msj.CONTADOR_PROCESADAS_FMT.format(count=len(out)))
+
         # Contar entradas con HMAC
         con_hmac = sum(1 for r in out if r.get("mac_presente") == "Si")
         if con_hmac > 0:
-            print(f" {con_hmac} entradas incluyen información HMAC")
-        
+            print(msj.ENTRADAS_CON_HMAC_FMT.format(count=con_hmac))
+
     except Exception as e:
-        print(f" Error escribiendo archivo: {e}")
-    
+        print(msj.ERROR_ESCRIBIR_ARCHIVO_FMT.format(e=e))
+
     from data import msj_espera
     msj_espera.pause()
 
@@ -131,7 +131,7 @@ def registrar_log_hibrido_hmac(usuario: str, seleccion: str, archivo_log_cifrado
     # 2. Preparar mensaje del voto
     mensaje = f"Voto de {usuario} para {seleccion} @ {datetime.now().isoformat(timespec='seconds')}"
     
-    print(f"[LOG HÍBRIDO] Cifrando voto: {seleccion}")
+    print(msj.CIFRADO_HIBRIDO_FMT.format(seleccion=seleccion))
     
     # 3. Cifrado híbrido del mensaje
     voto_cifrado_hibrido = cifrado_hibrido_voto(mensaje, archivo_pub)
@@ -167,7 +167,7 @@ def registrar_log_hibrido_hmac(usuario: str, seleccion: str, archivo_log_cifrado
     with open(archivo_log_cifrado, "a", encoding="utf-8") as f:
         f.write(json.dumps(linea_unificada, ensure_ascii=False) + "\n")
     
-    print(f"[LOG HÍBRIDO] Voto cifrado con AES-GCM-256 + RSA-2048")
-    print(f"[LOG HÍBRIDO] HMAC-SHA256 generado para integridad")
-    print(f"[LOG HÍBRIDO] Guardado en: {archivo_log_cifrado}")
+    print(msj.CIFRADO_OK)
+    print(msj.HMAC_OK)
+    print(msj.GUARDADO_HIBRIDO_FMT.format(archivo=archivo_log_cifrado))
 

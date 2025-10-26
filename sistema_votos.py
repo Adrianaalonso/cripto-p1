@@ -9,6 +9,7 @@ from crypto import (
     calcular_hmac_sha256,
     _cargar_o_crear_clave_mac,
 )
+from data import msj_comunes as msj
 
 
 def votar(usuario_actual, opciones_votacion, archivo_votos):
@@ -17,21 +18,21 @@ def votar(usuario_actual, opciones_votacion, archivo_votos):
     
     # Verificar si ya votó
     if usuario_actual in votos["usuarios_votaron"]:
-        print("Ya has votado anteriormente. No puedes votar nuevamente.")
+        print(msj.YA_VOTASTE)
         # Mostrar pausa estándar para que el usuario vea el mensaje antes de continuar
-        from data import msj_ui
-        msj_ui.pause()
+        from data import msj_espera
+        msj_espera.pause()
         return None
     
-    print("\n--- OPCIONES DE VOTACIÓN ---")
+    print("\n" + msj.OPCIONES_VOTACION)
     print("📦 1. Opción A")
     print("📦 2. Opción B")
-    print("0. Cancelar")
+    print(msj.VOTO_CANCELAR)
     
     try:
-        opcion = int(input("\nSeleccione su opción (1 o 2): "))
+        opcion = int(input(msj.PROMPT_SELECCION_VOTO))
         if opcion not in (0, 1, 2):
-            print("Opción no válida.")
+            print(msj.OPCION_INVALIDA)
             return None
         if opcion == 0:
             print("Votación cancelada.")
@@ -48,7 +49,7 @@ def votar(usuario_actual, opciones_votacion, archivo_votos):
         vote_id = uuid.uuid4().hex       
 
         # Cifrar SOLO la selección (manteniendo anonimato)
-        print(f"\nAplicando cifrado híbrido anónimo al voto: {seleccion}")
+        print(msj.CIFRADO_HIBRIDO_FMT.format(seleccion=seleccion))
         voto_cifrado_hibrido = cifrado_hibrido_voto(seleccion, archivo_pub)
         
         # Generar HMAC sobre los campos que vamos a guardar
@@ -64,7 +65,7 @@ def votar(usuario_actual, opciones_votacion, archivo_votos):
         contenido_para_mac = json.dumps(mac_obj, sort_keys=True, separators=(',',':'), ensure_ascii=False)
         mac_b64 = calcular_hmac_sha256(clave_mac, contenido_para_mac)
         
-        print(f"HMAC-SHA256 generado para integridad")
+        print(msj.HMAC_OK)
         
         # Guardar SOLO datos cifrados (SIN usuario, SIN mensaje_completo)
         archivo_votos_cifrados = "votos_cifrados.jsonl"
@@ -82,13 +83,13 @@ def votar(usuario_actual, opciones_votacion, archivo_votos):
         with open(archivo_votos_cifrados, "a", encoding="utf-8") as f:
             f.write(json.dumps(linea_voto, ensure_ascii=False) + "\n")
         
-        print(f"Voto anónimo cifrado híbrido + HMAC guardado en: {archivo_votos_cifrados}")
+        print(msj.VOTO_GUARDADO_FMT.format(path=archivo_votos_cifrados))
         
         # Mantener el conteo normal para resultados públicos
         votos[seleccion] += 1
         votos["usuarios_votaron"].append(usuario_actual)
         guardar_votos(votos, archivo_votos)
-        print(f"Voto registrado para: {seleccion}")
+        print(msj.VOTO_REGISTRADO_FMT.format(opcion=seleccion))
         return seleccion
             
     except ValueError:

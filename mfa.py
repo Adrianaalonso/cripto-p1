@@ -11,6 +11,7 @@ from datetime import datetime
 # Importar validadores y excepción
 from data.atributos import Username, Password, Email
 from data.msj_error import ExceptionErrors 
+from data import msj_comunes as msj
 
 
 def generar_codigo_mfa():
@@ -82,7 +83,7 @@ def registrar_usuario(archivo_usuarios):
 
     # === Username ===
     while True:
-        usuario_raw = input("Ingrese nombre de usuario: ").strip()
+        usuario_raw = input(msj.PROMPT_USUARIO).strip()
         try:
             usuario = Username(usuario_raw).value  # valida: regex y longitud
         except ExceptionErrors as e:
@@ -96,7 +97,7 @@ def registrar_usuario(archivo_usuarios):
 
     # === Email ===
     while True:
-        email_raw = input("Ingrese su email: ").strip()
+        email_raw = input(msj.PROMPT_CORREO).strip()
         try:
             email = Email(email_raw).value  # valida según tu política (p.ej. @gmail.com)
             break
@@ -138,7 +139,7 @@ def iniciar_sesion(archivo_usuarios):
     administradores = cargar_administradores()
     
     import getpass
-    usuario = input("Nombre de usuario: ").strip()
+    usuario = input(msj.PROMPT_LOGIN_USERNAME).strip()
     password = getpass.getpass("Contraseña: ")
     
     # Verificar si es administrador
@@ -165,7 +166,7 @@ def iniciar_sesion(archivo_usuarios):
             
             # Solicitar código al usuario
             try:
-                codigo_ingresado = input("Ingresa el código de 6 dígitos: ").strip()
+                codigo_ingresado = input(msj.PROMPT_CODIGO).strip()
                 
                 valido, mensaje = verificar_codigo_mfa(usuario, codigo_ingresado)
                 
@@ -205,7 +206,7 @@ def iniciar_sesion_admin():
         return None
     
     print("\n=== LOGIN ADMINISTRADOR ===")
-    usuario = input(" Usuario admin: ").strip()
+    usuario = input(msj.PROMPT_USUARIO_ADMIN).strip()
     
     if usuario in administradores:
         import getpass

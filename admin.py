@@ -10,15 +10,16 @@ import os
 import hmac
 import hashlib
 import base64
+from data import msj_comunes as msj
 
 def mostrar_menu_admin():
     """Mostrar menú de opciones para administradores"""
-    print("\n" + "="*40)
-    print("   PANEL DE ADMINISTRADOR")
-    print("="*40)
-    print("1. Descifrar votos híbridos con HMAC")
-    print("2. Cerrar sesión")
-    print("="*40)
+    print("\n" + msj.ADMIN_MENU_LINE)
+    print(msj.ADMIN_PANEL_TITLE)
+    print(msj.ADMIN_MENU_LINE)
+    print(msj.ADMIN_OP_DESCIFRAR)
+    print(msj.ADMIN_OP_CERRAR)
+    print(msj.ADMIN_MENU_LINE)
 
 def ejecutar_panel_admin(usuario_admin):
     """Ejecutar panel de administrador"""
@@ -28,7 +29,7 @@ def ejecutar_panel_admin(usuario_admin):
         mostrar_menu_admin()
         
         try:
-            opcion = input("\nSeleccione una opción: ")
+            opcion = input(msj.PROMPT_SELECCIONAR)
             
             if opcion == "1":
                 print("\n=== DESCIFRADO DE VOTOS HÍBRIDOS + HMAC ===")
@@ -39,7 +40,7 @@ def ejecutar_panel_admin(usuario_admin):
                 break
                 
             else:
-                print(" Opción no válida. Intente nuevamente.")
+                print(msj.OPCION_INVALIDA)
                 
         except KeyboardInterrupt:
             print(f"\n Cerrando sesión de administrador: {usuario_admin}")
@@ -53,13 +54,13 @@ def descifrar_votos_hibridos_con_hmac():
     archivo_clave_privada = "admin_private_key.pem"
     
     if not os.path.exists(archivo_votos_cifrados):
-        print(" No hay votos cifrados para descifrar.")
+        print(msj.NO_VOTES_CIPHERED)
         from data import msj_espera
         msj_espera.pause()
         return
     
     if not os.path.exists(archivo_clave_privada):
-        print(" No se encuentra la clave privada del administrador.")
+        print(msj.NO_PRIVATE_KEY)
         from data import msj_espera
         msj_espera.pause()
         return
@@ -80,7 +81,7 @@ def descifrar_votos_hibridos_con_hmac():
                 
                 try:
                     voto_cifrado = json.loads(line)
-                    print(f"Procesando voto anónimo {line_num}...")
+                    print(msj.procesando_entrada(line_num))
                     
                     # Descifrar usando cifrado híbrido
                     voto_hibrido = {
@@ -127,7 +128,8 @@ def descifrar_votos_hibridos_con_hmac():
                     votos_descifrados.append(resultado)
                     
                 except Exception as e:
-                    print(f" Error procesando línea {line_num}: {e}")
+                    print(msj.error_entrada(line_num, e))
+                    
                     continue
         
         # Guardar votos descifrados
