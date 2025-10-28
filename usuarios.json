@@ -73,5 +73,11 @@
     "email": "c@gmail.com",
     "password": "pbkdf2$sha256$200000$vW3kwFXliWtBEtdYCv97iA==$5+/Lu5dx79g35Ds+pDuWmfuVVIRo+mTFB+q+qJS5F/w=",
     "fecha_registro": "2025-10-26T18:00:29.801824"
+  },
+  "MER": {
+    "email": "mer@gmail.com",
+    "password": "pbkdf2$sha256$200000$Gv4Wm3hDaPL0N4mJC0w7oQ==$HaC9p/suOw3HqmNdF3fAMLTrD6dmO2OO3+0Ut4adgSI=",
+    "fecha_registro": "2025-10-28T14:28:01.784271",
+    "mac": "V5APjyeXSn7oLYDCU8cHTXwQ4eC8QyC2kFauN6JD/EM="
   }
 }

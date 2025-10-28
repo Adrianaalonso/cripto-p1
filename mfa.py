@@ -5,6 +5,7 @@ import random
 import time
 import tkinter as tk
 from crypto import _pbkdf2_hash, _verificar_password
+from crypto.mac_usuario import generar_mac_usuario, verificar_mac_usuario
 from archivos_json import cargar_usuarios, guardar_usuarios
 from datetime import datetime
 
@@ -127,6 +128,15 @@ def registrar_usuario(archivo_usuarios):
         "password": _pbkdf2_hash(password_ok),
         "fecha_registro": datetime.now().isoformat()
     }
+    # Generar y añadir MAC por usuario para detección de manipulaciones
+    try:
+        usuarios[usuario]["mac"] = generar_mac_usuario(usuarios[usuario])
+    except Exception:
+        # Si hay un problema generando la MAC, todavía guardamos el usuario
+        # pero dejamos el registro sin campo 'mac'. La verificación en login
+        # bloqueará a usuarios sin 'mac' hasta que se migren.
+        pass
+
     guardar_usuarios(usuarios, archivo_usuarios)
     print(f"Usuario '{usuario}' registrado exitosamente!")
     return True
@@ -149,40 +159,59 @@ def iniciar_sesion(archivo_usuarios):
         return ("admin", usuario)  # Retorna tupla indicando que es admin
     
     # Verificar usuario normal
-    elif usuario in usuarios and _verificar_password(password, usuarios[usuario]["password"]):
-        # Primer factor válido, ahora MFA
-        email_usuario = usuarios[usuario]["email"]
-        
-        # Generar y mostrar código
-        codigo = generar_codigo_mfa()
-        print(f"\n Mostrando código de verificación para {email_usuario}...")
-        
-        # Mostrar código en ventana
-        if mostrar_codigo_ventana(codigo):
-            # Guardar código temporalmente
-            guardar_codigo_mfa(usuario, codigo)
-            
-            print(" Código mostrado.")
-            
-            # Solicitar código al usuario
+    elif usuario in usuarios:
+        user_record = usuarios[usuario]
+
+        # Si el registro incluye MAC, verificar integridad del registro
+        if "mac" in user_record:
             try:
-                codigo_ingresado = input(msj.PROMPT_CODIGO).strip()
-                
-                valido, mensaje = verificar_codigo_mfa(usuario, codigo_ingresado)
-                
-                if valido:
-                    print(f"Bienvenido/a, {usuario}!")
-                    return ("user", usuario)  # Retorna tupla indicando que es usuario normal
-                else:
-                    print(f"{mensaje}")
+                if not verificar_mac_usuario(user_record):
+                    print("Registro de usuario modificado o corrupto: integridad comprometida. No se permite iniciar sesión.")
                     return None
-                    
-            except KeyboardInterrupt:
-                print("\nVerificación cancelada.")
+            except Exception as e:
+                print(f"Error verificando integridad del registro de usuario: {e}")
                 return None
         else:
-            print(" Error al mostrar código. Intenta más tarde.")
+            # No existe MAC para este usuario: por seguridad, no permitimos login hasta migración
+            print("Registro de usuario sin protección MAC: por seguridad, el inicio de sesión está bloqueado para este usuario.")
+            print("Ejecute la migración para añadir MACs a los registros de usuario o regístrese de nuevo.")
             return None
+
+        # Si la integridad es correcta, verificar contraseña
+        if _verificar_password(password, user_record["password"]):
+            # Primer factor válido, ahora MFA
+            email_usuario = user_record["email"]
+
+            # Generar y mostrar código
+            codigo = generar_codigo_mfa()
+            print(f"\n Mostrando código de verificación para {email_usuario}...")
+
+            # Mostrar código en ventana
+            if mostrar_codigo_ventana(codigo):
+                # Guardar código temporalmente
+                guardar_codigo_mfa(usuario, codigo)
+
+                print(" Código mostrado.")
+
+                # Solicitar código al usuario
+                try:
+                    codigo_ingresado = input(msj.PROMPT_CODIGO).strip()
+
+                    valido, mensaje = verificar_codigo_mfa(usuario, codigo_ingresado)
+
+                    if valido:
+                        print(f"Bienvenido/a, {usuario}!")
+                        return ("user", usuario)  # Retorna tupla indicando que es usuario normal
+                    else:
+                        print(f"{mensaje}")
+                        return None
+
+                except KeyboardInterrupt:
+                    print("\nVerificación cancelada.")
+                    return None
+            else:
+                print(" Error al mostrar código. Intenta más tarde.")
+                return None
     else:
         print(" Usuario o contraseña incorrectos.")
         return None
