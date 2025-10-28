@@ -1,4 +1,4 @@
-# Archivo principal - EXACTAMENTE como sistema_votacion.py original pero refactorizado
+# Archivo principal 
 from mfa import registrar_usuario, iniciar_sesion, iniciar_sesion_admin
 from sistema_votos import votar, mostrar_resultados
 from cifrado import registrar_log_hibrido_hmac, exportar_log_descifrado

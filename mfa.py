@@ -21,7 +21,7 @@ def generar_codigo_mfa():
 
 def mostrar_codigo_ventana(codigo):
     """Mostrar código en una ventana simple"""
-    # Crear ventana simple
+    # Crear ventana simple con el código de verificacion
     ventana = tk.Tk()
     ventana.title("Código de Verificación")
     ventana.geometry("250x100")
@@ -105,7 +105,7 @@ def registrar_usuario(archivo_usuarios):
         except ExceptionErrors as e:
             print(e.message) 
 
-    # === Password ===
+    # === contraseña ===
     import getpass
     while True:
         pwd1 = getpass.getpass("Ingrese su contraseña: ")
@@ -227,13 +227,12 @@ def cargar_administradores():
         return {}
 
 def iniciar_sesion_admin():
-    """Iniciar sesión como administrador (sin MFA)"""
+    """Iniciar sesión como administrador"""
     administradores = cargar_administradores()
     
     if not administradores:
         print(" No hay administradores configurados.")
-        return None
-    
+        return None 
     print("\n=== LOGIN ADMINISTRADOR ===")
     usuario = input(msj.PROMPT_USUARIO_ADMIN).strip()
     

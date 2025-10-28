@@ -38,7 +38,7 @@ def ejecutar_panel_admin(usuario_admin):
     return None
 
 def descifrar_votos_hibridos_con_hmac():
-    """Descifrar votos con cifrado híbrido anónimo con HMAC"""
+    """Descifrar votos con cifrado híbrido+HMAC"""
     archivo_votos_cifrados = "votos_cifrados.jsonl"
     archivo_clave_privada = "admin_private_key.pem"
     
@@ -112,7 +112,6 @@ def descifrar_votos_hibridos_con_hmac():
                     }
                     
                     votos_descifrados.append(resultado)
-                    
                 except Exception as e:
                     print(msj.error_entrada(line_num, e))
                     
