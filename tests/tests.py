@@ -12,6 +12,7 @@ from pathlib import Path
 from unittest import mock
 import io
 import contextlib
+from importlib import import_module
 
 # Utilidades comunes para los tests (importan dinámicamente y se saltan si falta algo)
 class TempCwdMixin:
@@ -392,6 +393,59 @@ class TestMFA(TempCwdMixin, unittest.TestCase):
                   open("codigos_mfa.json", "w", encoding="utf-8"), indent=2)
         ok, msg = self.verificar("adri", codigo)
         self.assertFalse(ok)
+
+# ---------- Tests cifrado y descifrado ----------
+
+class TestRegistrarYExportadorHibrido(unittest.TestCase):
+    def setUp(self):
+        self.cifrado = import_module("cifrado")
+        # evitar pausas y prompts
+        try:
+            mock.patch("data.msj_espera.pause", lambda: None).start()
+        except Exception:
+            pass
+
+    def tearDown(self):
+        # eliminar ficheros residuales
+        for p in ("log_hibrido.jsonl","out.jsonl","votos_cifrados.jsonl"):
+            if Path(p).exists():
+                Path(p).unlink()
+
+    def test_registrar_escribe_campos_hibridos(self):
+        # crear una entrada
+        self.cifrado.registrar_log_hibrido_hmac("testuser","Opción A","log_hibrido.jsonl")
+        assert Path("log_hibrido.jsonl").exists()
+        txt = Path("log_hibrido.jsonl").read_text(encoding="utf-8")
+        # comprobar que contiene campos esperados
+        assert "voto_cifrado" in txt
+        assert "clave_sim_cifrada" in txt
+        assert "iv" in txt
+        assert "mac" in txt
+
+    def test_exportador_hibrido_produce_out_jsonl(self):
+        self.cifrado.registrar_log_hibrido_hmac("testuser","Opción A","log_hibrido.jsonl")
+        # usar exportador preferente (híbrido si existe)
+        export = getattr(self.cifrado, "exportar_log_hibrido_descifrado", None) or getattr(self.cifrado, "exportar_log_descifrado", None)
+        if not export:
+            self.skipTest("No hay exportador disponible")
+        with mock.patch("builtins.input", return_value=""):
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                # forzar modo admin para evitar prompts
+                try:
+                    export("log_hibrido.jsonl", "admin_private_key.pem", salida="out.jsonl", admin_mode=True)
+                except TypeError:
+                    export("log_hibrido.jsonl", salida="out.jsonl", admin_mode=True)
+        # comprobar salida
+        if Path("out.jsonl").exists():
+            lines = [l for l in Path("out.jsonl").read_text(encoding="utf-8").splitlines() if l.strip()]
+            self.assertGreaterEqual(len(lines), 1)
+            j = json.loads(lines[0])
+            # salida híbrida debe contener texto (o al menos campo "texto")
+            self.assertIn("texto", j)
+        else:
+            self.fail("No se generó out.jsonl")
+
 
 # Ejecutar tests
 if __name__ == "__main__":
