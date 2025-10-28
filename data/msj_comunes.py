@@ -1,5 +1,4 @@
-"""Mensajes comunes 
-"""
+"""Mensajes comunes"""
 LINEA_MENU = "=" * 50
 TITULO_MENU = "      *SISTEMA DE VOTACIÓN INTELIGENTE*"
 OP_INICIAR = "1. Iniciar Sesión"

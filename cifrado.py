@@ -120,6 +120,8 @@ def registrar_log_hibrido_hmac(usuario: str, seleccion: str, archivo_log_cifrado
     mensaje = f"Voto de {usuario} para {seleccion} @ {datetime.now().isoformat(timespec='seconds')}"
 
     print(msj.CIFRADO_HIBRIDO_FMT.format(seleccion=seleccion))
+   
+    print()
 
     # 3. Cifrado híbrido del mensaje
     voto_cifrado_hibrido = cifrado_hibrido_voto(mensaje, archivo_pub)
@@ -153,7 +155,8 @@ def registrar_log_hibrido_hmac(usuario: str, seleccion: str, archivo_log_cifrado
 
     # 6. Guardar en archivo log unificado
     with open(archivo_log_cifrado, "a", encoding="utf-8") as f:
-        f.write(json.dumps(linea_unificada, ensure_ascii=False) + "\n")
+        # Escribir en formato legible (indentado) y dejar una línea en blanco
+        f.write(json.dumps(linea_unificada, ensure_ascii=False, indent=2) + "\n\n")
 
     print(msj.CIFRADO_OK)
     print(msj.HMAC_OK)

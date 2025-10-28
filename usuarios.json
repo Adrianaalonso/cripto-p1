@@ -91,5 +91,23 @@
     "password": "pbkdf2$sha256$200000$8qHCJ3PbFr6Bkbgyt5Vufw==$8XSS5WGV1RPeujxmhZVbXjF2B4TWl2aVGss2/AQ4aUs=",
     "fecha_registro": "2025-10-28T18:24:28.977294",
     "mac": "cGFZP/7nyQHnACfJcSlJaD2hfg9VBoSCZxiBFRhQ3HY="
+  },
+  "iri": {
+    "email": "i@gmail.com",
+    "password": "pbkdf2$sha256$200000$oTGOn0D/YwtBpLkS3enCAA==$DrDhAF7+cBdKoBQzn5qorvc4Yo4kvuinAv3L0cP/iG8=",
+    "fecha_registro": "2025-10-28T19:17:08.546436",
+    "mac": "mYzVAipmzbpii9wJFwyUDlwLI3NsKkfkuMdeX0qSgg4="
+  },
+  "ooo": {
+    "email": "o@gmail.com",
+    "password": "pbkdf2$sha256$200000$cvaWdI+qfAJ4sSr/066FRw==$Z6VI1MNWQP5jCLjqoK3eEJvvkLew+VSg9sQkxCjx69g=",
+    "fecha_registro": "2025-10-28T19:19:26.805007",
+    "mac": "VKWW3S8WDSK1+nwGpfi0e4rfs1VC2WI1P4ORh2S8vDY="
+  },
+  "MAE": {
+    "email": "m@gmail.com",
+    "password": "pbkdf2$sha256$200000$6Q+I49no9hqgZS8NHvvM4g==$qBKrxURZNSUo4H1TAmoQlHyvVcztGmIRJwks/MwnhOg=",
+    "fecha_registro": "2025-10-28T19:43:40.905240",
+    "mac": "cTNw1y6o6J4EpaXltJaNVxuCCWQNGOC2qcdZj3qKpwE="
   }
 }

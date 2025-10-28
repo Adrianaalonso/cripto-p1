@@ -1,5 +1,4 @@
 # Menú y funciones específicas para administradores
-from sistema_votos import mostrar_resultados
 from crypto import (
     descifrado_hibrido_voto,
     _cargar_o_crear_clave_mac,
@@ -7,9 +6,6 @@ from crypto import (
 )
 import json
 import os
-import hmac
-import hashlib
-import base64
 from data import msj_comunes as msj
 
 def mostrar_menu_admin():
@@ -24,32 +20,25 @@ def mostrar_menu_admin():
 def ejecutar_panel_admin(usuario_admin):
     """Ejecutar panel de administrador"""
     print(f"\n Acceso de administrador: {usuario_admin}")
-    
     while True:
         mostrar_menu_admin()
-        
         try:
             opcion = input(msj.PROMPT_SELECCIONAR)
-            
             if opcion == "1":
                 print("\n=== DESCIFRADO DE VOTOS HÍBRIDOS + HMAC ===")
-                descifrar_votos_hibridos_con_hmac()
-                
+                descifrar_votos_hibridos_con_hmac()  
             elif opcion == "2":
                 print(f" Cerrando sesión de administrador: {usuario_admin}")
-                break
-                
+                break 
             else:
-                print(msj.OPCION_INVALIDA)
-                
+                print(msj.OPCION_INVALIDA)    
         except KeyboardInterrupt:
             print(f"\n Cerrando sesión de administrador: {usuario_admin}")
             break
-    
     return None
 
 def descifrar_votos_hibridos_con_hmac():
-    """Descifrar votos cifrados híbridos anónimos con verificación HMAC"""
+    """Descifrar votos con cifrado híbrido anónimo con HMAC"""
     archivo_votos_cifrados = "votos_cifrados.jsonl"
     archivo_clave_privada = "admin_private_key.pem"
     
@@ -64,15 +53,12 @@ def descifrar_votos_hibridos_con_hmac():
         from data import msj_espera
         msj_espera.pause()
         return
-    
     print("Descifrado de votos híbridos anónimos...")
     
     # Cargar clave HMAC
     clave_mac = _cargar_o_crear_clave_mac("clave_mac_logs.bin")
     #comprobamos la integridad de la estructura almacenada, si el HMAC coincide, el fichero no ha sido alterado
-
     votos_descifrados = []
-    
     try:
         with open(archivo_votos_cifrados, "r", encoding="utf-8") as f:
             for line_num, line in enumerate(f, 1):

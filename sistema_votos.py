@@ -50,8 +50,10 @@ def votar(usuario_actual, opciones_votacion, archivo_votos):
 
         # Cifrar SOLO la selección (manteniendo anonimato)
         print(msj.CIFRADO_HIBRIDO_FMT.format(seleccion=seleccion))
+
+        print()
         voto_cifrado_hibrido = cifrado_hibrido_voto(seleccion, archivo_pub)
-        
+
         # Generar HMAC sobre los campos que vamos a guardar
         clave_mac = _cargar_o_crear_clave_mac("clave_mac_logs.bin")
         mac_obj = {
@@ -64,8 +66,10 @@ def votar(usuario_actual, opciones_votacion, archivo_votos):
         }
         contenido_para_mac = json.dumps(mac_obj, sort_keys=True, separators=(',',':'), ensure_ascii=False)
         mac_b64 = calcular_hmac_sha256(clave_mac, contenido_para_mac)
-        
+
         print(msj.HMAC_OK)
+
+        print()
         
         # Guardar SOLO datos cifrados (SIN usuario, SIN mensaje_completo)
         archivo_votos_cifrados = "votos_cifrados.jsonl"
@@ -81,8 +85,8 @@ def votar(usuario_actual, opciones_votacion, archivo_votos):
         }
         
         with open(archivo_votos_cifrados, "a", encoding="utf-8") as f:
-            f.write(json.dumps(linea_voto, ensure_ascii=False) + "\n")
-        
+            # Escribir la versión legible (indentada) para facilitar inspección humana
+            f.write(json.dumps(linea_voto, ensure_ascii=False, indent=2) + "\n\n")
         print(msj.VOTO_GUARDADO_FMT.format(path=archivo_votos_cifrados))
         
         # Mantener el conteo normal para resultados públicos
