@@ -1,6 +1,6 @@
 {
   "Opción A": 8,
-  "Opción B": 10,
+  "Opción B": 11,
   "usuarios_votaron": [
     "ale",
     "pepa",
@@ -19,6 +19,7 @@
     "dia",
     "maria",
     "cri",
-    "FRAN"
+    "FRAN",
+    "mariN"
   ]
 }

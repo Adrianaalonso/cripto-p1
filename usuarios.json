@@ -85,5 +85,11 @@
     "password": "pbkdf2$sha256$200000$UbHECAPXtbRAQ/2gzZGQrw==$pmzUqNnOWvddQjbe186Em/p3+6VPa05BvgCQrwmvtEA=",
     "fecha_registro": "2025-10-28T18:10:13.427869",
     "mac": "Fd9vfhvTTh/ykz+ih81gkeFjph8CsibrVVy0rPSaOiM="
+  },
+  "mariN": {
+    "email": "m@gmail.com",
+    "password": "pbkdf2$sha256$200000$8qHCJ3PbFr6Bkbgyt5Vufw==$8XSS5WGV1RPeujxmhZVbXjF2B4TWl2aVGss2/AQ4aUs=",
+    "fecha_registro": "2025-10-28T18:24:28.977294",
+    "mac": "cGFZP/7nyQHnACfJcSlJaD2hfg9VBoSCZxiBFRhQ3HY="
   }
 }

@@ -6,18 +6,20 @@ from cryptography.hazmat.backends import default_backend
 
 
 def generar_par_claves_rsa():
+    """genera clave pública y privada RSA"""
     from cryptography.hazmat.primitives.asymmetric import rsa
     from cryptography.hazmat.primitives import serialization
 
     private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048, backend=default_backend())
     public_key = private_key.public_key()
 
+    #clave privada 
     private_pem = private_key.private_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PrivateFormat.PKCS8,
         encryption_algorithm=serialization.NoEncryption(),
     )
-
+    #clave pública
     public_pem = public_key.public_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PublicFormat.SubjectPublicKeyInfo,
@@ -28,7 +30,6 @@ def generar_par_claves_rsa():
 
 def cargar_clave_publica_rsa(archivo_clave_pub: str):
     from cryptography.hazmat.primitives import serialization
-
     if not os.path.exists(archivo_clave_pub):
         raise FileNotFoundError(f"Archivo de clave pública no encontrado: {archivo_clave_pub}")
     with open(archivo_clave_pub, "rb") as f:
@@ -73,7 +74,6 @@ def cifrado_hibrido_voto(voto: str, archivo_clave_pub_admin: str) -> dict:
         "algoritmo_simetrico": "AES-GCM-256",
         "algoritmo_asimetrico": "RSA-2048-OAEP",
     }
-    print("[CIFRADO HÍBRIDO] Voto cifrado con AES-GCM-256")
     return resultado
 
 
@@ -95,11 +95,11 @@ def descifrado_hibrido_voto(voto_cifrado_hibrido: dict, archivo_clave_priv_admin
     cipher = Cipher(algorithms.AES(ks), modes.GCM(iv, tag), backend=default_backend())
     decryptor = cipher.decryptor()
     voto_descifrado = decryptor.update(voto_cifrado) + decryptor.finalize()
-    print("[DESCIFRADO HÍBRIDO] Voto descifrado con AES-GCM-256")
     return voto_descifrado.decode("utf-8")
 
 
 def crear_claves_administrador():
+    """crear clave pública y privada para el administrador"""
     archivo_priv = "admin_private_key.pem"
     archivo_pub = "admin_public_key.pem"
     if not os.path.exists(archivo_priv) or not os.path.exists(archivo_pub):
