@@ -25,3 +25,213 @@
   "mac": "f9J+ie9u0QTUzRt05unAEY7cmet87qSwBgtGujb1l48="
 }
 
+{
+  "timestamp": "2025-10-28T22:29:59",
+  "usuario": "u",
+  "seleccion": "Opción A",
+  "voto_cifrado": "31pxhFEXscoKxKtmrtgUae9L4+5FRjEEAtk8p9ijO4fFt4RgWEs6ltO5yRrS3w==",
+  "iv": "sMHMrMDVuL4ddOdN",
+  "tag_gcm": "vY8t1CNoIIy9qboym3b4kQ==",
+  "clave_sim_cifrada": "rWfPovUEaHa9yUi7xFQuWQOTPvPqIPABZQvm7+q6jdQzPNeg7cLTsh/iBIdpJ5IChTlmEKcqAvHVzkew8qepNkJC9CPDgkD21ezb4igZfJ/pFeeTDXgZniIm4aXQNcAcI1KfWzDPNkNyg1oTjze/f3vhc2oegyXrjj9y/CCGQYMyCfVbBin1MwnC5KhJnRzA8BGaAcPGb8bztCVpwee2AAelU7lY6fePsfxlQtFlvcMmklxU4uaEgJVEfoB67wSirJL+NwS43WL2w4p0bDlDCjTgBZUufWpM9HbI6RuGmdQqZsTJIXFEyu7d0UBu3k3ViR+yOCDxTvzZhGED9LR25w==",
+  "algoritmo_simetrico": "AES-GCM-256",
+  "algoritmo_asimetrico": "RSA-2048-OAEP",
+  "mac_algoritmo": "HMAC-SHA256",
+  "mac_longitud_clave": 256,
+  "mac": "7yaQL9pKdF6Hj9x72YKDxuQXyMRLDZOkiOY1AfCLRIs="
+}
+
+{
+  "timestamp": "2025-10-28T22:30:54",
+  "usuario": "u",
+  "seleccion": "Opción A",
+  "voto_cifrado": "2g+EsYH+uxdVsO6OkUpUwDDbUHKHGwxzA2apO5UoYEA8SoWY6LUSNQFnrL5iMw==",
+  "iv": "rmq0t3Cpej+9w98E",
+  "tag_gcm": "+9t8JTX95gDwrcF8VDndjA==",
+  "clave_sim_cifrada": "RSXeYNK0D/HQeQR5YolfdfvN0/Xk8EDi5pCLaPOueUPYlZk5xkLpInyEJE8BBHM8fnSapVJx24AAnU41IdEA7SuNM5nC4X00iXeWXc9pYzRK3HXIQ69fzz3ZL7Z47XefMgjWX75Kdt1BNmlMxbE0AW4/DoJ1A+cglZSmW/FciiLmShQRVGCZF7DIRljWf+15s2RTwkYMmZyZK2pXmg1E78Aq+F9gfFrRJV5oZV8pX0sT6mUDNCAHdGWW0/rC9bM0vRyQRPwBstkkpsa4n8uhYv/uDp3cAGm5B7x7CmaFwHxSnQ3ysRvhn2B9boXoCNkYq+IAU3/rUd8/Tvhjq/ap3A==",
+  "algoritmo_simetrico": "AES-GCM-256",
+  "algoritmo_asimetrico": "RSA-2048-OAEP",
+  "mac_algoritmo": "HMAC-SHA256",
+  "mac_longitud_clave": 256,
+  "mac": "kmtGIj7wi6hfZg+XpDxeukIr3VzU4WX6olxbkcBkD64="
+}
+
+{
+  "timestamp": "2025-10-28T22:31:54",
+  "usuario": "u",
+  "seleccion": "Opción A",
+  "voto_cifrado": "4iwBmko7RrXZWGhPtZifhdFPEXdcO/VMCrElOVTRdJccLaz9hE2u49IpzLkSRA==",
+  "iv": "f516LgCkP8t4N8Mv",
+  "tag_gcm": "8DJdZOBValrKfwIthrrJBg==",
+  "clave_sim_cifrada": "Cfl8iEVsvFEOGS9n5dp8t4655DN5ACE1xvCIEmsQ1AWPUXm6c97IkMlDOt5BLWgMIZp+JWAGB+GhIu8mVoFz26gjt+IcBy1E3am9InKdhx4RQddPWEpaedLuy0KnlgSyQ6IpDA6jZX6WD+IHiI71TthbI3mvR7iHQqaDQoviVed703FohAUHxYiT76vWvA404zVRVhRvucSIoVEu4Vw5od4h/lzCkgJt04T3LnMt4f8PKiz+ObMBBnI+JO+NW7/C9IrceJLJpvgz+ox9epr2UTw9BUUknNBRXV9FDXk4278PZw9f0XDh3279KoHxE9vTuXXzR5woQVWFAO37fLQmuQ==",
+  "algoritmo_simetrico": "AES-GCM-256",
+  "algoritmo_asimetrico": "RSA-2048-OAEP",
+  "mac_algoritmo": "HMAC-SHA256",
+  "mac_longitud_clave": 256,
+  "mac": "zdBv3fgNKIcHz5eQnqmEM5+dfh0mPa6j9kPMujp12xo="
+}
+
+{
+  "timestamp": "2025-10-28T22:31:55",
+  "usuario": "u",
+  "seleccion": "Opción A",
+  "voto_cifrado": "1hkgkfRyn/ctN69OICIxxvlvdt0f0cnAab738M3QwB+QIneTc4k19U1crKAaYg==",
+  "iv": "t5XGev4ThpHM93IP",
+  "tag_gcm": "gHaT/8QqEZBqDXILShBygQ==",
+  "clave_sim_cifrada": "0X48dJW+MuNM4JHtqI01lna5QNUAmrfmfKsiEaCQCY1NEyb/dqJWIH5jT5DCKyMAelHj9uv/rFsrc90TXoVJVYbnW4Vwpq6+fzoVMMA81eQptw/8orPzrYH13It+9r+KOQG2y3wOtwCUUhsBaqJc6sLTHyWeLIovaIInkpVCaVRhxNdJE1njk+VRmryGh+dooe8RQHVndVDreThh5Hac0EDtX36fvUfF2NZMSveqkHWXH4OcLM0t/osB6fVsuq0+5O19OAdv5gXsAQpIGCL0SuGKO90OfSvKXO6JpfAQ2JfAZ7bZ6wiIeRsYvEm1dQm8AYRxD6Gs1LBBU+pkcPsOnA==",
+  "algoritmo_simetrico": "AES-GCM-256",
+  "algoritmo_asimetrico": "RSA-2048-OAEP",
+  "mac_algoritmo": "HMAC-SHA256",
+  "mac_longitud_clave": 256,
+  "mac": "wmMMdJ93NDcFE3ki5zRqFoGSN/3BjwJr3e3VnjpUhHo="
+}
+
+{
+  "timestamp": "2025-10-28T22:41:30",
+  "usuario": "u",
+  "seleccion": "Opción A",
+  "voto_cifrado": "5KbMM9aU9sPHCK6YTOJzDu9h0HuS/Kylc3SVUlvxl678Qj0sTT+EFHMwtOEWHw==",
+  "iv": "os+hCap/2My8la+/",
+  "tag_gcm": "iPdx5DygNQ7fu0bfNaZyGA==",
+  "clave_sim_cifrada": "3jzi4PzNjd/m+uFgzQWbputyV9QAHYBkgKXaD8lsT0ipMu54cWAVnM04qFn24MQRnvpr0rjoMWIxX8cb8Ok7RRoFnjkuZQ1nG8MEuho4stTojkY+1K/G71DXPK5r+bk7FxNLgiHvlPH7qvhrTYW2yA+zp3M9kCcbW1kMy6ymyYO+mz7xexAO2yOkGMSjceuy9mFTIu9FWYndJqul9iACyhN+mQ9L//ufnOE7RHeVNA4YEYWR5EGRMgbKaH7kG1nFEJ1pRtPxhuLwkkdCN7X0S3QuEOiBA1APhW2+x1mVbXRQbaiX7FOun74McAU0uG08n6IHXnattDrP5aykIodOQA==",
+  "algoritmo_simetrico": "AES-GCM-256",
+  "algoritmo_asimetrico": "RSA-2048-OAEP",
+  "mac_algoritmo": "HMAC-SHA256",
+  "mac_longitud_clave": 256,
+  "mac": "bm/UNVny12eSzHqI2IM74Dl+u7NJX/O0pMW5PdrDNFQ="
+}
+
+{
+  "timestamp": "2025-10-28T22:41:32",
+  "usuario": "u",
+  "seleccion": "Opción A",
+  "voto_cifrado": "OFLmJ5t3oTZnjWE0k1oM2BbDv0foZrMk39ywpeQzknaf6ePsudNuvdqUA+7AcQ==",
+  "iv": "7Zyha8wcQtyHeayA",
+  "tag_gcm": "A4BJK5oJEIkb1hxhNxxG1w==",
+  "clave_sim_cifrada": "YRXuWMSy8CNJSws+qzLEiXTuTTkhtNmfN8jCF0NAfJBhRPh6LcGFK+JHod/m6+nOrxw7lQuFu8ouxEXjjPZukLsGwXxe/wu7rbfITAD3Npk8h5CZ7hpb+GCyJR1u0l7AiHuE3KV9rFeu3Xpuij+Ge+BBLPlwyF47B9LgV+SYeFrD9Fu0hBJFwfldeLV4tH0fDx+RyW85jTivDwMsb/E/VXAqZbiGNPnknz/g/n1UAc5WzmRq9s+s2Egg6/jAIVWj6IgvkZylLlMK8QFyAJoCx1UAFxfqNfSwGec7KfG0IaYogzGqYjowV9z2Se72tEY7Gn0E4Ezi3GA/KkKfYHLy+Q==",
+  "algoritmo_simetrico": "AES-GCM-256",
+  "algoritmo_asimetrico": "RSA-2048-OAEP",
+  "mac_algoritmo": "HMAC-SHA256",
+  "mac_longitud_clave": 256,
+  "mac": "vJx+Hg/UDEskHZ4uYceZIadxk1jf7AamKMOwQkmvsfE="
+}
+
+{
+  "timestamp": "2025-10-28T22:42:25",
+  "usuario": "u",
+  "seleccion": "Opción A",
+  "voto_cifrado": "yT2m1Zvovp6wGrhwzflGiaEb+CJpqO6/LtfcOtgcvtg5elDFIX3Ku7umIc1mLQ==",
+  "iv": "M2YUAes1OJOmjbMr",
+  "tag_gcm": "slZNomodNdArDsZ4XzXVmg==",
+  "clave_sim_cifrada": "sj31UJrBVEVDshzg/1Q6T00/BGeUYCIApOnq4Ql4ojX9lfjpQCiw1+M4kQBEizCXdmqOg6JA3W80darNPq+bJSEjT7r+wkFCfGgb7eaIhHauDJAjKeaNOsFfzYrXFzZ2s4IBNawl5ckXFF8pYAT3aoc7tSWXpwNpyahUH7SxplcWYfUoKETdBEMHwsdGzmTO+8ZWZpsOQxDygSh5qXawlehqf9bgBuO62UCZVH5wfgEiH7GX4IqyUapxpt3HHZhja85ZW+AL/1zXTiT3t0A3vEdRlphiQHyvZ/QHc7wv1U2JgspNUoyUFa+zG/afssDnU6y0skUPOl6vQUktJAjGlg==",
+  "algoritmo_simetrico": "AES-GCM-256",
+  "algoritmo_asimetrico": "RSA-2048-OAEP",
+  "mac_algoritmo": "HMAC-SHA256",
+  "mac_longitud_clave": 256,
+  "mac": "qDMvLRHLcNF3LNubZ1tByS2D1bCrx5QEA48MW/TQFIw="
+}
+
+{
+  "timestamp": "2025-10-28T22:42:26",
+  "usuario": "u",
+  "seleccion": "Opción A",
+  "voto_cifrado": "UvBT8WC0zH4oT9BgvOmITSxoSDZca3uZIxdVOWrZVB8EuaLP6T6EbT64m3QwRg==",
+  "iv": "QJQzse1k42wTt++l",
+  "tag_gcm": "FGJOfiCKTk2AehxhpC8PPA==",
+  "clave_sim_cifrada": "QKbtOqa86ogskJJDb/VCS0C3YGJLh8yDw/euOfK2XxGQckmsyX6dsVZK1Iysq2i02u6ORaFcPNAdHPmb7t9YGrxbloc1a64LWODA1LNLtOmRoA6XGxO1a21FYzwSP/KxWzLih2pXNE+AllOHdAPVNIMicQ3T7bjLJMCnVBBDtypufK/hK54BPqLy3sZj0dyMM87g73RWDz6SjaBUh3FJWbf7P0c7wXajJ78nZWdstOKu2q50pBecj8hiVGWDMVMRtxyNO00fLK+8+jwr3nEQ+RRRoid5MmzN4h+hgXpUk7xSySq7UvWnCyd2Gw184ndEstGy19IrPcrDvwv2rMo3tw==",
+  "algoritmo_simetrico": "AES-GCM-256",
+  "algoritmo_asimetrico": "RSA-2048-OAEP",
+  "mac_algoritmo": "HMAC-SHA256",
+  "mac_longitud_clave": 256,
+  "mac": "5kd1GPwp+qlRbYDZL7g6eeauZPUXGc0ymu6XIgzT5V4="
+}
+
+{
+  "timestamp": "2025-10-28T23:22:13",
+  "usuario": "u",
+  "seleccion": "Opción A",
+  "voto_cifrado": "C+eaYDQHN8oP6DMOssH45mOZQspzoBCpLjJnSrKqUaMKQPnBfHIKSrkxUDcTPA==",
+  "iv": "ql4t26MSD/BTh/5+",
+  "tag_gcm": "zQFmLMu7nYWZgFK21KuFOA==",
+  "clave_sim_cifrada": "E2spBAcb7AVMvdEzk/VTlQBzNC072WhrX16DixoJ4mDKi14E0JNXeKGkw90cfv2ltIrgH+ROuKD8Zghp9SGHrqL1n8GitOcSQGC0taoQP+hnv2xuhXTIxtY3ajqxNJRsYd6YTNMS8XJnj303AmlXH5vhJTYNPw/0KW2Co/84cg25tO9KKXt3fZfFffnvfPcQQcFpK95CSreFzaRxFnGvuj1yJX6Q781nzUYZkaH420C5v/KfqQu5kRbAqZtyLDtd3faExBHz3DvxxPEZxxFzGWto6WY8lOQqd7BdmAEgQresgg5LhXUzo3QnDw4JcOrfw61zF1g1VyruZAW9Kg2sBw==",
+  "algoritmo_simetrico": "AES-GCM-256",
+  "algoritmo_asimetrico": "RSA-2048-OAEP",
+  "mac_algoritmo": "HMAC-SHA256",
+  "mac_longitud_clave": 256,
+  "mac": "+pjTTEupoR1vr8OkBU4kvXbz4MGOXX64N7ydI0QKXiI="
+}
+
+{
+  "timestamp": "2025-10-28T23:22:15",
+  "usuario": "u",
+  "seleccion": "Opción A",
+  "voto_cifrado": "w9RKAdJ/tumlbSQaJWxN1UrsvpUqUVR5YLKnogv27tK5FFoTuiXHlpkFlB7gkg==",
+  "iv": "HTJ2Lr5bAwtMrBH/",
+  "tag_gcm": "wkCQx3ppkw22OXfWhu/CPA==",
+  "clave_sim_cifrada": "Ptgtu8fgOsyR0pEocub1SNUqwCJNKCzhazpkkSt6nYl1f70S0wMWqWShlGcu2VzFDKBZvgQWyUC5G91L1b+1fKyv8IliMaCRyrfcsSDQJ37xZi0hs73tYTOCl8iiAJ6KZDcweJ03Nw2XX56EV3UprM8wVcC7s6dqEdmckBF208n5NM+8e+nBau9KWmlJpn8CAqZ+ei/C2mYMxK61lnOg2KSKND+rcYHmLKC3U/yq6pqBXqWntm4PLLxGs+S7cmkj7rn6Fc8X/5CO9Iiug/qHTUg4hbyZl99RAgizvV8IYmD3LJn6EO3flXtLkz07C/JRsnc+KRWbwrBhUWmx1Kr8Sw==",
+  "algoritmo_simetrico": "AES-GCM-256",
+  "algoritmo_asimetrico": "RSA-2048-OAEP",
+  "mac_algoritmo": "HMAC-SHA256",
+  "mac_longitud_clave": 256,
+  "mac": "zqJI3bbyPQfauu64w6qpiLOoRrQKXBtDftZ1eDTz7KY="
+}
+
+{
+  "timestamp": "2025-10-28T23:24:48",
+  "usuario": "u",
+  "seleccion": "Opción A",
+  "voto_cifrado": "A0L3fk1ipoKhnvatSPry/rtXwrstkZXvJTfmB5iyhJN47IpV/c6Wr2MpGNWqFA==",
+  "iv": "wVkeztcQGGTO1MI4",
+  "tag_gcm": "wJs/N9TZfg4taipjdbUMcg==",
+  "clave_sim_cifrada": "4DzlqKX+TI5th948dlA3BoPx0UTUodgDcuaEKmjnf0bDBmgEgwHlrh/n9luPp42STRIKCtNnaBJ7NdkbxbPhkoatkqZpQ6wh1T1VH3slEAyx1iHTOMXtoQMlPrxV/B3GNS6ziCz+P3ZtENaSZoBrMp4x1lisFfGM2DaLGT26kPUDR+NboeDIOYzaJOLlvxLOJzBwNUdyO+Da+KyNQP3eWX0sjoP3hf92ewPWSMUjE0V8E/zS3hNFYKyppx+Yn1xTHlAXhKqWC3SPANlgQ0VZjSukBVe9roK9GPJN4Hi6C6/hbv3wZ8scwXx2g+owALJ5wNdf1n83hwShj0zJ6tiVhA==",
+  "algoritmo_simetrico": "AES-GCM-256",
+  "algoritmo_asimetrico": "RSA-2048-OAEP",
+  "mac_algoritmo": "HMAC-SHA256",
+  "mac_longitud_clave": 256,
+  "mac": "5nsljBf5FpaC+lVGvc2grvKvUwjlg1NUzyXyx8+DIsk="
+}
+
+{
+  "timestamp": "2025-10-28T23:24:48",
+  "usuario": "u",
+  "seleccion": "Opción A",
+  "voto_cifrado": "bnqFZVXjjHKIuFnTFE6+s+CQlFS9baFzalxfnhxPKMB05XHl/UxiJoyBswHh6A==",
+  "iv": "ha0ZhJGlCYk3qN2o",
+  "tag_gcm": "tfZXfzq8RvoDfpup77fHug==",
+  "clave_sim_cifrada": "QWnn/fm75p14TYJaVhZXMsvO/JGt/ajYe2Uhj5JARdlrI1arZ7rcWp9e62w8kQFy6Y4WZdGnsRPgkY53S2VFsiTePqdpIRjqpXiQbHr5fx5aJLmOSRHM5M0OkCq2UlwWxQn4xb8H+mXv5qp0JcLEswv8rgRfq8sVH5XK5A29O7Jqo1s8TEq3AFpyOCvNoPD1sewupl9+UoEA7xMswBiQkFY5mkCbGGtv0l95Svp+Y3rC6SE2YQLfDa8W6Pt5w7xbwyGIaQnhltXuT6cTaRgeAODwnTqwEQ2TsHAf2B2tnrl+aLz+van0If6LS8vE2K/oUtKPOWzia5fShhzoW0zoHg==",
+  "algoritmo_simetrico": "AES-GCM-256",
+  "algoritmo_asimetrico": "RSA-2048-OAEP",
+  "mac_algoritmo": "HMAC-SHA256",
+  "mac_longitud_clave": 256,
+  "mac": "5nsljBf5FpaC+lVGvc2grvKvUwjlg1NUzyXyx8+DIsk="
+}
+
+{
+  "timestamp": "2025-10-28T23:24:58",
+  "usuario": "u",
+  "seleccion": "Opción A",
+  "voto_cifrado": "EmGPIRg0+414Y7fLlZrCNnXYuAYTumpAs1vY4FBXyNSeQ/jQnlGGvsF9m22ucA==",
+  "iv": "c70cOCqBKBUkCg3p",
+  "tag_gcm": "jzAvWKyxlc61AjwpAWWyCg==",
+  "clave_sim_cifrada": "F2K5fPwC+rlxLPvNQFka6HYaw9BGqQ//L7ota8JSbh9ZFPlJ9KrwbKRvQ0XksC1IG5Srwuy9Swv2ivCyuFAL8Y/smKB3FWZt/92LfVzHZ7TDJC9AyDhSUnxi793oWL0ez9E8g0/v630Ji+SHdliCvGpsQkFhavSqvLoVGil2uyIeKt0QBfy3fRCAc1N06rWGDEDPHEMdUzOysnh7ZRdUaD+LBpKZgMphV2y14gUuws25u7lVntC+d7cXFXUxjdBKPqbkTHHX/v3poTA1G7Tq3hX9Ro8tzX3y+L2xUw+KDg6lkP6bc6wdRThaREozOAq52MbRV0vHNx5GyxI6qgfeig==",
+  "algoritmo_simetrico": "AES-GCM-256",
+  "algoritmo_asimetrico": "RSA-2048-OAEP",
+  "mac_algoritmo": "HMAC-SHA256",
+  "mac_longitud_clave": 256,
+  "mac": "2cr3KXafBl1AVilT3gtWloq7eGJ/dEu+pzUh6MtjGyw="
+}
+
+{
+  "timestamp": "2025-10-28T23:24:58",
+  "usuario": "u",
+  "seleccion": "Opción A",
+  "voto_cifrado": "6kgu0QjGfWbHlAJrZdwdd4XlkcS4aqPd0T9gzvKC5q62lSPDM7lQtC+8g264Lg==",
+  "iv": "jurCh57/Mf+RxkSV",
+  "tag_gcm": "KBt1Dd6ORnSRtmmm9zh1NA==",
+  "clave_sim_cifrada": "MjD/8JNT+mlA6il4z0RpXg92JDIb4lmb+Dj4PNlKqm+5dnHNI4lRCj/Vj2kFUOxNgRCkJRX5ma1Y0f6qjJdj9S+2QhlqDGeyFnBcTBULqy/Prc4vNFzpZNekZt7D8pTY5Szt9jX59P/fE6TyiHNfNZTdomFC/dvi7Rs49HmlbLuMP3CMvmDyz/jTxn25BBkYEGY+004wvLRU8BNc0AUqUjgGG+ijcIy+aaGJH9rwq4NWQoFzGzbevK43kVzAxj4f/cShARegq9IgIzPcH2GxM9iShadbfFUy0nIhgw6AwCMsYEylpaMix2CklwUcyYH0qvUXf/W6fJRkeWmH7OveWQ==",
+  "algoritmo_simetrico": "AES-GCM-256",
+  "algoritmo_asimetrico": "RSA-2048-OAEP",
+  "mac_algoritmo": "HMAC-SHA256",
+  "mac_longitud_clave": 256,
+  "mac": "2cr3KXafBl1AVilT3gtWloq7eGJ/dEu+pzUh6MtjGyw="
+}
+

@@ -58,7 +58,7 @@ def bienvenida(user: str) -> str:
     return BIENVENIDA_FMT.format(user=user)
 
 
-def despedida(user: str | None = None) -> str:
+def despedida(user: str) -> str:
     return HASTA_LUEGO_FMT.format(user=user) if user else HASTA_LUEGO
 
 

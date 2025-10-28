@@ -1,28 +1,10 @@
 {
-  "Opción A": 8,
-  "Opción B": 14,
-  "usuarios_votaron": [
-    "ale",
-    "pepa",
-    "loli",
-    "juani",
-    "mari",
-    "cris",
-    "y",
-    "q",
-    "w",
-    "e",
-    "pepita",
-    "marisa",
-    "cristian",
-    "maric",
-    "dia",
-    "maria",
-    "cri",
-    "FRAN",
-    "mariN",
-    "iri",
-    "ooo",
-    "MAE"
-  ]
+  "algoritmo_mac": "HMAC-SHA256",
+  "longitud_clave": 256,
+  "contenido": {
+    "Opción A": 999,
+    "Opción B": 0,
+    "usuarios_votaron": []
+  },
+  "mac": "wgWl/hmVk818U+WZZqK2PdSeR/dQnF0QhFQUC6sk0LA="
 }
