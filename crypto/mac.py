@@ -1,4 +1,4 @@
-"""Funciones HMAC y gestión de claves MAC persistentes."""
+"""funciones HMAC para verificacion de integridad de votos."""
 import os
 import base64
 import hmac
@@ -6,15 +6,13 @@ import hashlib
 
 
 def generar_clave_mac() -> bytes:
-    """Genera una clave aleatoria de 256 bits para HMAC."""
+    """Genera una clave aleatoria de 256 bits"""
     return os.urandom(32)
-
 
 def calcular_hmac_sha256(clave_mac: bytes, mensaje: str) -> str:
     mac = hmac.new(clave_mac, mensaje.encode("utf-8"), hashlib.sha256)
     resultado = base64.b64encode(mac.digest()).decode()
     return resultado
-
 
 def verificar_hmac_sha256(clave_mac: bytes, mensaje: str, mac_esperado: str) -> bool:
     mac_calculado = hmac.new(clave_mac, mensaje.encode("utf-8"), hashlib.sha256)
@@ -23,7 +21,7 @@ def verificar_hmac_sha256(clave_mac: bytes, mensaje: str, mac_esperado: str) -> 
     return valido
 
 def _cargar_o_crear_clave_mac(archivo_clave_mac: str) -> bytes:
-    """Carga o crea una clave MAC persistente en disco."""
+    """Carga o crea la clave MAC si no existe"""
     if os.path.exists(archivo_clave_mac):
         with open(archivo_clave_mac, "rb") as f:
             key = f.read()

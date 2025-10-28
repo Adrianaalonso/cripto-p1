@@ -4,13 +4,12 @@ import base64
 import hashlib
 import hmac
 
-# Número de iteraciones PBKDF2 b
+# Número de iteraciones PBKDF2 
 PBKDF2_ITERS = 200_000
 
 
 def pbkdf2_hash(password: str, salt: bytes = None, iters: int = PBKDF2_ITERS) -> str:
-    """Deriva una contraseña con PBKDF2-HMAC-SHA256 
-    """
+    """genera un hash de la contraseña con PBKDF2-HMAC-SHA256  """
     if salt is None:
         salt = os.urandom(16)
     dk = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, iters)
@@ -18,8 +17,7 @@ def pbkdf2_hash(password: str, salt: bytes = None, iters: int = PBKDF2_ITERS) ->
 
 
 def verificar_password(password: str, stored: str) -> bool:
-    """Verifica una contraseña contra la representación almacenada.
-
+    """Verifica la contraseña con la representación almacenada.
     Devuelve True si coincide, False en caso contrario.
     """
     try:
@@ -34,5 +32,5 @@ def verificar_password(password: str, stored: str) -> bool:
 
 
 def generar_clave_aes() -> bytes:
-    """Genera y retorna una clave AES-256 (32 bytes)."""
+    """Genera y devuelve la clave AES-256"""
     return os.urandom(32)
