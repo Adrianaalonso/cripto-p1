@@ -79,5 +79,14 @@
     "algoritmo_asimetrico": "RSA-2048-OAEP",
     "mac_algoritmo": "HMAC-SHA256",
     "mac_verificacion": "HMAC válido"
+  },
+  {
+    "vote_id": "da2017e50fb44cee980288a892666020",
+    "timestamp": "2025-10-28T18:10:00",
+    "voto_descifrado": "Opción B",
+    "algoritmo_simetrico": "AES-GCM-256",
+    "algoritmo_asimetrico": "RSA-2048-OAEP",
+    "mac_algoritmo": "HMAC-SHA256",
+    "mac_verificacion": "HMAC válido"
   }
 ]

@@ -16,8 +16,6 @@ from .mac import (
     generar_clave_mac,
     calcular_hmac_sha256,
     verificar_hmac_sha256,
-    calcular_hmac_sha512,
-    verificar_hmac_sha512,
     _cargar_o_crear_clave_mac,
 )
 from .cifrado_hibrido import (
@@ -42,8 +40,6 @@ __all__ = [
     "generar_clave_mac",
     "calcular_hmac_sha256",
     "verificar_hmac_sha256",
-    "calcular_hmac_sha512",
-    "verificar_hmac_sha512",
     "_cargar_o_crear_clave_mac",
     "generar_par_claves_rsa",
     "cargar_clave_publica_rsa",

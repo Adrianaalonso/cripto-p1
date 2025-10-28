@@ -22,20 +22,6 @@ def verificar_hmac_sha256(clave_mac: bytes, mensaje: str, mac_esperado: str) -> 
     valido = hmac.compare_digest(mac_calculado.digest(), mac_esperado_bytes)
     return valido
 
-
-def calcular_hmac_sha512(clave_mac: bytes, mensaje: str) -> str:
-    mac = hmac.new(clave_mac, mensaje.encode("utf-8"), hashlib.sha512)
-    resultado = base64.b64encode(mac.digest()).decode()
-    return resultado
-
-
-def verificar_hmac_sha512(clave_mac: bytes, mensaje: str, mac_esperado: str) -> bool:
-    mac_calculado = hmac.new(clave_mac, mensaje.encode("utf-8"), hashlib.sha512)
-    mac_esperado_bytes = base64.b64decode(mac_esperado)
-    valido = hmac.compare_digest(mac_calculado.digest(), mac_esperado_bytes)
-    return valido
-
-
 def _cargar_o_crear_clave_mac(archivo_clave_mac: str) -> bytes:
     """Carga o crea una clave MAC persistente en disco."""
     if os.path.exists(archivo_clave_mac):

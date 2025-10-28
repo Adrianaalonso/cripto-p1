@@ -5,15 +5,11 @@ import json
 from typing import Dict
 from .mac import _cargar_o_crear_clave_mac, calcular_hmac_sha256, verificar_hmac_sha256
 
-# Nombre del fichero con la clave MAC (misma convención usada en el proyecto)
 MAC_KEY_FILE = "clave_mac_usuarios.bin"
 
 
 def _contenido_para_mac(registro: Dict) -> str:
-    """Construye la representación JSON determinista usada para el cálculo de la MAC.
-
-    Sólo incluye los campos relevantes y asegura orden y separadores constantes.
-    """
+    """ contenido del JSON   para el cálculo de la MAC."""
     contenido = {
         "email": registro.get("email", ""),
         "password": registro.get("password", ""),
@@ -23,21 +19,14 @@ def _contenido_para_mac(registro: Dict) -> str:
 
 
 def generar_mac_usuario(registro: Dict) -> str:
-    """Genera y devuelve la MAC (base64) para un registro de usuario.
-
-    Ejemplo de uso:
-        mac = generar_mac_usuario(user_record)
-    """
+    """Genera y devuelve la MAC de cada usuario."""
     clave = _cargar_o_crear_clave_mac(MAC_KEY_FILE)
     contenido = _contenido_para_mac(registro)
     return calcular_hmac_sha256(clave, contenido)
 
 
 def verificar_mac_usuario(registro: Dict) -> bool:
-    """Verifica la MAC presente en el registro. Devuelve True si es válida.
-
-    Si el registro no contiene campo 'mac' devuelve False.
-    """
+    """Verifica que la MAC coincida con el registro. Devuelve True si es válida."""
     mac_esperada = registro.get("mac")
     if not mac_esperada:
         return False
