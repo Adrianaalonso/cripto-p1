@@ -15,7 +15,7 @@ class SistemaVotacion:
         self.archivo_clave = "json/clave_aes.bin"
     
     def mostrar_menu_principal(self):
-        """Mostrar el menú principal"""
+        """muestra el menu principal"""
         print("\n" + msj.LINEA_MENU)
         print(msj.TITULO_MENU)
         print(msj.LINEA_MENU)
@@ -25,7 +25,7 @@ class SistemaVotacion:
         print(msj.LINEA_MENU)
     
     def mostrar_menu_votacion(self):
-        """Mostrar el menú de votación"""
+        """muestra menú de votación"""
         print("\n" + msj.LINEA_VOTACION)
         print(msj.bienvenida(self.usuario_actual))
         print(msj.LINEA_VOTACION)
@@ -37,7 +37,7 @@ class SistemaVotacion:
         print(msj.LINEA_VOTACION)
     
     def ejecutar(self):
-        """Ejecutar el sistema principal"""
+        """ejecuta sistema principal"""
         print(msj.INICIANDO)
 
         while True:

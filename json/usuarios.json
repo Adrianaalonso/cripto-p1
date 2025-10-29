@@ -46,5 +46,11 @@
     "password": "pbkdf2$sha256$200000$I6E0coJk51efJriR1kdjnQ==$kQMMiqHSDosrFzRC8/zHI6qMYup25qPRd8TQBx8nO2Q=",
     "fecha_registro": "2025-10-29T12:18:39.785141",
     "mac": "9A8rUkRiUpTqGt3X8qgBP5jxCFYMx9wE7L01ADckqzI="
+  },
+  "sofi": {
+    "email": "sofi@gmail.com",
+    "password": "pbkdf2$sha256$200000$wDDIMaUwdN40Q9ip8sRzEg==$mbqlrAI3h4pThO74IXVZJHnht0HLFBCm+L5JbrZFJi8=",
+    "fecha_registro": "2025-10-29T12:52:08.368151",
+    "mac": "Vp6cZdcl3CsLGymUstmdBl4MwVO0rjn36xG0fSfaaQ4="
   }
 }

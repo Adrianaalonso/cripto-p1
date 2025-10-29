@@ -12,13 +12,14 @@ from datetime import datetime
 
 # Importar validadores y excepción
 from data.atributos import Username, Password, Email
-from data.msj_error import ExceptionErrors 
+from data.msj_error import ExceptionErrors
 from data import msj_comunes as msj
 
 
 def generar_codigo_mfa():
     """Genera código MFA de 6 dígitos aleatorios"""
     return str(random.randint(100000, 999999))
+
 
 def mostrar_codigo_ventana(codigo):
     """muestra código en una ventana externa simple"""
@@ -33,18 +34,19 @@ def mostrar_codigo_ventana(codigo):
     ventana.mainloop()
     return True
 
+
 def guardar_codigo_mfa(usuario, codigo):
     """Guarda código MFA temporalmente"""
     codigos = {}
     if os.path.exists("json/codigos_mfa.json"):
         with open("json/codigos_mfa.json", 'r', encoding='utf-8') as f:
             codigos = json.load(f)
-    
+
     codigos[usuario] = {
         "codigo": codigo,
         "timestamp": time.time()
     }
-    
+
     # Asegurar carpeta json/
     try:
         os.makedirs("json", exist_ok=True)
@@ -53,6 +55,7 @@ def guardar_codigo_mfa(usuario, codigo):
     with open("json/codigos_mfa.json", 'w', encoding='utf-8') as f:
         json.dump(codigos, f, indent=2)
 
+
 def verificar_codigo_mfa(usuario, codigo_ingresado):
     """Verifica que el código MFA coincide"""
     if not os.path.exists("json/codigos_mfa.json"):
@@ -60,13 +63,12 @@ def verificar_codigo_mfa(usuario, codigo_ingresado):
 
     with open("json/codigos_mfa.json", 'r', encoding='utf-8') as f:
         codigos = json.load(f)
-    
+
     if usuario not in codigos:
         return False, "No hay código pendiente"
-    
+
     codigo_info = codigos[usuario]
-    
- 
+
     if time.time() - codigo_info["timestamp"] > 150:
         del codigos[usuario]
         try:
@@ -76,7 +78,7 @@ def verificar_codigo_mfa(usuario, codigo_ingresado):
         with open("json/codigos_mfa.json", 'w', encoding='utf-8') as f:
             json.dump(codigos, f, indent=2)
         return False, "Código expirado"
-    
+
     # Verificacion del código
     if codigo_info["codigo"] == codigo_ingresado:
         del codigos[usuario]
@@ -87,41 +89,42 @@ def verificar_codigo_mfa(usuario, codigo_ingresado):
         with open("json/codigos_mfa.json", 'w', encoding='utf-8') as f:
             json.dump(codigos, f, indent=2)
         return True, "Código correcto"
-    
+
     return False, "Código incorrecto"
+
 
 def registrar_usuario(archivo_usuarios):
     """Registrar un nuevo usuario con validaciones y mensajes claros."""
     print("\n--- REGISTRO DE USUARIO ---")
     usuarios = cargar_usuarios(archivo_usuarios)
 
-    #nombre de usuario
+    # nombre de usuario
     while True:
         usuario_raw = input(msj.PROMPT_USUARIO).strip()
         try:
             usuario = Username(usuario_raw).value  # valida: regex y longitud
         except ExceptionErrors as e:
-            print(e.message)  
+            print(e.message)
             continue
 
         if usuario in usuarios:
             print("El usuario ya existe. Intente con otro nombre.")
             continue
         break
-    #email
+    # email
     while True:
         email_raw = input(msj.PROMPT_CORREO).strip()
         try:
             email = Email(email_raw).value  # valida email finalizado en @gmail.com
             break
         except ExceptionErrors as e:
-            print(e.message) 
+            print(e.message)
 
-    #contraeña
+            # contraeña
     while True:
         pwd1 = getpass.getpass("Ingrese su contraseña: ")
         try:
-            pwd = Password(pwd1).value 
+            pwd = Password(pwd1).value
         except ExceptionErrors as e:
             print(e.message)
             continue
@@ -133,13 +136,13 @@ def registrar_usuario(archivo_usuarios):
         password_ok = pwd1
         break
 
-    #Guardar usuario
+    # Guardar usuario
     usuarios[usuario] = {
         "email": email,
         "password": pbkdf2_hash(password_ok),
         "fecha_registro": datetime.now().isoformat()
     }
-    #generamos y anadimos MAC al guardar usuario para detectar manipulaciones
+    # generamos y anadimos MAC al guardar usuario para detectar manipulaciones
     try:
         usuarios[usuario]["mac"] = generar_mac_usuario(usuarios[usuario])
     except Exception:
@@ -152,20 +155,21 @@ def registrar_usuario(archivo_usuarios):
     print(f"Usuario '{usuario}' registrado exitosamente!")
     return True
 
+
 def iniciar_sesion(archivo_usuarios):
     """Iniciar sesión con usuario existente y MFA"""
     print("\n--- INICIAR SESIÓN ---")
-    
+
     usuarios = cargar_usuarios(archivo_usuarios)
     administradores = cargar_administradores()
 
     usuario = input(msj.PROMPT_LOGIN_USERNAME).strip()
     password = getpass.getpass("Contraseña: ")
-    
+
     # Verificar si es administrador
     if usuario in administradores and verificar_password(password, administradores[usuario]["password"]):
         return ("admin", usuario)  # Retorna tupla indicando que es admin
-    
+
     # Verificar usuario normal
     elif usuario in usuarios:
         user_record = usuarios[usuario]
@@ -174,20 +178,22 @@ def iniciar_sesion(archivo_usuarios):
         if "mac" in user_record:
             try:
                 if not verificar_mac_usuario(user_record):
-                    print("Registro de usuario modificado o corrupto: integridad comprometida. No se permite iniciar sesión.")
+                    print(
+                        "Registro de usuario modificado o corrupto: integridad comprometida. No se permite iniciar sesión.")
                     return None
             except Exception as e:
                 print(f"Error verificando integridad del registro de usuario: {e}")
                 return None
         else:
             # No existe MAC para este usuario: por seguridad, no permitimos login hasta migración
-            print("Registro de usuario sin protección MAC: por seguridad, el inicio de sesión está bloqueado para este usuario.")
+            print(
+                "Registro de usuario sin protección MAC: por seguridad, el inicio de sesión está bloqueado para este usuario.")
             print("Ejecute la migración para añadir MACs a los registros de usuario o regístrese de nuevo.")
             return None
 
         # Si la integridad es correcta, verificar contraseña
         if verificar_password(password, user_record["password"]):
-            #si las contrasenas coinciden, procedemos a MFA
+            # si las contrasenas coinciden, procedemos a MFA
             email_usuario = user_record["email"]
 
             # Generar y mostrar código
@@ -223,6 +229,7 @@ def iniciar_sesion(archivo_usuarios):
         print(" Usuario o contraseña incorrectos.")
         return None
 
+
 def cargar_administradores():
     """Cargar lista de administradores del archivo"""
     try:
@@ -233,20 +240,21 @@ def cargar_administradores():
     except json.JSONDecodeError:
         return {}
 
+
 def iniciar_sesion_admin():
     """Iniciar sesión como administrador"""
     administradores = cargar_administradores()
-    
+
     if not administradores:
         print(" No hay administradores configurados.")
-        return None 
+        return None
     print("\n=== LOGIN ADMINISTRADOR ===")
     usuario = input(msj.PROMPT_USUARIO_ADMIN).strip()
-    
+
     if usuario in administradores:
         import getpass
         password = getpass.getpass(" Contraseña: ")
-        
+
         # Verificar contraseña del administrador
         if verificar_password(password, administradores[usuario]["password"]):
             nombre = administradores[usuario]["nombre"]
