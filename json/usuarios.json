@@ -40,5 +40,11 @@
     "password": "pbkdf2$sha256$200000$uoxNNgDwe3HgGvXtF8RlPQ==$Qr7AfApUwdQlC1S96/40yiuH9PqHONm22MzlMPQDHaA=",
     "fecha_registro": "2025-10-29T10:46:41.635428",
     "mac": "qSV4vAUv4Ey7Or2EkKSYgX0KOMJi/Mqm29DCfLxwxvE="
+  },
+  "wol": {
+    "email": "wol@gmail.com",
+    "password": "pbkdf2$sha256$200000$I6E0coJk51efJriR1kdjnQ==$kQMMiqHSDosrFzRC8/zHI6qMYup25qPRd8TQBx8nO2Q=",
+    "fecha_registro": "2025-10-29T12:18:39.785141",
+    "mac": "9A8rUkRiUpTqGt3X8qgBP5jxCFYMx9wE7L01ADckqzI="
   }
 }

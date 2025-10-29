@@ -1,5 +1,5 @@
 {
-  "Opción A": 4,
+  "Opción A": 5,
   "Opción B": 3,
   "usuarios_votaron": [
     "lal",
@@ -7,6 +7,7 @@
     "nop",
     "hola",
     "final",
-    "rita"
+    "rita",
+    "wol"
   ]
 }

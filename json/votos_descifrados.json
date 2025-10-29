@@ -1,8 +1,8 @@
 [
   {
-    "vote_id": "f53361e6a0cf4c62aa0cddd918f886ff",
-    "timestamp": "2025-10-29T03:28:00",
-    "voto_descifrado": "Opción B",
+    "vote_id": "35685f79e0ed4237ae81eb574f00effb",
+    "timestamp": "2025-10-29T12:19:00",
+    "voto_descifrado": "Opción A",
     "algoritmo_simetrico": "AES-GCM-256",
     "algoritmo_asimetrico": "RSA-2048-OAEP",
     "mac_algoritmo": "HMAC-SHA256",
