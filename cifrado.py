@@ -14,13 +14,14 @@ import hashlib
 import base64
 from data import msj_comunes as msj
 
+
 def exportar_log_descifrado(archivo_log_cifrado, archivo_clave, salida="log_descifrado.jsonl", admin_mode=False):
     # Solicitar clave de administrador solo si no es modo admin
     if not admin_mode:
         print(msj.ACCESO_ADMIN)
         clave_admin = getpass.getpass(msj.PROMPT_CLAVE_ADMIN)
 
-        # Clave de administrador 
+        #verificamos que es el admin
         if clave_admin != "admin123":
             print(msj.CLAVE_ADMIN_INCORRECTA)
             from data import msj_espera
@@ -89,7 +90,7 @@ def exportar_log_descifrado(archivo_log_cifrado, archivo_clave, salida="log_desc
                 print(msj.error_entrada(line_num, e))
                 continue
 
-    # Escribir archivo de salida
+    # Escribir archivo de salida en jsonl
     try:
         with open(salida, "w", encoding="utf-8") as g:
             for r in out:
@@ -113,23 +114,23 @@ def exportar_log_descifrado(archivo_log_cifrado, archivo_clave, salida="log_desc
 
 def registrar_log_hibrido_hmac(usuario: str, seleccion: str, archivo_log_cifrado):
 
-    # 1. Crear claves RSA si no existen
+    #primero creamos claves RSA si no existen
     archivo_priv, archivo_pub = crear_claves_administrador()
 
-    # 2. Preparar mensaje del voto
+    #preparamos el mensaje del voto
     mensaje = f"Voto de {usuario} para {seleccion} @ {datetime.now().isoformat(timespec='seconds')}"
 
     print(msj.CIFRADO_HIBRIDO_FMT.format(seleccion=seleccion))
 
-    # 3. Cifrado híbrido del mensaje
+    # ciframos el mensaje simetrica y asiméctricamente
     voto_cifrado_hibrido = cifrado_hibrido_voto(mensaje, archivo_pub)
 
-    # 4. Generar HMAC del mensaje original (cálculo local, imports en tope)
+    # HMAC del mensaje original
     clave_mac = cargar_o_crear_clave_mac("json/clave_mac_logs.bin")
     mac = hmac.new(clave_mac, mensaje.encode('utf-8'), hashlib.sha256)
     mac_b64 = base64.b64encode(mac.digest()).decode()
 
-    # 5. Estructura unificada: Híbrido + HMAC
+    #Híbrido + HMAC
     linea_unificada = {
         "timestamp": datetime.now().isoformat(timespec='seconds'),
         "usuario": usuario,
@@ -151,7 +152,7 @@ def registrar_log_hibrido_hmac(usuario: str, seleccion: str, archivo_log_cifrado
         "mac": mac_b64,
     }
 
-    # 6. Guardar en archivo log unificado
+    # guardamos en un archivo el log unificado
     with open(archivo_log_cifrado, "a", encoding="utf-8") as f:
         f.write(json.dumps(linea_unificada, ensure_ascii=False) + "\n")
 
