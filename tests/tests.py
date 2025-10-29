@@ -13,29 +13,49 @@ from unittest import mock
 import io
 import contextlib
 from importlib import import_module
+import sys
+from pathlib import Path as _Path
+
+# Asegurar que la raíz del proyecto esté en sys.path antes de importar módulos del repo.
+# Esto evita que la carpeta de datos `json/` creada por los tests interfiera con la
+# resolución de módulos (p. ej. que Python trate de interpretar `json.archivos_json`).
+sys.path.insert(0, str(_Path(__file__).resolve().parents[1]))
 
 # Utilidades comunes para los tests (importan dinámicamente y se saltan si falta algo)
 class TempCwdMixin:
     def setUp(self):
-        # Guardar cwd original y cambiar a un tmpdir aislado
+        # Guardar cwd original y crear un tmpdir aislado (mkdtemp para control explícito)
         self._old_cwd = os.getcwd()
-        self._tmpdir = tempfile.TemporaryDirectory()
-        os.chdir(self._tmpdir.name)
+        self._tmpdir_path = tempfile.mkdtemp()
+        os.chdir(self._tmpdir_path)
+        # Asegurar que exista la carpeta de datos json/ (el proyecto usa json/)
+        try:
+            os.makedirs("json", exist_ok=True)
+        except Exception:
+            pass
 
     def tearDown(self):
-        # Restaurar cwd y eliminar tmpdir de forma segura
+        # Restaurar cwd antes de eliminar el tmpdir
         try:
             os.chdir(self._old_cwd)
         except Exception:
             pass
+
+        # Intentar eliminar el tmpdir de forma robusta sin invocar el handler recursivo de tempfile
         try:
-            self._tmpdir.cleanup()
+            # cerrar cualquier descriptor abierto implícitamente no posible aquí; forzamos rmtree ignorando errores
+            import shutil
+            shutil.rmtree(self._tmpdir_path, ignore_errors=True)
         except Exception:
+            # último recurso: no fallar los tests por no poder limpiar el tmpdir
             pass
 
 def _import_or_skip(testcase, module_name):
     try:
-        return __import__(module_name)
+        # aceptar rutas con '/' o '.' y usar import_module
+        module_name = module_name.replace("/", ".")
+        from importlib import import_module
+        return import_module(module_name)
     except Exception as e:
         testcase.skipTest(f"No pude importar {module_name}: {e}")
 
@@ -84,17 +104,17 @@ class TestHMACUsuarios(TempCwdMixin, unittest.TestCase):
 
     def test_guardar_y_verificar_ok(self):
         usuarios = {"adri": {"email": "adri@gmail.com", "password": "pbkdf2$sha256$200000$X$Y"}}
-        self.guardar(usuarios, "usuarios.json")
-        out = self.cargar("usuarios.json")
+        self.guardar(usuarios, "json/usuarios.json")
+        out = self.cargar("json/usuarios.json")
         # Algunos diseños devuelven la estructura completa; aceptamos equivalencia parcial
         self.assertIn("adri", out)
         self.assertEqual(out.get("adri", {}).get("email"), usuarios["adri"]["email"])
 
     def test_manipulacion_detectada(self):
         usuarios = {"adri": {"email": "adri@gmail.com", "password": "pbkdf2$sha256$200000$X$Y"}}
-        self.guardar(usuarios, "usuarios.json")
+        self.guardar(usuarios, "json/usuarios.json")
         # Modificar el fichero JSON por fuera de la API
-        with open("usuarios.json", "r", encoding="utf-8") as f:
+        with open("json/usuarios.json", "r", encoding="utf-8") as f:
             data = json.load(f)
         # Intentar localizar la estructura dentro del fichero (varios formatos posibles)
         if isinstance(data, dict) and "contenido" in data:
@@ -104,10 +124,10 @@ class TestHMACUsuarios(TempCwdMixin, unittest.TestCase):
         else:
             # fallback: reserializar con distinto contenido
             data = {"adri": {"email": "hacker@gmail.com", "password": "X"}}
-        with open("usuarios.json", "w", encoding="utf-8") as f:
+        with open("json/usuarios.json", "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
 
-        out = self.cargar("usuarios.json")
+        out = self.cargar("json/usuarios.json")
         # Si cambia el contenido sin recalcular MAC la carga debe detectar manipulación.
         # Muchas implementaciones devuelven {} o un dict sin usuarios válidos.
         self.assertFalse("adri" in out and out.get("adri", {}).get("email") == "hacker@gmail.com",
@@ -123,16 +143,16 @@ class TestHMACVotos(TempCwdMixin, unittest.TestCase):
 
     def test_votos_mac_ok(self):
         votos = {"Opción A": 1, "Opción B": 0, "usuarios_votaron": ["adri"]}
-        self.guardar(votos, "votos.json")
-        out = self.cargar("votos.json")
+        self.guardar(votos, "json/votos.json")
+        out = self.cargar("json/votos.json")
         self.assertEqual(out.get("Opción A", 0), 1)
         self.assertEqual(out.get("Opción B", 0), 0)
         self.assertIn("usuarios_votaron", out)
 
     def test_votos_manipulados(self):
         votos = {"Opción A": 2, "Opción B": 0, "usuarios_votaron": []}
-        self.guardar(votos, "votos.json")
-        with open("votos.json", "r", encoding="utf-8") as f:
+        self.guardar(votos, "json/votos.json")
+        with open("json/votos.json", "r", encoding="utf-8") as f:
             data = json.load(f)
         # intentar manipular contenido
         if isinstance(data, dict) and "contenido" in data:
@@ -141,10 +161,10 @@ class TestHMACVotos(TempCwdMixin, unittest.TestCase):
             data["Opción A"] = 999
         else:
             data = {"Opción A": 999, "Opción B": 0, "usuarios_votaron": []}
-        with open("votos.json", "w", encoding="utf-8") as f:
+        with open("json/votos.json", "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
 
-        out = self.cargar("votos.json")
+        out = self.cargar("json/votos.json")
         # Muchos diseños devuelven defaults con 0s cuando el MAC falla
         self.assertEqual(out.get("Opción A", 0), 0)
         self.assertEqual(out.get("Opción B", 0), 0)
@@ -212,7 +232,7 @@ class TestHibridoBasico(TempCwdMixin, unittest.TestCase):
 
     def test_cifra_y_exporta_ok(self):
         # Genera 1 entrada híbrida (registrar escribe pretty-printed blocks separados por línea en blanco)
-        self.registrar("adri", "Opción A", "log_hibrido.jsonl")
+        self.registrar("adri", "Opción A", "json/log_hibrido.jsonl")
 
         # Ejecutar export con stdout capturado y input parcheado para evitar bloqueos.
         with mock.patch("builtins.input", return_value=""):
@@ -221,10 +241,10 @@ class TestHibridoBasico(TempCwdMixin, unittest.TestCase):
                 try:
                     # intentar la firma más completa primero
                     try:
-                        self.exportar("log_hibrido.jsonl", "clave_aes.bin", salida="out.jsonl", admin_mode=True)
+                        self.exportar("json/log_hibrido.jsonl", "clave_aes.bin", salida="json/out.jsonl", admin_mode=True)
                     except TypeError:
                         # fallback a firma alternativa
-                        self.exportar("log_hibrido.jsonl", salida="out.jsonl", admin_mode=True)
+                        self.exportar("json/log_hibrido.jsonl", salida="json/out.jsonl", admin_mode=True)
                 except Exception as e:
                     self.skipTest(f"exportar no compatible o falló: {e}")
 
@@ -232,14 +252,14 @@ class TestHibridoBasico(TempCwdMixin, unittest.TestCase):
 
         # Leer out.jsonl si fue creado (asegurarse de cerrar el fichero correctamente)
         lines = []
-        if Path("out.jsonl").exists():
-            with open("out.jsonl", "r", encoding="utf-8") as f:
+        if Path("json/out.jsonl").exists():
+            with open("json/out.jsonl", "r", encoding="utf-8") as f:
                 lines = [l for l in f.readlines() if l.strip()]
 
         # Aceptar señal de éxito por archivo o por mensaje en stdout
         exported_msg_ok = ("Log descifrado exportado" in salida_stdout) or ("Log descifrado exportado en" in salida_stdout) or ("Guardado en:" in salida_stdout)
         if not (len(lines) >= 1 or exported_msg_ok):
-            self.fail("Ni se creó out.jsonl con contenido ni se imprimió mensaje de exportación. Salida:\n" + salida_stdout)
+            self.fail("Ni se creó json/out.jsonl con contenido ni se imprimió mensaje de exportación. Salida:\n" + salida_stdout)
 
         # Si hay líneas, intentar parsear la primera como JSON y comprobar clave esperada.
         if len(lines) >= 1:
@@ -249,7 +269,7 @@ class TestHibridoBasico(TempCwdMixin, unittest.TestCase):
                 self.assertIn("texto", r)
             except Exception:
                 if not exported_msg_ok:
-                    self.fail("out.jsonl existe pero la primera línea no es JSON válido y no hubo mensaje de exportación.")
+                    self.fail("json/out.jsonl existe pero la primera línea no es JSON válido y no hubo mensaje de exportación.")
 
 # # ---------- Tests clave privada ausente/corrupta ----------
 # class TestAdminClavePrivada(TempCwdMixin, unittest.TestCase):
@@ -420,7 +440,7 @@ class TestMFA(TempCwdMixin, unittest.TestCase):
     def test_mfa_expira(self):
         codigo = self.gen()
         json.dump({"adri": {"codigo": codigo, "timestamp": time.time() - 999}},
-                  open("codigos_mfa.json", "w", encoding="utf-8"), indent=2)
+        open("json/codigos_mfa.json", "w", encoding="utf-8"), indent=2)
         ok, msg = self.verificar("adri", codigo)
         self.assertFalse(ok)
 
@@ -428,6 +448,8 @@ class TestMFA(TempCwdMixin, unittest.TestCase):
 
 class TestRegistrarYExportadorHibrido(TempCwdMixin, unittest.TestCase):
     def setUp(self):
+        # asegurarse de ejecutar TempCwdMixin.setUp para aislar cwd
+        super().setUp()
         self.cifrado = import_module("cifrado")
         # evitar pausas y prompts
         try:
@@ -437,15 +459,17 @@ class TestRegistrarYExportadorHibrido(TempCwdMixin, unittest.TestCase):
 
     def tearDown(self):
         # eliminar ficheros residuales
-        for p in ("log_hibrido.jsonl","out.jsonl","votos_cifrados.jsonl"):
+        for p in ("json/log_hibrido.jsonl","json/out.jsonl","json/votos_cifrados.jsonl"):
             if Path(p).exists():
                 Path(p).unlink()
+        # finalizar TempCwdMixin cleanup
+        super().tearDown()
 
     def test_registrar_escribe_campos_hibridos(self):
         # crear una entrada
-        self.cifrado.registrar_log_hibrido_hmac("testuser","Opción A","log_hibrido.jsonl")
-        assert Path("log_hibrido.jsonl").exists()
-        txt = Path("log_hibrido.jsonl").read_text(encoding="utf-8")
+        self.cifrado.registrar_log_hibrido_hmac("testuser","Opción A","json/log_hibrido.jsonl")
+        assert Path("json/log_hibrido.jsonl").exists()
+        txt = Path("json/log_hibrido.jsonl").read_text(encoding="utf-8")
         # comprobar que contiene campos esperados
         assert "voto_cifrado" in txt
         assert "clave_sim_cifrada" in txt
@@ -453,7 +477,7 @@ class TestRegistrarYExportadorHibrido(TempCwdMixin, unittest.TestCase):
         assert "mac" in txt
 
     def test_exportador_hibrido_produce_out_jsonl(self):
-        self.cifrado.registrar_log_hibrido_hmac("testuser","Opción A","log_hibrido.jsonl")
+        self.cifrado.registrar_log_hibrido_hmac("testuser","Opción A","json/log_hibrido.jsonl")
         # usar exportador preferente (híbrido si existe)
         export = getattr(self.cifrado, "exportar_log_hibrido_descifrado", None) or getattr(self.cifrado, "exportar_log_descifrado", None)
         if not export:
@@ -463,18 +487,18 @@ class TestRegistrarYExportadorHibrido(TempCwdMixin, unittest.TestCase):
             with contextlib.redirect_stdout(buf):
                 # forzar modo admin para evitar prompts
                 try:
-                    export("log_hibrido.jsonl", "admin_private_key.pem", salida="out.jsonl", admin_mode=True)
+                    export("json/log_hibrido.jsonl", "admin_private_key.pem", salida="json/out.jsonl", admin_mode=True)
                 except TypeError:
-                    export("log_hibrido.jsonl", salida="out.jsonl", admin_mode=True)
+                    export("json/log_hibrido.jsonl", salida="json/out.jsonl", admin_mode=True)
         # comprobar salida
-        if Path("out.jsonl").exists():
-            lines = [l for l in Path("out.jsonl").read_text(encoding="utf-8").splitlines() if l.strip()]
+        if Path("json/out.jsonl").exists():
+            lines = [l for l in Path("json/out.jsonl").read_text(encoding="utf-8").splitlines() if l.strip()]
             self.assertGreaterEqual(len(lines), 1)
             j = json.loads(lines[0])
             # salida híbrida debe contener texto (o al menos campo "texto")
             self.assertIn("texto", j)
         else:
-            self.fail("No se generó out.jsonl")
+            self.fail("No se generó json/out.jsonl")
 
 
 # Ejecutar tests
