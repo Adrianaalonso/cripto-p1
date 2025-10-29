@@ -1,5 +1,6 @@
 # Funciones de votación exactas del sistema_votacion.py original
 import json
+import os
 from datetime import datetime
 import uuid
 from archivos_json import cargar_votos, guardar_votos
@@ -54,8 +55,8 @@ def votar(usuario_actual, opciones_votacion, archivo_votos):
         print()
         voto_cifrado_hibrido = cifrado_hibrido_voto(seleccion, archivo_pub)
 
-        # Generar HMAC sobre los campos que vamos a guardar
-        clave_mac = cargar_o_crear_clave_mac("clave_mac_logs.bin")
+        # Generar HMAC sobre los campos que vamos a guardar (clave en json/)
+        clave_mac = cargar_o_crear_clave_mac("json/clave_mac_logs.bin")
         mac_obj = {
             "vote_id": vote_id,
             "voto_cifrado": voto_cifrado_hibrido["voto_cifrado"],
@@ -70,9 +71,9 @@ def votar(usuario_actual, opciones_votacion, archivo_votos):
         print(msj.HMAC_OK)
 
         print()
-        
+
         # Guardar SOLO datos cifrados (SIN usuario, SIN mensaje_completo)
-        archivo_votos_cifrados = "votos_cifrados.jsonl"
+        archivo_votos_cifrados = "json/votos_cifrados.jsonl"
         linea_voto = {
             "vote_id" : vote_id,
             "timestamp": ts,
@@ -83,12 +84,18 @@ def votar(usuario_actual, opciones_votacion, archivo_votos):
             "mac": mac_b64
             # No incluimos usuario para mantener el anonimato
         }
-        
+
+        # Asegurar carpeta json/
+        try:
+            os.makedirs("json", exist_ok=True)
+        except Exception:
+            pass
+
         with open(archivo_votos_cifrados, "a", encoding="utf-8") as f:
             # Escribir en formato JSONL: una línea JSON por voto (compatibilidad con el descifrador)
             f.write(json.dumps(linea_voto, ensure_ascii=False) + "\n")
         print(msj.VOTO_GUARDADO_FMT.format(path=archivo_votos_cifrados))
-        
+
         # Mantener el conteo normal para resultados públicos
         votos[seleccion] += 1
         votos["usuarios_votaron"].append(usuario_actual)

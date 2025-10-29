@@ -7,12 +7,12 @@ from data import msj_comunes as msj
 
 class SistemaVotacion:
     def __init__(self):
-        self.archivo_usuarios = "usuarios.json"
-        self.archivo_votos = "votos.json"
+        self.archivo_usuarios = "json/usuarios.json"
+        self.archivo_votos = "json/votos.json"
         self.usuario_actual = None
         self.opciones_votacion = ["Opción A", "Opción B"]
-        self.archivo_log_cifrado = "log_cifrado.jsonl"
-        self.archivo_clave = "clave_aes.bin"
+        self.archivo_log_cifrado = "json/log_cifrado.jsonl"
+        self.archivo_clave = "json/clave_aes.bin"
     
     def mostrar_menu_principal(self):
         """Mostrar el menú principal"""

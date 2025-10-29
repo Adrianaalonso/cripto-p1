@@ -71,7 +71,7 @@ def exportar_log_descifrado(archivo_log_cifrado, archivo_clave, salida="log_desc
                     if "mac" in rec:
                         try:
                             # Cargar clave MAC y verificar manualmente (sin import local)
-                            clave_mac = cargar_o_crear_clave_mac("clave_mac_logs.bin")
+                            clave_mac = cargar_o_crear_clave_mac("json/clave_mac_logs.bin")
                             mac_calculado = hmac.new(clave_mac, texto.encode('utf-8'), hashlib.sha256)
                             mac_esperado = base64.b64decode(rec["mac"])
                             if hmac.compare_digest(mac_calculado.digest(), mac_esperado):
@@ -125,7 +125,7 @@ def registrar_log_hibrido_hmac(usuario: str, seleccion: str, archivo_log_cifrado
     voto_cifrado_hibrido = cifrado_hibrido_voto(mensaje, archivo_pub)
 
     # 4. Generar HMAC del mensaje original (cálculo local, imports en tope)
-    clave_mac = cargar_o_crear_clave_mac("clave_mac_logs.bin")
+    clave_mac = cargar_o_crear_clave_mac("json/clave_mac_logs.bin")
     mac = hmac.new(clave_mac, mensaje.encode('utf-8'), hashlib.sha256)
     mac_b64 = base64.b64encode(mac.digest()).decode()
 

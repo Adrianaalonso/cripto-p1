@@ -28,5 +28,17 @@
     "password": "pbkdf2$sha256$200000$O5IAOO4O+9mWHyP83/hwLw==$UZguSGb3cAi1o+D7JkNwwJR6qCZmqCKnGpU0q4rRB3Q=",
     "fecha_registro": "2025-10-29T03:28:05.851740",
     "mac": "ofOjXTBLcRv9nS9SVxlOfPMGpwjxglJLa66Y4K1TyqU="
+  },
+  "cris": {
+    "email": "c@gmail.com",
+    "password": "pbkdf2$sha256$200000$YXuBwg18l7WXm6Ky9bnzPA==$9yKbm0p5wa/hRX4pwd9CCb8Zg2EuSDJ7ZKM2Toppi/o=",
+    "fecha_registro": "2025-10-29T10:36:35.519047",
+    "mac": "amLqBPqlxHLfBF439pf1JhivnU5jevAcvD11YPFQHuI="
+  },
+  "rita": {
+    "email": "r@gmail.com",
+    "password": "pbkdf2$sha256$200000$uoxNNgDwe3HgGvXtF8RlPQ==$Qr7AfApUwdQlC1S96/40yiuH9PqHONm22MzlMPQDHaA=",
+    "fecha_registro": "2025-10-29T10:46:41.635428",
+    "mac": "qSV4vAUv4Ey7Or2EkKSYgX0KOMJi/Mqm29DCfLxwxvE="
   }
 }

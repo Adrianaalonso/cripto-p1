@@ -1,7 +1,7 @@
 import json
 from .mac import cargar_o_crear_clave_mac, calcular_hmac_sha256, verificar_hmac_sha256
 
-MAC_KEY_FILE = "clave_mac_usuarios.bin"
+MAC_KEY_FILE = "json/clave_mac_usuarios.bin"
 
 def contenido_para_mac(registro):
     """contenido del JSON para el cálculo de la MAC."""

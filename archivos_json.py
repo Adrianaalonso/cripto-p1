@@ -43,7 +43,7 @@ def guardar_usuarios_con_mac(usuarios, archivo_usuarios):
     contenido_json = json.dumps(usuarios, indent=2, ensure_ascii=False)
     
     # Cargar clave MAC
-    clave_mac = cargar_o_crear_clave_mac("clave_mac_usuarios.bin")
+    clave_mac = cargar_o_crear_clave_mac("json/clave_mac_usuarios.bin")
     
     # Calcular HMAC del contenido
     mac = calcular_hmac_sha256(clave_mac, contenido_json)
@@ -77,8 +77,8 @@ def cargar_usuarios_con_mac(archivo_usuarios):
             return estructura
         
         # Cargar clave MAC
-        clave_mac = cargar_o_crear_clave_mac("clave_mac_usuarios.bin")
-        
+        clave_mac = cargar_o_crear_clave_mac("json/clave_mac_usuarios.bin")
+
         # Reconstruir contenido original para verificar
         contenido_json = json.dumps(estructura["contenido"], indent=2, ensure_ascii=False)
         
@@ -101,7 +101,7 @@ def guardar_votos_con_mac(votos, archivo_votos):
     contenido_json = json.dumps(votos, indent=2, ensure_ascii=False)
     
     # Cargar clave MAC
-    clave_mac = cargar_o_crear_clave_mac("clave_mac_votos.bin")
+    clave_mac = cargar_o_crear_clave_mac("json/clave_mac_votos.bin")
     
     # Calcular HMAC del contenido
     mac = calcular_hmac_sha256(clave_mac, contenido_json)
@@ -141,8 +141,8 @@ def cargar_votos_con_mac(archivo_votos):
             return v
         
         # Cargar clave MAC
-        clave_mac = cargar_o_crear_clave_mac("clave_mac_votos.bin")
-        
+        clave_mac = cargar_o_crear_clave_mac("json/clave_mac_votos.bin")
+
         # Reconstruir contenido original para verificar
         contenido_json = json.dumps(estructura["contenido"], indent=2, ensure_ascii=False)
         

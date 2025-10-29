@@ -1,11 +1,12 @@
 {
-  "Opción A": 3,
+  "Opción A": 4,
   "Opción B": 3,
   "usuarios_votaron": [
     "lal",
     "funciona",
     "nop",
     "hola",
-    "final"
+    "final",
+    "rita"
   ]
 }

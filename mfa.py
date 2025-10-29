@@ -36,8 +36,8 @@ def mostrar_codigo_ventana(codigo):
 def guardar_codigo_mfa(usuario, codigo):
     """Guarda código MFA temporalmente"""
     codigos = {}
-    if os.path.exists("codigos_mfa.json"):
-        with open("codigos_mfa.json", 'r') as f:
+    if os.path.exists("json/codigos_mfa.json"):
+        with open("json/codigos_mfa.json", 'r', encoding='utf-8') as f:
             codigos = json.load(f)
     
     codigos[usuario] = {
@@ -45,15 +45,20 @@ def guardar_codigo_mfa(usuario, codigo):
         "timestamp": time.time()
     }
     
-    with open("codigos_mfa.json", 'w') as f:
+    # Asegurar carpeta json/
+    try:
+        os.makedirs("json", exist_ok=True)
+    except Exception:
+        pass
+    with open("json/codigos_mfa.json", 'w', encoding='utf-8') as f:
         json.dump(codigos, f, indent=2)
 
 def verificar_codigo_mfa(usuario, codigo_ingresado):
     """Verifica que el código MFA coincide"""
-    if not os.path.exists("codigos_mfa.json"):
+    if not os.path.exists("json/codigos_mfa.json"):
         return False, "No hay código pendiente"
-        
-    with open("codigos_mfa.json", 'r') as f:
+
+    with open("json/codigos_mfa.json", 'r', encoding='utf-8') as f:
         codigos = json.load(f)
     
     if usuario not in codigos:
@@ -64,14 +69,22 @@ def verificar_codigo_mfa(usuario, codigo_ingresado):
  
     if time.time() - codigo_info["timestamp"] > 150:
         del codigos[usuario]
-        with open("codigos_mfa.json", 'w') as f:
+        try:
+            os.makedirs("json", exist_ok=True)
+        except Exception:
+            pass
+        with open("json/codigos_mfa.json", 'w', encoding='utf-8') as f:
             json.dump(codigos, f, indent=2)
         return False, "Código expirado"
     
     # Verificacion del código
     if codigo_info["codigo"] == codigo_ingresado:
         del codigos[usuario]
-        with open("codigos_mfa.json", 'w') as f:
+        try:
+            os.makedirs("json", exist_ok=True)
+        except Exception:
+            pass
+        with open("json/codigos_mfa.json", 'w', encoding='utf-8') as f:
             json.dump(codigos, f, indent=2)
         return True, "Código correcto"
     
@@ -213,7 +226,7 @@ def iniciar_sesion(archivo_usuarios):
 def cargar_administradores():
     """Cargar lista de administradores del archivo"""
     try:
-        with open("administradores.json", "r", encoding="utf-8") as f:
+        with open("json/administradores.json", "r", encoding="utf-8") as f:
             return json.load(f)
     except FileNotFoundError:
         return {}
