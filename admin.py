@@ -1,7 +1,7 @@
 # Menú y funciones específicas para administradores
 from crypto import (
     descifrado_hibrido_voto,
-    _cargar_o_crear_clave_mac,
+    cargar_o_crear_clave_mac,
     verificar_hmac_sha256,
 )
 import json
@@ -56,7 +56,7 @@ def descifrar_votos_hibridos_con_hmac():
     print("Descifrado de votos híbridos anónimos...")
     
     # Cargar clave HMAC
-    clave_mac = _cargar_o_crear_clave_mac("clave_mac_logs.bin")
+    clave_mac = cargar_o_crear_clave_mac("clave_mac_logs.bin")
     #comprobamos la integridad de la estructura almacenada, si el HMAC coincide, el fichero no ha sido alterado
     votos_descifrados = []
     try:

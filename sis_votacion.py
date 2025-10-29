@@ -42,7 +42,7 @@ class SistemaVotacion:
 
         while True:
             if not self.usuario_actual:
-                # Menú principal (no autenticado)
+                # Menú principal para iniciar sesión, registrarse o salir
                 self.mostrar_menu_principal()
                 
                 try:
@@ -53,10 +53,10 @@ class SistemaVotacion:
                         if resultado:
                             tipo_usuario, nombre_usuario = resultado
                             if tipo_usuario == "admin":
-                                # Ejecutar panel de administrador
+                                # Mostrar panel de administrador
                                 ejecutar_panel_admin(nombre_usuario)
                             else:
-                                # Usuario normal
+                                # Establecer usuario actual
                                 self.usuario_actual = nombre_usuario
                     elif opcion == "2":
                         registrar_usuario(self.archivo_usuarios)
@@ -77,7 +77,7 @@ class SistemaVotacion:
                     opcion = input(msj.PROMPT_SELECCIONAR)
                     
                     if opcion == "1":
-                        seleccion = votar(self.usuario_actual, self.opciones_votacion, self.archivo_votos)
+                        votar(self.usuario_actual, self.opciones_votacion, self.archivo_votos)
                         # El cifrado híbrido + HMAC ya se hace dentro de votar()
                     elif opcion == "2":
                         mostrar_resultados(self.archivo_votos)
@@ -92,5 +92,6 @@ class SistemaVotacion:
                     break
 
 if __name__ == "__main__":
-    sistema = SistemaVotacion()
-    sistema.ejecutar()
+    SistemaVotacion().ejecutar()
+    #sistema = SistemaVotacion()
+    #sistema.ejecutar()

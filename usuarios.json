@@ -1,11 +1,32 @@
 {
-  "algoritmo_mac": "HMAC-SHA256",
-  "longitud_clave": 256,
-  "contenido": {
-    "adri": {
-      "email": "hacker@gmail.com",
-      "password": "pbkdf2$sha256$200000$X$Y"
-    }
+  "lal": {
+    "email": "lal@gmail.com",
+    "password": "pbkdf2$sha256$200000$OXlwCmiwERQTU70bdeQ78g==$WSnDZ4v+9NUoLU4cVPZ/B8zS9hgJLyhxUvIDGX7pvyw=",
+    "fecha_registro": "2025-10-29T02:51:21.330485",
+    "mac": "OOP46yIll39wiaSCff4Jnzi4yKDg5kPw/cVjdKh8hJs="
   },
-  "mac": "k++mR+Y2xy7LbP4q9KjF1IflSzFjZc/2I4vPa+M4X28="
+  "hola": {
+    "email": "hola@gmail.com",
+    "password": "pbkdf2$sha256$200000$rLYYFiZsaqX75EPZRx92OQ==$Tf2KT3sV9L0hSfQEPNmEfQQTEpGEEy1S4p64NQcVaM0=",
+    "fecha_registro": "2025-10-29T03:06:58.445060",
+    "mac": "VLGu3M9XFMgSSrrOeE0WKszkra4JQjpWN9UIM18L6Yk="
+  },
+  "funciona": {
+    "email": "f@gmail.com",
+    "password": "pbkdf2$sha256$200000$rK+tRM+XtDkwICH7ZhxqZw==$Lw35n35iHBjhM12lCyaIjJdpl1qwtD7BFoSeruYkXCw=",
+    "fecha_registro": "2025-10-29T03:13:42.150273",
+    "mac": "LP8swhGIyFaSb1bEb3HlfStU0N1FLl2ImMiCcDtw+s0="
+  },
+  "nop": {
+    "email": "nop@gmail.com",
+    "password": "pbkdf2$sha256$200000$Rqam+CdWO8he6eKDcx/IwQ==$73Jm2l1sF2KQw8zlXR6/R8cwqZ/JMDVLdL0vXkc24AI=",
+    "fecha_registro": "2025-10-29T03:17:45.747959",
+    "mac": "xfS8gvb8jDs3MrtweslyedQF9r0QhD1N79//osqfspE="
+  },
+  "final": {
+    "email": "fi@gmail.com",
+    "password": "pbkdf2$sha256$200000$O5IAOO4O+9mWHyP83/hwLw==$UZguSGb3cAi1o+D7JkNwwJR6qCZmqCKnGpU0q4rRB3Q=",
+    "fecha_registro": "2025-10-29T03:28:05.851740",
+    "mac": "ofOjXTBLcRv9nS9SVxlOfPMGpwjxglJLa66Y4K1TyqU="
+  }
 }

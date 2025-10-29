@@ -20,7 +20,7 @@ def verificar_hmac_sha256(clave_mac: bytes, mensaje: str, mac_esperado: str) -> 
     valido = hmac.compare_digest(mac_calculado.digest(), mac_esperado_bytes)
     return valido
 
-def _cargar_o_crear_clave_mac(archivo_clave_mac: str) -> bytes:
+def cargar_o_crear_clave_mac(archivo_clave_mac: str) -> bytes:
     """Carga o crea la clave MAC si no existe"""
     if os.path.exists(archivo_clave_mac):
         with open(archivo_clave_mac, "rb") as f:

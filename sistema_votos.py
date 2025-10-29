@@ -7,7 +7,7 @@ from crypto import (
     cifrado_hibrido_voto,
     crear_claves_administrador,
     calcular_hmac_sha256,
-    _cargar_o_crear_clave_mac,
+    cargar_o_crear_clave_mac,
 )
 from data import msj_comunes as msj
 
@@ -55,7 +55,7 @@ def votar(usuario_actual, opciones_votacion, archivo_votos):
         voto_cifrado_hibrido = cifrado_hibrido_voto(seleccion, archivo_pub)
 
         # Generar HMAC sobre los campos que vamos a guardar
-        clave_mac = _cargar_o_crear_clave_mac("clave_mac_logs.bin")
+        clave_mac = cargar_o_crear_clave_mac("clave_mac_logs.bin")
         mac_obj = {
             "vote_id": vote_id,
             "voto_cifrado": voto_cifrado_hibrido["voto_cifrado"],
@@ -85,8 +85,8 @@ def votar(usuario_actual, opciones_votacion, archivo_votos):
         }
         
         with open(archivo_votos_cifrados, "a", encoding="utf-8") as f:
-            # Escribir la versión legible (indentada) para facilitar inspección humana
-            f.write(json.dumps(linea_voto, ensure_ascii=False, indent=2) + "\n\n")
+            # Escribir en formato JSONL: una línea JSON por voto (compatibilidad con el descifrador)
+            f.write(json.dumps(linea_voto, ensure_ascii=False) + "\n")
         print(msj.VOTO_GUARDADO_FMT.format(path=archivo_votos_cifrados))
         
         # Mantener el conteo normal para resultados públicos

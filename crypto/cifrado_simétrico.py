@@ -24,7 +24,7 @@ def descifrar_mensaje(clave: bytes, cifrado_b64: str) -> str:
     return texto.decode()
 
 
-def _cargar_o_crear_clave_maestra(archivo_clave: str) -> bytes:
+def cargar_o_crear_clave_maestra(archivo_clave: str) -> bytes:
     """Carga una clave AES-256 o la crea si no existe."""
     if os.path.exists(archivo_clave):
         with open(archivo_clave, "rb") as f:

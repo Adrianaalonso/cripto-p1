@@ -4,7 +4,8 @@ import json
 import random
 import time
 import tkinter as tk
-from crypto import _pbkdf2_hash, _verificar_password
+import getpass
+from crypto import pbkdf2_hash, verificar_password
 from crypto.mac_usuario import generar_mac_usuario, verificar_mac_usuario
 from archivos_json import cargar_usuarios, guardar_usuarios
 from datetime import datetime
@@ -16,12 +17,11 @@ from data import msj_comunes as msj
 
 
 def generar_codigo_mfa():
-    """Generar código MFA de 6 dígitos"""
+    """Genera código MFA de 6 dígitos aleatorios"""
     return str(random.randint(100000, 999999))
 
 def mostrar_codigo_ventana(codigo):
-    """Mostrar código en una ventana simple"""
-    # Crear ventana simple con el código de verificacion
+    """muestra código en una ventana externa simple"""
     ventana = tk.Tk()
     ventana.title("Código de Verificación")
     ventana.geometry("250x100")
@@ -34,7 +34,7 @@ def mostrar_codigo_ventana(codigo):
     return True
 
 def guardar_codigo_mfa(usuario, codigo):
-    """Guardar código MFA temporalmente"""
+    """Guarda código MFA temporalmente"""
     codigos = {}
     if os.path.exists("codigos_mfa.json"):
         with open("codigos_mfa.json", 'r') as f:
@@ -49,7 +49,7 @@ def guardar_codigo_mfa(usuario, codigo):
         json.dump(codigos, f, indent=2)
 
 def verificar_codigo_mfa(usuario, codigo_ingresado):
-    """Verificar código MFA"""
+    """Verifica que el código MFA coincide"""
     if not os.path.exists("codigos_mfa.json"):
         return False, "No hay código pendiente"
         
@@ -68,7 +68,7 @@ def verificar_codigo_mfa(usuario, codigo_ingresado):
             json.dump(codigos, f, indent=2)
         return False, "Código expirado"
     
-    # Verificar código
+    # Verificacion del código
     if codigo_info["codigo"] == codigo_ingresado:
         del codigos[usuario]
         with open("codigos_mfa.json", 'w') as f:
@@ -82,7 +82,7 @@ def registrar_usuario(archivo_usuarios):
     print("\n--- REGISTRO DE USUARIO ---")
     usuarios = cargar_usuarios(archivo_usuarios)
 
-    # === Username ===
+    #nombre de usuario
     while True:
         usuario_raw = input(msj.PROMPT_USUARIO).strip()
         try:
@@ -95,18 +95,16 @@ def registrar_usuario(archivo_usuarios):
             print("El usuario ya existe. Intente con otro nombre.")
             continue
         break
-
-    # === Email ===
+    #email
     while True:
         email_raw = input(msj.PROMPT_CORREO).strip()
         try:
-            email = Email(email_raw).value  # valida según tu política (p.ej. @gmail.com)
+            email = Email(email_raw).value  # valida email finalizado en @gmail.com
             break
         except ExceptionErrors as e:
             print(e.message) 
 
-    # === contraseña ===
-    import getpass
+    #contraeña
     while True:
         pwd1 = getpass.getpass("Ingrese su contraseña: ")
         try:
@@ -122,13 +120,13 @@ def registrar_usuario(archivo_usuarios):
         password_ok = pwd1
         break
 
-    # Guardar usuario
+    #Guardar usuario
     usuarios[usuario] = {
         "email": email,
-        "password": _pbkdf2_hash(password_ok),
+        "password": pbkdf2_hash(password_ok),
         "fecha_registro": datetime.now().isoformat()
     }
-    # Generar y añadir MAC por usuario para detección de manipulaciones
+    #generamos y anadimos MAC al guardar usuario para detectar manipulaciones
     try:
         usuarios[usuario]["mac"] = generar_mac_usuario(usuarios[usuario])
     except Exception:
@@ -147,15 +145,12 @@ def iniciar_sesion(archivo_usuarios):
     
     usuarios = cargar_usuarios(archivo_usuarios)
     administradores = cargar_administradores()
-    
-    import getpass
+
     usuario = input(msj.PROMPT_LOGIN_USERNAME).strip()
     password = getpass.getpass("Contraseña: ")
     
     # Verificar si es administrador
-    if usuario in administradores and _verificar_password(password, administradores[usuario]["password"]):
-        nombre = administradores[usuario]["nombre"]
-        print(f" ¡Bienvenido, {nombre}!")
+    if usuario in administradores and verificar_password(password, administradores[usuario]["password"]):
         return ("admin", usuario)  # Retorna tupla indicando que es admin
     
     # Verificar usuario normal
@@ -178,8 +173,8 @@ def iniciar_sesion(archivo_usuarios):
             return None
 
         # Si la integridad es correcta, verificar contraseña
-        if _verificar_password(password, user_record["password"]):
-            # Primer factor válido, ahora MFA
+        if verificar_password(password, user_record["password"]):
+            #si las contrasenas coinciden, procedemos a MFA
             email_usuario = user_record["email"]
 
             # Generar y mostrar código
@@ -200,7 +195,6 @@ def iniciar_sesion(archivo_usuarios):
                     valido, mensaje = verificar_codigo_mfa(usuario, codigo_ingresado)
 
                     if valido:
-                        print(f"Bienvenido/a, {usuario}!")
                         return ("user", usuario)  # Retorna tupla indicando que es usuario normal
                     else:
                         print(f"{mensaje}")
@@ -241,7 +235,7 @@ def iniciar_sesion_admin():
         password = getpass.getpass(" Contraseña: ")
         
         # Verificar contraseña del administrador
-        if _verificar_password(password, administradores[usuario]["password"]):
+        if verificar_password(password, administradores[usuario]["password"]):
             nombre = administradores[usuario]["nombre"]
             print(f" ¡Bienvenido, {nombre}!")
             return usuario

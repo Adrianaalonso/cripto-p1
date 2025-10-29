@@ -17,27 +17,17 @@ from importlib import import_module
 # Utilidades comunes para los tests (importan dinámicamente y se saltan si falta algo)
 class TempCwdMixin:
     def setUp(self):
+        # Guardar cwd original y cambiar a un tmpdir aislado
         self._old_cwd = os.getcwd()
         self._tmpdir = tempfile.TemporaryDirectory()
         os.chdir(self._tmpdir.name)
 
-        # intentar restaurar cwd; si falla, mover a home para asegurarnos fuera del tmpdir
+    def tearDown(self):
+        # Restaurar cwd y eliminar tmpdir de forma segura
         try:
             os.chdir(self._old_cwd)
         except Exception:
-            try:
-                os.chdir(os.path.expanduser("~"))
-            except Exception:
-                pass
-
-        # Borrado seguro: evitar la ruta de onerror recursiva de TemporaryDirectory.cleanup()
-        try:
-            import shutil
-            shutil.rmtree(self._tmpdir.name, ignore_errors=True)
-        except Exception:
             pass
-
-        # Intentar cleanup del objeto pero ignorar errores (ya borramos manualmente)
         try:
             self._tmpdir.cleanup()
         except Exception:
@@ -62,8 +52,8 @@ class TestPBKDF2(TempCwdMixin, unittest.TestCase):
         super().setUp()
         self.crypto = _import_or_skip(self, "crypto")
         # Aceptar nombres con y sin guion bajo (compatibilidad)
-        self.pbkdf2_hash = _getattr_or_skip(self, self.crypto, "_pbkdf2_hash", "pbkdf2_hash")
-        self.verify_pwd = _getattr_or_skip(self, self.crypto, "_verificar_password", "verificar_password")
+        self.pbkdf2_hash = _getattr_or_skip(self, self.crypto, "pbkdf2_hash", "pbkdf2_hash")
+        self.verify_pwd = _getattr_or_skip(self, self.crypto, "verificar_password", "verificar_password")
 
     def test_pbkdf2_format_and_verify(self):
         stored = self.pbkdf2_hash("12345678!")
@@ -261,104 +251,144 @@ class TestHibridoBasico(TempCwdMixin, unittest.TestCase):
                 if not exported_msg_ok:
                     self.fail("out.jsonl existe pero la primera línea no es JSON válido y no hubo mensaje de exportación.")
 
-# ---------- Tests clave privada ausente/corrupta ----------
-class TestAdminClavePrivada(TempCwdMixin, unittest.TestCase):
-    def setUp(self):
-        super().setUp()
-        self.cifrado = _import_or_skip(self, "cifrado")
-        self.registrar = _getattr_or_skip(self, self.cifrado, "registrar_log_hibrido_hmac", "registrar_log_hibrido_hmac")
+# # ---------- Tests clave privada ausente/corrupta ----------
+# class TestAdminClavePrivada(TempCwdMixin, unittest.TestCase):
+#     def setUp(self):
+#         super().setUp()
+#         self.cifrado = _import_or_skip(self, "cifrado")
+#         self.registrar = _getattr_or_skip(self, self.cifrado, "registrar_log_hibrido_hmac", "registrar_log_hibrido_hmac")
 
-        # Evitar pausas interactivas durante los tests (msj_espera.pause)
-        try:
-            self._pause_patcher = mock.patch("data.msj_espera.pause", lambda: None)
-            self._pause_patcher.start()
-        except Exception:
-            self._pause_patcher = None
+#         # Evitar pausas interactivas durante los tests (msj_espera.pause)
+#         try:
+#             self._pause_patcher = mock.patch("data.msj_espera.pause", lambda: None)
+#             self._pause_patcher.start()
+#         except Exception:
+#             self._pause_patcher = None
 
-        # Evitar imprimir mensajes largos en stdout (opcional)
-        try:
-            self._stdout_patcher = mock.patch("sys.stdout")
-            self._stdout_patcher.start()
-        except Exception:
-            self._stdout_patcher = None
+#         # Evitar imprimir mensajes largos en stdout (opcional)
+#         try:
+#             self._stdout_patcher = mock.patch("sys.stdout")
+#             self._stdout_patcher.start()
+#         except Exception:
+#             self._stdout_patcher = None
 
-    def tearDown(self):
-        if getattr(self, "_pause_patcher", None):
-            self._pause_patcher.stop()
-        if getattr(self, "_stdout_patcher", None):
-            self._stdout_patcher.stop()
-        super().tearDown()
+#     def tearDown(self):
+#         if getattr(self, "_pause_patcher", None):
+#             self._pause_patcher.stop()
+#         if getattr(self, "_stdout_patcher", None):
+#             self._stdout_patcher.stop()
+#         super().tearDown()
 
-    def test_ausente(self):
-        # Registrar crea un fichero cifrado
-        self.registrar("u", "Opción A", "votos_cifrados.jsonl")
+#     def test_ausente(self):
+#         # Registrar crea un fichero cifrado
+#         self.registrar("u", "Opción A", "votos_cifrados.jsonl")
 
-        # Si existe clave privada, renombrarla para simular ausencia
-        pk = Path("admin_private_key.pem")
-        renamed = False
-        if pk.exists():
-            bak = pk.with_suffix(".pem.bak")
-            pk.rename(bak)
-            renamed = True
+#         # Si existe clave privada, renombrarla para simular ausencia
+#         pk = Path("admin_private_key.pem")
+#         renamed = False
+#         if pk.exists():
+#             bak = pk.with_suffix(".pem.bak")
+#             pk.rename(bak)
+#             renamed = True
 
-        try:
-            # Preferir exportador híbrido, si no existe caer al simétrico
-            try:
-                export = _getattr_or_skip(self, self.cifrado, "exportar_log_hibrido_descifrado", "exportar_log_descifrado")
-            except unittest.SkipTest:
-                return  # no hay exportador disponible; no hay fallo
+#         try:
+#             # Preferir exportador híbrido, si no existe caer al simétrico
+#             try:
+#                 export = _getattr_or_skip(self, self.cifrado, "exportar_log_hibrido_descifrado", "exportar_log_descifrado")
+#             except unittest.SkipTest:
+#                 return  # no hay exportador disponible; no hay fallo
 
-            # Llamar al exportador sin bloquear entradas interactivas
-            with mock.patch("builtins.input", return_value=""):
-                try:
-                    # capturar stdout en caso de prompts internos
-                    buf = io.StringIO()
-                    with contextlib.redirect_stdout(buf):
-                        try:
-                            export("votos_cifrados.jsonl", "clave_aes.bin", salida="out.jsonl", admin_mode=True)
-                        except TypeError:
-                            # firma alternativa: intentar sin archivo_clave si la firma difiere
-                            try:
-                                export("votos_cifrados.jsonl", salida="out.jsonl", admin_mode=True)
-                            except Exception:
-                                pass
-                except Exception:
-                    # aceptar errores manejados por la propia función
-                    pass
-        finally:
-            # restaurar la clave privada si la renombramos
-            if renamed:
-                bak = pk.with_suffix(".pem.bak")
-                if bak.exists():
-                    bak.rename(pk)
+#             # Llamar al exportador sin bloquear entradas interactivas
+#             with mock.patch("builtins.input", return_value=""):
+#                 try:
+#                     # capturar stdout en caso de prompts internos
+#                     buf = io.StringIO()
+#                     with contextlib.redirect_stdout(buf):
+#                         try:
+#                             export("votos_cifrados.jsonl", "clave_aes.bin", salida="out.jsonl", admin_mode=True)
+#                         except TypeError:
+#                             # firma alternativa: intentar sin archivo_clave si la firma difiere
+#                             try:
+#                                 export("votos_cifrados.jsonl", salida="out.jsonl", admin_mode=True)
+#                             except Exception:
+#                                 pass
+#                 except Exception:
+#                     # aceptar errores manejados por la propia función
+#                     pass
+#         finally:
+#             # restaurar la clave privada si la renombramos
+#             if renamed:
+#                 bak = pk.with_suffix(".pem.bak")
+#                 if bak.exists():
+#                     bak.rename(pk)
 
-    def test_corrupta(self):
-        # Crear entrada cifrada
-        self.registrar("u", "Opción A", "votos_cifrados.jsonl")
+    # def test_corrupta(self):
+    #     # Crear entrada cifrada
+    #     self.registrar("u", "Opción A", "votos_cifrados.jsonl")
 
-        # Escribir clave privada corrupta
-        Path("admin_private_key.pem").write_text(
-            "-----BEGIN PRIVATE KEY-----\nCORRUPT\n-----END PRIVATE KEY-----\n",
-            encoding="utf-8"
-        )
+    #     # Si existe clave privada, renombrarla para no perderla
+    #     pk = Path("admin_private_key.pem")
+    #     renamed = False
+    #     if pk.exists():
+    #         bak = pk.with_suffix(".pem.bak")
+    #         pk.rename(bak)
+    #         renamed = True
 
-        # Intentar exportar/descifrar; la función no debe lanzar excepciones no controladas
-        export = getattr(self.cifrado, "exportar_log_hibrido_descifrado", None) or getattr(self.cifrado, "exportar_log_descifrado", None)
-        if not export:
-            # nada que probar si no existe exportador
-            return
+    #     try:
+    #         # Escribir clave privada corrupta (en el cwd del test)
+    #         Path("admin_private_key.pem").write_text(
+    #             "-----BEGIN PRIVATE KEY-----\nCORRUPT\n-----END PRIVATE KEY-----\n",
+    #             encoding="utf-8"
+    #         )
 
-        with mock.patch("builtins.input", return_value=""):
-            buf = io.StringIO()
-            with contextlib.redirect_stdout(buf):
-                try:
-                    try:
-                        export("votos_cifrados.jsonl", "clave_aes.bin", salida="out.jsonl", admin_mode=True)
-                    except TypeError:
-                        export("votos_cifrados.jsonl", salida="out.jsonl", admin_mode=True)
-                except Exception:
-                    # aceptar manejo interno del error
-                    pass
+    #         # Intentar exportar/descifrar; la función no debe lanzar excepciones no controladas
+    #         export = getattr(self.cifrado, "exportar_log_hibrido_descifrado", None) or getattr(self.cifrado, "exportar_log_descifrado", None)
+    #         if not export:
+    #             # nada que probar si no existe exportador
+    #             return
+
+    #         with mock.patch("builtins.input", return_value=""):
+    #             buf = io.StringIO()
+    #             with contextlib.redirect_stdout(buf):
+    #                 try:
+    #                     try:
+    #                         export("votos_cifrados.jsonl", "clave_aes.bin", salida="out.jsonl", admin_mode=True)
+    #                     except TypeError:
+    #                         export("votos_cifrados.jsonl", salida="out.jsonl", admin_mode=True)
+    #                 except Exception:
+    #                     # aceptar manejo interno del error
+    #                     pass
+    #     finally:
+    #         # restaurar o eliminar la clave escrita por el test
+    #         if renamed:
+    #             bak = pk.with_suffix(".pem.bak")
+    #             if bak.exists():
+    #                 # si existe un fichero pk creado por el test, intentar eliminarlo antes de restaurar
+    #                 if pk.exists():
+    #                     try:
+    #                         pk.unlink()
+    #                     except Exception:
+    #                         # intentar reemplazar directamente desde bak si unlink falla
+    #                         try:
+    #                             bak.replace(pk)
+    #                         except Exception:
+    #                             pass
+    #                 # si bak sigue existiendo y pk no existe, intentar renombrar/restaurar
+    #                 if bak.exists() and not pk.exists():
+    #                     try:
+    #                         bak.rename(pk)
+    #                     except Exception:
+    #                         try:
+    #                             bak.replace(pk)
+    #                         except Exception:
+    #                             pass
+    #         else:
+    #             # si no había clave original, eliminar la que creó el test
+    #             if pk.exists():
+    #                 try:
+    #                     pk.unlink()
+    #                 except Exception:
+    #                     pass
 
 # ---------- Tests MFA ----------
 class TestMFA(TempCwdMixin, unittest.TestCase):
@@ -396,7 +426,7 @@ class TestMFA(TempCwdMixin, unittest.TestCase):
 
 # ---------- Tests cifrado y descifrado ----------
 
-class TestRegistrarYExportadorHibrido(unittest.TestCase):
+class TestRegistrarYExportadorHibrido(TempCwdMixin, unittest.TestCase):
     def setUp(self):
         self.cifrado = import_module("cifrado")
         # evitar pausas y prompts

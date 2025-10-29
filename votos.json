@@ -1,10 +1,11 @@
 {
-  "algoritmo_mac": "HMAC-SHA256",
-  "longitud_clave": 256,
-  "contenido": {
-    "Opción A": 999,
-    "Opción B": 0,
-    "usuarios_votaron": []
-  },
-  "mac": "wgWl/hmVk818U+WZZqK2PdSeR/dQnF0QhFQUC6sk0LA="
+  "Opción A": 3,
+  "Opción B": 3,
+  "usuarios_votaron": [
+    "lal",
+    "funciona",
+    "nop",
+    "hola",
+    "final"
+  ]
 }
