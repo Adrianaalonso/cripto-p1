@@ -52,5 +52,11 @@
     "password": "pbkdf2$sha256$200000$wDDIMaUwdN40Q9ip8sRzEg==$mbqlrAI3h4pThO74IXVZJHnht0HLFBCm+L5JbrZFJi8=",
     "fecha_registro": "2025-10-29T12:52:08.368151",
     "mac": "Vp6cZdcl3CsLGymUstmdBl4MwVO0rjn36xG0fSfaaQ4="
+  },
+  "marisa": {
+    "email": "m@gmail.com",
+    "password": "pbkdf2$sha256$200000$Ath7RMWYWKdhmhcIWfM10A==$DIO77RjfhmVq2gFDGeQtCgD/u4vkrM+mVqEM1HLowt8=",
+    "fecha_registro": "2025-11-19T10:49:43.981739",
+    "mac": "S7Ytj8iyIusI8Vw7/brvsLVuZY3IS9l9wS2xihMOhZE="
   }
 }

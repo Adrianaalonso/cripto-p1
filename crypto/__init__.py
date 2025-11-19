@@ -9,7 +9,6 @@ from .cifrado_simétrico import (
     cifrar_mensaje,
     descifrar_mensaje,
     cargar_o_crear_clave_maestra,
-    cifrar_para_log,
     descifrar_de_log,
 )
 from .mac import (
@@ -34,7 +33,6 @@ __all__ = [
     "cifrar_mensaje",
     "descifrar_mensaje",
     "cargar_o_crear_clave_maestra",
-    "cifrar_para_log",
     "descifrar_de_log",
     "generar_clave_mac",
     "calcular_hmac_sha256",

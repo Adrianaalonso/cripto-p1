@@ -139,7 +139,7 @@ def registrar_log_hibrido_hmac(usuario: str, seleccion: str, archivo_log_cifrado
         # Datos del cifrado híbrido
         "voto_cifrado": voto_cifrado_hibrido["voto_cifrado"],
         "iv": voto_cifrado_hibrido["iv"],
-        "tag_gcm": voto_cifrado_hibrido["tag"],
+    "tag": voto_cifrado_hibrido["tag"],
         "clave_sim_cifrada": voto_cifrado_hibrido["clave_sim_cifrada"],
 
         # Algoritmos utilizados

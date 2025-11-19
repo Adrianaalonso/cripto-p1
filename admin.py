@@ -69,12 +69,13 @@ def descifrar_votos_hibridos_con_hmac():
                     voto_cifrado = json.loads(line)
                     print(msj.procesando_entrada(line_num))
                     
-                    # Descifrar usando cifrado híbrido
+                    # Descifrar usando cifrado híbrido (aceptamos "tag" o "tag_gcm" por compatibilidad)
+                    tag_val = voto_cifrado.get("tag", voto_cifrado.get("tag_gcm"))
                     voto_hibrido = {
-                        "voto_cifrado": voto_cifrado["voto_cifrado"],
-                        "iv": voto_cifrado["iv"],
-                        "tag": voto_cifrado["tag"],
-                        "clave_sim_cifrada": voto_cifrado["clave_sim_cifrada"]
+                        "voto_cifrado": voto_cifrado.get("voto_cifrado"),
+                        "iv": voto_cifrado.get("iv"),
+                        "tag": tag_val,
+                        "clave_sim_cifrada": voto_cifrado.get("clave_sim_cifrada")
                     }
                     
                     try:

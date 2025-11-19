@@ -1,7 +1,6 @@
 # Archivo principal 
 from mfa import registrar_usuario, iniciar_sesion, iniciar_sesion_admin
 from sistema_votos import votar, mostrar_resultados
-from cifrado import registrar_log_hibrido_hmac, exportar_log_descifrado
 from admin import ejecutar_panel_admin
 from data import msj_comunes as msj
 

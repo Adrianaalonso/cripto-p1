@@ -41,17 +41,6 @@ def cargar_o_crear_clave_maestra(archivo_clave: str) -> bytes:
     return key
 
 
-def cifrar_para_log(clave: bytes, mensaje: str) -> dict:
-    """Cifra un mensaje y devuelve componentes en base64 (iv, tag, ct) para logs."""
-    iv = os.urandom(12)
-    aes = Cipher(algorithms.AES(clave), modes.GCM(iv), backend=default_backend()).encryptor()
-    cifrado = aes.update(mensaje.encode("utf-8")) + aes.finalize()
-    iv_b64 = base64.b64encode(iv).decode()
-    tag_b64 = base64.b64encode(aes.tag).decode()
-    ct_b64 = base64.b64encode(cifrado).decode()
-    return {"iv_b64": iv_b64, "tag_b64": tag_b64, "ct_b64": ct_b64}
-
-
 def descifrar_de_log(clave: bytes, iv_b64: str, tag_b64: str, ct_b64: str) -> str:
     """Descifra usando componentes base64 (iv, tag, ct) y devuelve el texto claro."""
     if not (iv_b64 and tag_b64 and ct_b64):
