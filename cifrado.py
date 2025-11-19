@@ -127,18 +127,16 @@ def registrar_log_hibrido_hmac(usuario: str, seleccion: str, archivo_log_cifrado
     #primero creamos claves RSA si no existen
     archivo_priv, archivo_pub = crear_claves_administrador()
 
-    #preparamos el mensaje del voto
-    mensaje = f"Voto de {usuario} para {seleccion} @ {datetime.now().isoformat(timespec='seconds')}"
+    #preparamos el mensaje del voto (ANÓNIMO: sólo la selección, no incluir usuario)
+    mensaje = f"{seleccion}"
 
     print(msj.CIFRADO_HIBRIDO_FMT.format(seleccion=seleccion))
 
     # ciframos el mensaje simetrica y asiméctricamente
     voto_cifrado_hibrido = cifrado_hibrido_voto(mensaje, archivo_pub)
 
-    # HMAC del mensaje original
+    # HMAC sobre el contenido canónico (se calcula más abajo a partir de mac_obj)
     clave_mac = cargar_o_crear_clave_mac("json/clave_mac_logs.bin")
-    mac = hmac.new(clave_mac, mensaje.encode('utf-8'), hashlib.sha256)
-    mac_b64 = base64.b64encode(mac.digest()).decode()
 
     # ===== Firma digital RSA-PSS (clave del sistema) =====
     # Generar un identificador único para el voto y unificar el timestamp
@@ -155,6 +153,11 @@ def registrar_log_hibrido_hmac(usuario: str, seleccion: str, archivo_log_cifrado
         "timestamp": timestamp_iso,
     }
     contenido_para_firma = json.dumps(mac_obj, sort_keys=True, separators=(',',':'), ensure_ascii=False).encode('utf-8')
+
+    # Calcular HMAC sobre el mismo contenido canónico usado para firma
+    contenido_para_mac = json.dumps(mac_obj, sort_keys=True, separators=(',',':'), ensure_ascii=False)
+    mac_calc = hmac.new(clave_mac, contenido_para_mac.encode('utf-8'), hashlib.sha256)
+    mac_b64 = base64.b64encode(mac_calc.digest()).decode()
 
     # Ensure system key pair exists under json/
     sistema_priv = "json/system_private_key.pem"

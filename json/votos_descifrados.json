@@ -6,6 +6,17 @@
     "algoritmo_simetrico": "AES-GCM-256",
     "algoritmo_asimetrico": "RSA-2048-OAEP",
     "mac_algoritmo": "HMAC-SHA256",
-    "mac_verificacion": "HMAC válido"
+    "mac_verificacion": "HMAC válido",
+    "sig_verificacion": "No verificable"
+  },
+  {
+    "vote_id": "66b7e20d82a743e085ad3862f3d967e0",
+    "timestamp": "2025-11-19T15:11:15",
+    "voto_descifrado": "Voto de mariana para Opción A @ 2025-11-19T15:11:15",
+    "algoritmo_simetrico": "AES-GCM-256",
+    "algoritmo_asimetrico": "RSA-2048-OAEP",
+    "mac_algoritmo": "HMAC-SHA256",
+    "mac_verificacion": "HMAC inválido",
+    "sig_verificacion": "Firma válida"
   }
 ]
