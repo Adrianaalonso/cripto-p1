@@ -4,6 +4,7 @@ from crypto import (
     cargar_o_crear_clave_mac,
     verificar_hmac_sha256,
 )
+from crypto.signature_rsa import cargar_clave_publica, verificar
 import json
 import os
 from data import msj_comunes as msj
@@ -86,6 +87,7 @@ def descifrar_votos_hibridos_con_hmac():
                     # Verificar HMAC reconstruyendo la misma estructura usada al crear el voto en sistema_votos, 
                     # para comprobar que la estructura es la original
                     mac_verificacion = "No verificable (voto anónimo)"
+                    sig_verificacion = "No verificable"
                     if "mac" in voto_cifrado:
                         try:
                             mac_obj = {
@@ -99,8 +101,23 @@ def descifrar_votos_hibridos_con_hmac():
                             contenido_para_mac = json.dumps(mac_obj, sort_keys=True, separators=(',',':'), ensure_ascii=False)
                             valido = verificar_hmac_sha256(clave_mac, contenido_para_mac, voto_cifrado["mac"])
                             mac_verificacion = "HMAC válido" if valido else "HMAC inválido"
+                            # Verificar firma RSA-PSS si está presente
+                            if "sig" in voto_cifrado and voto_cifrado.get("sig"):
+                                try:
+                                    sistema_pub = "json/system_public_key.pem"
+                                    if os.path.exists(sistema_pub):
+                                        pub = cargar_clave_publica(sistema_pub)
+                                        # usar el mismo contenido canónico que se firmó
+                                        contenido_para_firma = json.dumps(mac_obj, sort_keys=True, separators=(',',':'), ensure_ascii=False).encode('utf-8')
+                                        ok = verificar(pub, contenido_para_firma, voto_cifrado.get("sig"))
+                                        sig_verificacion = "Firma válida" if ok else "Firma inválida"
+                                    else:
+                                        sig_verificacion = "Clave pública del sistema no encontrada"
+                                except Exception as e:
+                                    sig_verificacion = f"Error verif. firma: {e}"
                         except Exception as e:
                             mac_verificacion = f"HMAC verif. error: {e}"
+
                     
                     resultado = {
                         "vote_id": voto_cifrado.get("vote_id"),
@@ -109,7 +126,8 @@ def descifrar_votos_hibridos_con_hmac():
                         "algoritmo_simetrico": voto_cifrado.get("algoritmo_simetrico", "AES-GCM-256"),
                         "algoritmo_asimetrico": voto_cifrado.get("algoritmo_asimetrico", "RSA-2048-OAEP"),
                         "mac_algoritmo": voto_cifrado.get("mac_algoritmo", "N/A"),
-                        "mac_verificacion": mac_verificacion
+                        "mac_verificacion": mac_verificacion,
+                        "sig_verificacion": sig_verificacion,
                     }
                     
                     votos_descifrados.append(resultado)

@@ -10,6 +10,7 @@ from crypto import (
     calcular_hmac_sha256,
     cargar_o_crear_clave_mac,
 )
+from cifrado import registrar_log_hibrido_hmac
 from data import msj_comunes as msj
 from data import msj_espera
 
@@ -40,59 +41,10 @@ def votar(usuario_actual, opciones_votacion, archivo_votos):
         # Registrar voto
         seleccion = opciones_votacion[opcion - 1]
         
-        # ===== CIFRADO HÍBRIDO + HMAC DEL VOTO =====
-        # creamos claves RSA del administrador si no existen
-        archivo_priv, archivo_pub = crear_claves_administrador()
-        
-        #generamos timestamp con precisión a minutos y no segundos para que no haya tanta exactitud, menos trazabilidad
-        #ID aleatorio por voto, el usuario se mantiene anónimo
-        ts = datetime.now().replace(second=0, microsecond=0).isoformat()
-        vote_id = uuid.uuid4().hex       
-
-        #ciframos la selección, no incluimos informacion del usuario
-        print(msj.CIFRADO_HIBRIDO_FMT.format(seleccion=seleccion))
-        print()
-        voto_cifrado_hibrido = cifrado_hibrido_voto(seleccion, archivo_pub)
-
-        #generamos HMAC sobre los campos que vamos a guardar en el json cifrado
-        clave_mac = cargar_o_crear_clave_mac("json/clave_mac_logs.bin")
-        mac_obj = {
-            "vote_id": vote_id,
-            "voto_cifrado": voto_cifrado_hibrido["voto_cifrado"],
-            "iv": voto_cifrado_hibrido["iv"],
-            "tag": voto_cifrado_hibrido["tag"],
-            "clave_sim_cifrada": voto_cifrado_hibrido["clave_sim_cifrada"],
-            "timestamp": ts
-        }
-        contenido_para_mac = json.dumps(mac_obj, sort_keys=True, separators=(',',':'), ensure_ascii=False)
-        #calculamos HMAC-sha256 del contenido anterior usando la clave y lo codificamos en base 64
-        mac_b64 = calcular_hmac_sha256(clave_mac, contenido_para_mac)
-        print(msj.HMAC_OK)
-
-        print()
-
-        # Guardamos datos cifrados manteniendo el anonimato
+        # Registrar voto usando el helper unificado (cifrado híbrido + HMAC + firma)
         archivo_votos_cifrados = "json/votos_cifrados.jsonl"
-        linea_voto = {
-            "vote_id" : vote_id,
-            "timestamp": ts,
-            **voto_cifrado_hibrido,
-            # Información HMAC (para verificación)
-            "mac_algoritmo": "HMAC-SHA256",
-            "mac_longitud_clave": 256,
-            "mac": mac_b64
-        }
-
-        # Aseguramos que existe carpeta json/
-        try:
-            os.makedirs("json", exist_ok=True)
-        except Exception:
-            pass
-
-        #optamos por escribir en formato jsonl (una línea por voto) para facilitar el procesamiento posterior
-        with open(archivo_votos_cifrados, "a", encoding="utf-8") as f:
-            f.write(json.dumps(linea_voto, ensure_ascii=False) + "\n")
-        print(msj.VOTO_GUARDADO_FMT.format(path=archivo_votos_cifrados))
+        # Esto se encargará de generar vote_id, timestamp, HMAC y firma (si hay clave del sistema)
+        registrar_log_hibrido_hmac(usuario_actual, seleccion, archivo_votos_cifrados)
 
         #conteo para resultados
         votos[seleccion] += 1

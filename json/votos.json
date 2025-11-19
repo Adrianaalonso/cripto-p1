@@ -1,5 +1,5 @@
 {
-  "Opción A": 5,
+  "Opción A": 6,
   "Opción B": 5,
   "usuarios_votaron": [
     "lal",
@@ -10,6 +10,7 @@
     "rita",
     "wol",
     "sofi",
-    "marisa"
+    "marisa",
+    "mariana"
   ]
 }
