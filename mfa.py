@@ -8,6 +8,7 @@ import getpass
 from crypto import pbkdf2_hash, verificar_password
 from crypto.mac_usuario import generar_mac_usuario, verificar_mac_usuario
 from archivos_json import cargar_usuarios, guardar_usuarios
+# key generation is handled at voting time; do not auto-generate keys during registration
 from datetime import datetime
 
 # Importar validadores y excepción
@@ -142,6 +143,7 @@ def registrar_usuario(archivo_usuarios):
         "password": pbkdf2_hash(password_ok),
         "fecha_registro": datetime.now().isoformat()
     }
+    
     # generamos y anadimos MAC al guardar usuario para detectar manipulaciones
     try:
         usuarios[usuario]["mac"] = generar_mac_usuario(usuarios[usuario])

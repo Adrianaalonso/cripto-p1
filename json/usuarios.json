@@ -64,5 +64,25 @@
     "password": "pbkdf2$sha256$200000$ff3tkXrR7XOnlwm6167X3A==$qkaSDbFETsAUIFKJUUgVN3niVdzpIQ6b7z3dSr7ulAI=",
     "fecha_registro": "2025-11-19T15:10:15.392530",
     "mac": "ZjKfI6kZBcD+tEyoMsCPxtUQTARyoKr15xaNbDaeh9A="
+  },
+  "mar": {
+    "email": "m@gmail.com",
+    "password": "pbkdf2$sha256$200000$NHAUnqFQir25S+rYfb24wA==$qOQnNqTpric45v9xcj4RJMF2ErwGsp7PZkr69u2xbcc=",
+    "fecha_registro": "2025-11-19T15:49:38.982928",
+    "mac": "4UxQZT3uRz/JQ7454TFH5GMkDECZmla5dzpGusZD+Ps="
+  },
+  "marina": {
+    "email": "m@gmail.com",
+    "password": "pbkdf2$sha256$200000$zJBuw4uAjYSFaNdQwuRkyw==$Z63cY2a6xC+uudljeIu603W1FRM86CYDlUQ6A8ganlw=",
+    "fecha_registro": "2025-11-20T19:50:40.262811",
+    "mac": "DtzpZkHCBAOdGAAaRKoKE9FSnoz4gEG2dILoMI8P3Bk=",
+    "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqqi2mDc4N+dGPn/Si68m\naWm25x4mfL4zs/XcB11l5BXOwr3DaSfXWUTNIcbk82fz4tkjzEK0SLpe4UQZI8DC\nonkhVRNnL3Kvuqp8N3Y+uX9CsaSqgVJpetiGzP6V1wBXC3O+MTDUXTgxIJ6Ek9ch\n65uxtnJp9ObwI06Zx+LC/p/pfH0PSNyJDRneORxuZj/EgZ5i+1psCetkXJXw40A9\nIppWm1bhWDl6pbs+r+T2y8ayeDt7eebnImTKWsUUvXFCM0CmtH8xb+2qJmlrJ62Z\n/eTsZYjhDi8GwRhD6d47Uu+3wOG7z0ueoLYdRlD+Thl+sTs9NHxmMV25DLdGraLZ\nsQIDAQAB\n-----END PUBLIC KEY-----\n"
+  },
+  "adri": {
+    "email": "a@gmail.com",
+    "password": "pbkdf2$sha256$200000$yjoVj9I0I7qouKyiPl0bqQ==$AZ+bWYakbi1YM4NR/NVezpG0PbRaySPiNQYejoi4+OI=",
+    "fecha_registro": "2025-11-20T20:00:59.177881",
+    "mac": "Yo6u1P1x6upZe9QWpjye7MEweono2Ajr8Pnb4m5/v8I=",
+    "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAquhRsjzS7CmTJ9eGCaLz\njBS8BxzKPBXEZFUhL+Y0NKbmlB3cwVXOai1zyr5+5jXiZfRtFKrEYE6Wmud8tK6Z\nA7scM1tEA71thrjQmhpGcjli+Wu/To1b46h07dCLIE5P+6OhygzDJEEBMLZkd10Z\nwi/dcCXDGI26Ixu/Y/GFgCsuyPAMqrEu1RhW5MKvQNkGKYdtAHfi02Dayuv8Y2p1\nhECSUWMnCSo8HS+qXkH1fuoTAkjYqV6ofXIQ8KlKirIlii1a3LwYJZPZGY3MhzqK\naz8FK/CpcZb/aRkQVIAcI9EvOv6+zBwr2LPezj2/ijpTOBzaAKf2nNFrc3CA/J3n\nwwIDAQAB\n-----END PUBLIC KEY-----\n"
   }
 }

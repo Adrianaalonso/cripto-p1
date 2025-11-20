@@ -3,7 +3,7 @@ import json
 import os
 from datetime import datetime
 import uuid
-from archivos_json import cargar_votos, guardar_votos
+from archivos_json import cargar_votos, guardar_votos, cargar_usuarios, guardar_usuarios
 from crypto import (
     cifrado_hibrido_voto,
     crear_claves_administrador,
@@ -13,6 +13,10 @@ from crypto import (
 from cifrado import registrar_log_hibrido_hmac
 from data import msj_comunes as msj
 from data import msj_espera
+from crypto.signature_rsa import generar_par_claves_rsa, guardar_clave_privada, guardar_clave_publica
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.backends import default_backend
+import base64
 
 def votar(usuario_actual, opciones_votacion, archivo_votos):
     """funcion para votar"""
@@ -41,9 +45,43 @@ def votar(usuario_actual, opciones_votacion, archivo_votos):
         # Registrar voto
         seleccion = opciones_votacion[opcion - 1]
         
+        # Antes de registrar, ofrecer generar clave privada para firmar el voto si no existe
+        os.makedirs("json/user_keys", exist_ok=True)
+        user_priv_path = f"json/user_keys/{usuario_actual}_private.pem"
+        if not os.path.exists(user_priv_path):
+            try:
+                generar = input("¿Desea generar ahora un par RSA para firmar sus votos? (s/n): ").strip().lower()
+            except Exception:
+                generar = 'n'
+            if generar == 's':
+                try:
+                    priv_pem, pub_pem = generar_par_claves_rsa(bits=2048)
+                    # guardar privada
+                    try:
+                        private_key_obj = serialization.load_pem_private_key(priv_pem, password=None, backend=default_backend())
+                        guardar_clave_privada(user_priv_path, private_key_obj, passphrase=None)
+                    except Exception:
+                        with open(user_priv_path, 'wb') as f:
+                            f.write(priv_pem)
+                    # guardar pública en file y en usuarios.json
+                    pub_path = f"json/user_keys/{usuario_actual}_public.pem"
+                    try:
+                        guardar_clave_publica(pub_path, pub_pem)
+                    except Exception:
+                        with open(pub_path, 'wb') as f:
+                            f.write(pub_pem)
+                    try:
+                        usuarios_reg = cargar_usuarios('json/usuarios.json')
+                        usuarios_reg[usuario_actual]['public_key_pem'] = pub_pem.decode('utf-8')
+                        guardar_usuarios(usuarios_reg, 'json/usuarios.json')
+                    except Exception:
+                        pass
+                    print(f"Par RSA generado. Claves guardadas en json/user_keys/ para {usuario_actual}.")
+                except Exception as e:
+                    print(f"Error generando claves RSA: {e}")
+
         # Registrar voto usando el helper unificado (cifrado híbrido + HMAC + firma)
         archivo_votos_cifrados = "json/votos_cifrados.jsonl"
-        # Esto se encargará de generar vote_id, timestamp, HMAC y firma (si hay clave del sistema)
         registrar_log_hibrido_hmac(usuario_actual, seleccion, archivo_votos_cifrados)
 
         #conteo para resultados

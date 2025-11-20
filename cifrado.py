@@ -11,11 +11,7 @@ from crypto import (
     
 )
 from crypto.signature_rsa import (
-    generar_par_claves_rsa,
     cargar_clave_privada,
-    cargar_clave_publica,
-    guardar_clave_privada,
-    guardar_clave_publica,
     firmar,
 )
 import hmac
@@ -159,26 +155,21 @@ def registrar_log_hibrido_hmac(usuario: str, seleccion: str, archivo_log_cifrado
     mac_calc = hmac.new(clave_mac, contenido_para_mac.encode('utf-8'), hashlib.sha256)
     mac_b64 = base64.b64encode(mac_calc.digest()).decode()
 
-    # Ensure system key pair exists under json/
-    sistema_priv = "json/system_private_key.pem"
-    sistema_pub = "json/system_public_key.pem"
-    if not os.path.exists(sistema_priv) or not os.path.exists(sistema_pub):
-        # generar par
-        priv_pem, pub_pem = generar_par_claves_rsa(bits=2048)
-        # guardar
-        os.makedirs("json", exist_ok=True)
-        with open(sistema_priv, "wb") as f:
-            f.write(priv_pem)
-        with open(sistema_pub, "wb") as f:
-            f.write(pub_pem)
-        print(f"[LOG] Generadas claves de firma del sistema: RSA-2048 -> {sistema_priv}, {sistema_pub}")
+    # No se firma con clave del sistema; la firma la realiza el usuario (si dispone de clave privada)
+    sig_b64 = None
 
-    # cargar clave privada (sin passphrase)
-    try:
-        private_key_obj = cargar_clave_privada(sistema_priv, password=None)
-        sig_b64 = firmar(private_key_obj, contenido_para_firma)
-    except Exception:
-        sig_b64 = None
+    # Firma por parte del usuario (si dispone de clave privada almacenada en json/user_keys/)
+    user_sig_b64 = None
+    user_sig_key_id = None
+    user_priv_path = f"json/user_keys/{usuario}_private.pem"
+    if os.path.exists(user_priv_path):
+        try:
+            user_priv = cargar_clave_privada(user_priv_path, password=None)
+            user_sig_b64 = firmar(user_priv, contenido_para_firma)
+            user_sig_key_id = f"user-{usuario}-rsa-v1"
+        except Exception:
+            user_sig_b64 = None
+            user_sig_key_id = None
 
     #Híbrido + HMAC
     linea_unificada = {
@@ -201,10 +192,9 @@ def registrar_log_hibrido_hmac(usuario: str, seleccion: str, archivo_log_cifrado
         "mac_algoritmo": "HMAC-SHA256",
         "mac_longitud_clave": 256,
         "mac": mac_b64,
-        # Firma digital del sistema (si disponible)
-        "sig_alg": "RSA-PSS-SHA256",
-        "sig_key_id": "system-rsa-v1",
-        "sig": sig_b64,
+        # Firma del usuario (si existe)
+        "user_sig": user_sig_b64,
+        "user_sig_key_id": user_sig_key_id,
     }
 
     # guardamos en un archivo el log unificado

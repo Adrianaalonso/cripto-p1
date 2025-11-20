@@ -4,10 +4,13 @@ from crypto import (
     cargar_o_crear_clave_mac,
     verificar_hmac_sha256,
 )
-from crypto.signature_rsa import cargar_clave_publica, verificar
+from crypto.signature_rsa import verificar
 import json
 import os
 from data import msj_comunes as msj
+from archivos_json import cargar_usuarios
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.backends import default_backend
 
 def mostrar_menu_admin():
     """Mostrar menú de opciones para administradores"""
@@ -87,7 +90,7 @@ def descifrar_votos_hibridos_con_hmac():
                     # Verificar HMAC reconstruyendo la misma estructura usada al crear el voto en sistema_votos, 
                     # para comprobar que la estructura es la original
                     mac_verificacion = "No verificable (voto anónimo)"
-                    sig_verificacion = "No verificable"
+                    user_sig_verificacion = "No verificable"
                     if "mac" in voto_cifrado:
                         try:
                             mac_obj = {
@@ -101,20 +104,21 @@ def descifrar_votos_hibridos_con_hmac():
                             contenido_para_mac = json.dumps(mac_obj, sort_keys=True, separators=(',',':'), ensure_ascii=False)
                             valido = verificar_hmac_sha256(clave_mac, contenido_para_mac, voto_cifrado["mac"])
                             mac_verificacion = "HMAC válido" if valido else "HMAC inválido"
-                            # Verificar firma RSA-PSS si está presente
-                            if "sig" in voto_cifrado and voto_cifrado.get("sig"):
+                            # Verificar firma del usuario si está presente
+                            if "user_sig" in voto_cifrado and voto_cifrado.get("user_sig"):
                                 try:
-                                    sistema_pub = "json/system_public_key.pem"
-                                    if os.path.exists(sistema_pub):
-                                        pub = cargar_clave_publica(sistema_pub)
-                                        # usar el mismo contenido canónico que se firmó
+                                    usuarios_reg = cargar_usuarios("json/usuarios.json")
+                                    usuario_nombre = voto_cifrado.get("usuario")
+                                    if usuario_nombre in usuarios_reg and usuarios_reg[usuario_nombre].get("public_key_pem"):
+                                        pub_pem_str = usuarios_reg[usuario_nombre].get("public_key_pem")
+                                        pub_obj = serialization.load_pem_public_key(pub_pem_str.encode('utf-8'), backend=default_backend())
                                         contenido_para_firma = json.dumps(mac_obj, sort_keys=True, separators=(',',':'), ensure_ascii=False).encode('utf-8')
-                                        ok = verificar(pub, contenido_para_firma, voto_cifrado.get("sig"))
-                                        sig_verificacion = "Firma válida" if ok else "Firma inválida"
+                                        ok_user = verificar(pub_obj, contenido_para_firma, voto_cifrado.get("user_sig"))
+                                        user_sig_verificacion = "Firma usuario válida" if ok_user else "Firma usuario inválida"
                                     else:
-                                        sig_verificacion = "Clave pública del sistema no encontrada"
+                                        user_sig_verificacion = "Clave pública de usuario no encontrada"
                                 except Exception as e:
-                                    sig_verificacion = f"Error verif. firma: {e}"
+                                    user_sig_verificacion = f"Error verif. firma usuario: {e}"
                         except Exception as e:
                             mac_verificacion = f"HMAC verif. error: {e}"
 
@@ -127,7 +131,7 @@ def descifrar_votos_hibridos_con_hmac():
                         "algoritmo_asimetrico": voto_cifrado.get("algoritmo_asimetrico", "RSA-2048-OAEP"),
                         "mac_algoritmo": voto_cifrado.get("mac_algoritmo", "N/A"),
                         "mac_verificacion": mac_verificacion,
-                        "sig_verificacion": sig_verificacion,
+                        "user_sig_verificacion": user_sig_verificacion,
                     }
                     
                     votos_descifrados.append(resultado)
