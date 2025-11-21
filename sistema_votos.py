@@ -15,6 +15,8 @@ from data import msj_comunes as msj
 from data import msj_espera
 from crypto.signature_rsa import generar_par_claves_rsa, guardar_clave_privada, guardar_clave_publica
 from crypto.pki import asegurar_pki, emitir_certificado_usuario, verificar_cadena_certificado, revocar_certificado
+from crypto.pki import exportar_usuario_a_pfx
+import getpass
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends import default_backend
 import base64
@@ -49,50 +51,75 @@ def votar(usuario_actual, opciones_votacion, archivo_votos):
             return None
         # Registrar voto
         seleccion = opciones_votacion[opcion - 1]
-        
-        # Antes de registrar, ofrecer generar clave privada para firmar el voto si no existe
+
+        # Antes de registrar, comprobar si el usuario ya tiene una clave en formato PFX (generada en el registro)
         os.makedirs("json/user_keys", exist_ok=True)
-        user_priv_path = f"json/user_keys/{usuario_actual}_private.pem"
-        if not os.path.exists(user_priv_path):
-            try:
-                generar = input("¿Desea generar ahora un par RSA para firmar sus votos? (s/n): ").strip().lower()
-            except Exception:
-                generar = 'n'
-            if generar == 's':
+        usuarios_reg = cargar_usuarios('json/usuarios.json')
+        user_entry = usuarios_reg.get(usuario_actual, {})
+        pfx_path = user_entry.get('pfx_path')
+        pem_pub_path = f"json/user_keys/{usuario_actual}_public.pem"
+
+        if pfx_path and os.path.exists(pfx_path):
+            # El usuario ya creó su PFX en el registro: no solicitar generación aquí
+            pass
+        else:
+            # Si no existe PFX ni PEM público, ofrecer generar ahora (esto es excepcional)
+            if not os.path.exists(pem_pub_path):
                 try:
-                    priv_pem, pub_pem = generar_par_claves_rsa(bits=2048)
-                    # guardar privada
+                    generar = input("¿Desea generar ahora un par RSA para firmar sus votos? (s/n): ").strip().lower()
+                except Exception:
+                    generar = 'n'
+                if generar == 's':
                     try:
+                        priv_pem, pub_pem = generar_par_claves_rsa(bits=2048)
                         private_key_obj = serialization.load_pem_private_key(priv_pem, password=None, backend=default_backend())
-                        guardar_clave_privada(user_priv_path, private_key_obj, passphrase=None)
-                    except Exception:
-                        with open(user_priv_path, 'wb') as f:
-                            f.write(priv_pem)
-                    # guardar pública en file y en usuarios.json
-                    pub_path = f"json/user_keys/{usuario_actual}_public.pem"
-                    try:
-                        guardar_clave_publica(pub_path, pub_pem)
-                    except Exception:
-                        with open(pub_path, 'wb') as f:
-                            f.write(pub_pem)
-                    try:
-                        usuarios_reg = cargar_usuarios('json/usuarios.json')
-                        usuarios_reg[usuario_actual]['public_key_pem'] = pub_pem.decode('utf-8')
-                        # Emitir certificado X.509 para la clave pública del usuario
+                        pub_path = pem_pub_path
                         try:
-                            asegurar_pki()
-                            ruta_cert, serial = emitir_certificado_usuario(usuario_actual, pub_pem)
-                            usuarios_reg[usuario_actual]['cert_path'] = ruta_cert
-                            usuarios_reg[usuario_actual]['cert_serial'] = str(serial)
-                            print(f"Certificado de usuario emitido y guardado en: {ruta_cert}")
-                        except Exception as ee:
-                            print(f"Advertencia: no se pudo emitir certificado: {ee}")
-                        guardar_usuarios(usuarios_reg, 'json/usuarios.json')
-                    except Exception:
-                        pass
-                    print(f"Par RSA generado. Claves guardadas en json/user_keys/ para {usuario_actual}.")
-                except Exception as e:
-                    print(f"Error generando claves RSA: {e}")
+                            guardar_clave_publica(pub_path, pub_pem)
+                        except Exception:
+                            with open(pub_path, 'wb') as f:
+                                f.write(pub_pem)
+
+                        try:
+                            usuarios_reg = cargar_usuarios('json/usuarios.json')
+                            usuarios_reg[usuario_actual]['public_key_pem'] = pub_pem.decode('utf-8')
+                            # Emitir certificado X.509 para la clave pública del usuario
+                            try:
+                                asegurar_pki()
+                                ruta_cert, serial = emitir_certificado_usuario(usuario_actual, pub_pem)
+                                usuarios_reg[usuario_actual]['cert_path'] = ruta_cert
+                                usuarios_reg[usuario_actual]['cert_serial'] = str(serial)
+                                print(f"Certificado de usuario emitido y guardado en: {ruta_cert}")
+                                # Pedir passphrase para proteger el PFX (servidor guarda copia cifrada)
+                                while True:
+                                    try:
+                                        passwd = getpass.getpass('Ingrese una passphrase para proteger su PFX (mínimo 12 caracteres): ')
+                                    except Exception:
+                                        passwd = ''
+                                    if len(passwd) < 12:
+                                        print('La passphrase debe tener al menos 12 caracteres.')
+                                        continue
+                                    try:
+                                        confirm = getpass.getpass('Confirme la passphrase: ')
+                                    except Exception:
+                                        confirm = ''
+                                    if passwd != confirm:
+                                        print('Las passphrases no coinciden. Intente de nuevo.')
+                                        continue
+                                    break
+
+                                # Exportar a PFX y guardar en json/user_keys/
+                                pfx_path = exportar_usuario_a_pfx(usuario_actual, private_key_obj, ruta_cert, passwd)
+                                usuarios_reg[usuario_actual]['pfx_path'] = pfx_path
+                                print(f"PFX creado y almacenado en servidor: {pfx_path} (puede descargarlo en el registro).")
+                            except Exception as ee:
+                                print(f"Advertencia: no se pudo emitir certificado o crear PFX: {ee}")
+                            guardar_usuarios(usuarios_reg, 'json/usuarios.json')
+                        except Exception:
+                            pass
+                        print(f"Par RSA generado. Clave privada protegida en PFX y pública guardada para {usuario_actual}.")
+                    except Exception as e:
+                        print(f"Error generando claves RSA: {e}")
 
         # Registrar voto usando el helper unificado (cifrado híbrido + HMAC + firma)
         archivo_votos_cifrados = "json/votos_cifrados.jsonl"

@@ -20,6 +20,7 @@ from cryptography.x509.oid import NameOID, ExtendedKeyUsageOID
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.serialization import pkcs12
 
 
 PKI_DIR = "json/pki"
@@ -258,3 +259,59 @@ def verificar_cadena_certificado(cert_pem: bytes) -> Tuple[bool, str]:
         return True, "Cadena válida"
     except Exception as e:
         return False, f"Error verificando cadena: {e}"
+
+
+def exportar_usuario_a_pfx(usuario: str, private_key_obj, ruta_cert_usuario: str, passphrase: str, destino: str = None) -> str:
+    """Exporta la clave privada y el certificado del usuario a un archivo PKCS#12 (.pfx) protegido por passphrase.
+    Devuelve la ruta del PFX creado.
+    """
+    _asegurar_carpetas()
+    os.makedirs(os.path.join('json', 'user_keys'), exist_ok=True)
+    if destino is None:
+        destino = os.path.join('json', 'user_keys', f"{usuario}.pfx")
+
+    # Cargar certificado de usuario
+    cert_bytes = _leer_pem(ruta_cert_usuario)
+    cert_obj = x509.load_pem_x509_certificate(cert_bytes, backend=default_backend())
+
+    # Intentar cargar certificados adicionales (sub + root) para incluir en el PFX
+    additional = []
+    try:
+        sub_p = _leer_pem(os.path.join(PKI_DIR, 'sub_cert.pem'))
+        additional.append(x509.load_pem_x509_certificate(sub_p, backend=default_backend()))
+    except Exception:
+        pass
+    try:
+        root_p = _leer_pem(os.path.join(PKI_DIR, 'root_cert.pem'))
+        additional.append(x509.load_pem_x509_certificate(root_p, backend=default_backend()))
+    except Exception:
+        pass
+
+    if passphrase is None:
+        passphrase_bytes = None
+    else:
+        passphrase_bytes = passphrase.encode('utf-8')
+
+    pfx_bytes = pkcs12.serialize_key_and_certificates(
+        name=usuario.encode('utf-8'),
+        key=private_key_obj,
+        cert=cert_obj,
+        cas=additional if additional else None,
+        encryption_algorithm=serialization.BestAvailableEncryption(passphrase_bytes) if passphrase_bytes else serialization.NoEncryption(),
+    )
+
+    with open(destino, 'wb') as pf:
+        pf.write(pfx_bytes)
+
+    return destino
+
+
+def cargar_clave_desde_pfx(ruta_pfx: str, passphrase: str):
+    """Carga la clave privada desde un archivo PKCS#12 (.pfx) y devuelve el objeto private_key.
+    Si la passphrase es incorrecta lanzará excepción.
+    """
+    with open(ruta_pfx, 'rb') as f:
+        data = f.read()
+    pass_bytes = passphrase.encode('utf-8') if passphrase is not None else None
+    private_key, cert, additional = pkcs12.load_key_and_certificates(data, pass_bytes, backend=default_backend())
+    return private_key

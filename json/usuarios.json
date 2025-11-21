@@ -111,5 +111,25 @@
     "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvtTgecqIfE8mkVLbmFkI\nZ8xCiVd5ybGSA9I0og+vQb0RSMqG37WST7mTtIgmbrf2r/RiMbS8Pl+caPAawiee\nAIRA0Ub4cwSkTvtzF94njbvrLAS429sOG+mqXcA2HlxSYokWZSrVEEWCi0Vxf+eL\nrjW7REl1cYFfew7zdrm+0Fmh6zSZgoiVtnCHi3LQJ6VuB9yUtaZ/LHRt/2DuCDyP\nzI0U+LYi2I8C/wNhDJoBNQ6/0kax5VvYdIp+wCSSs5iiegyjUAw5bYImvCv0WB4l\n0pfKDZleoxa/NEi/2YM1aMyAonDo09CKuAc7j2PkSA/jqzgl/FQn2MdSzyfbkXye\nJwIDAQAB\n-----END PUBLIC KEY-----\n",
     "cert_path": "json/user_certs\\rit.pem",
     "cert_serial": "711219157660735162755027221617216542774889767569"
+  },
+  "cra": {
+    "email": "c@gmail.com",
+    "password": "pbkdf2$sha256$200000$kebCZkpZBDhIFjxOlSmSvw==$Gk2FXf3JPx1JbrKzH9NR6W0n3I8w77L7KKjX4qbtMA0=",
+    "fecha_registro": "2025-11-21T23:38:57.447748",
+    "mac": "2AqZdzAB/CrQXWF35K9K7O7NL0+UP/Knt+J/6L47Bqc=",
+    "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApttYpZxCMKlQNGkV8q2i\n88OB934PFfQeQuYTBtRPd4PIzaJS+Xt6ikSpT2Du850Eiuv5GG5pd3KpxXLLwD8C\nEDGDoB/vzja/RJDr7Jugsxl2quAgBb3EVDRRzvf2w9ZZvk8MkoS66dtFR+AQSPzA\nIjTLT+PSY6J0srqrFpkueElCrxqKiGanVSAtvpq3EejDk5nJ86vQK/k+BVMeQtP0\njKioCoBhDeAI+lV7umxcC+1GWnkkazyK/wbxSahZLcYsYlMtT3XtpgGkvJam1thi\niU8RHRP4uh79sbTZWjh7jYcLcwaXOwHZj2wE6ldNymTAEJW6zXDD/ArMVajgt1OL\nFwIDAQAB\n-----END PUBLIC KEY-----\n",
+    "cert_path": "json/user_certs\\cra.pem",
+    "cert_serial": "282611846880098432710841294648028555647247100362",
+    "pfx_path": "json\\user_keys\\cra.pfx"
+  },
+  "cre": {
+    "email": "c@gmail.com",
+    "password": "pbkdf2$sha256$200000$vuCXTemon+VaDblFQTXC3Q==$+E1+5QPbAn6hRHHSR8VbhUBhsVNZNzi2styq2RgFII0=",
+    "fecha_registro": "2025-11-21T23:45:58.498082",
+    "mac": "E7PiMrbieUb+QX+RqxuxXprZ6k66OxHAaJ/NY+w/f7A=",
+    "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA45wyYyM7UibXoU3nxVvg\nhY4HA+3mq+QRBPyqwiaa3EmPYwWxjgqQQSWrgoXJKq6/aA7nOLjBW9X3HbOVuNG8\n1tD9HEoHghco2i6ez3rzc6BYdlgnpjCNqU1ttgMNwVOp/UVno3gyQZis9/YPpKql\n4erBf8ocn6TxZGST+qEkpYKpdm9JkKEDbZ2pYdMjTar6JchpkeWmMBUEeR3Y0nab\ng4CKezzUrg7WLP8+Ut4wK4oMLP0T8nfyViigy8JnU9Pd0qGQos4uS32TLeg44vXz\ndNSHAM3Eq63836R5/0V5nyoiTDW+uBf42k7j+GK3veYepRgCT7T/mZgWYhJFPDTY\n0QIDAQAB\n-----END PUBLIC KEY-----\n",
+    "cert_path": "json/user_certs\\cre.pem",
+    "cert_serial": "722975087913602679005001178549996025330516537050",
+    "pfx_path": "json\\user_keys\\cre.pfx"
   }
 }

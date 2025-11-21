@@ -14,6 +14,7 @@ from crypto.signature_rsa import (
     cargar_clave_privada,
     firmar,
 )
+from crypto.pki import cargar_clave_desde_pfx
 import hmac
 import hashlib
 import base64
@@ -161,10 +162,37 @@ def registrar_log_hibrido_hmac(usuario: str, seleccion: str, archivo_log_cifrado
     # Firma por parte del usuario (si dispone de clave privada almacenada en json/user_keys/)
     user_sig_b64 = None
     user_sig_key_id = None
-    user_priv_path = f"json/user_keys/{usuario}_private.pem"
-    if os.path.exists(user_priv_path):
+    # Preferimos PFX cifrado: pedir passphrase en el momento de firmar (3 intentos)
+    pfx_path = f"json/user_keys/{usuario}.pfx"
+    pem_path = f"json/user_keys/{usuario}_private.pem"
+    if os.path.exists(pfx_path):
+        attempts = 3
+        ok = False
+        for i in range(attempts):
+            try:
+                pwd = getpass.getpass(f"Passphrase para desbloquear su clave privada (intento {i+1}/{attempts}): ")
+            except Exception:
+                pwd = ''
+            if pwd is None:
+                pwd = ''
+            if len(pwd) < 12:
+                print('La passphrase debe tener al menos 12 caracteres.')
+                continue
+            try:
+                user_priv = cargar_clave_desde_pfx(pfx_path, pwd)
+                if user_priv is not None:
+                    user_sig_b64 = firmar(user_priv, contenido_para_firma)
+                    user_sig_key_id = f"user-{usuario}-rsa-pfx-v1"
+                    ok = True
+                    break
+            except Exception as e:
+                print('Passphrase incorrecta o error cargando PFX.')
+                continue
+        if not ok:
+            print('No se pudo desbloquear la clave privada con los intentos permitidos. Se continuará sin firma de usuario.')
+    elif os.path.exists(pem_path):
         try:
-            user_priv = cargar_clave_privada(user_priv_path, password=None)
+            user_priv = cargar_clave_privada(pem_path, password=None)
             user_sig_b64 = firmar(user_priv, contenido_para_firma)
             user_sig_key_id = f"user-{usuario}-rsa-v1"
         except Exception:
