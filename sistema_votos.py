@@ -14,6 +14,7 @@ from cifrado import registrar_log_hibrido_hmac
 from data import msj_comunes as msj
 from data import msj_espera
 from crypto.signature_rsa import generar_par_claves_rsa, guardar_clave_privada, guardar_clave_publica
+from crypto.pki import asegurar_pki, emitir_certificado_usuario, verificar_cadena_certificado, revocar_certificado
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends import default_backend
 import base64
@@ -77,6 +78,15 @@ def votar(usuario_actual, opciones_votacion, archivo_votos):
                     try:
                         usuarios_reg = cargar_usuarios('json/usuarios.json')
                         usuarios_reg[usuario_actual]['public_key_pem'] = pub_pem.decode('utf-8')
+                        # Emitir certificado X.509 para la clave pública del usuario
+                        try:
+                            asegurar_pki()
+                            ruta_cert, serial = emitir_certificado_usuario(usuario_actual, pub_pem)
+                            usuarios_reg[usuario_actual]['cert_path'] = ruta_cert
+                            usuarios_reg[usuario_actual]['cert_serial'] = str(serial)
+                            print(f"Certificado de usuario emitido y guardado en: {ruta_cert}")
+                        except Exception as ee:
+                            print(f"Advertencia: no se pudo emitir certificado: {ee}")
                         guardar_usuarios(usuarios_reg, 'json/usuarios.json')
                     except Exception:
                         pass
@@ -175,11 +185,27 @@ def solicitar_verificacion(usuario_actual):
         else:
             user_sig_result = 'Clave pública de usuario no encontrada'
 
+    # Verificar certificado del usuario (cadena y revocación)
+    cert_result = 'No presente'
+    try:
+        usuarios_reg = cargar_usuarios('json/usuarios.json')
+        ruta_cert = usuarios_reg.get(usuario_actual, {}).get('cert_path')
+        if ruta_cert and os.path.exists(ruta_cert):
+            with open(ruta_cert, 'rb') as cf:
+                cert_pem = cf.read()
+            ok_cert, razon = verificar_cadena_certificado(cert_pem)
+            cert_result = 'Certificado válido' if ok_cert else f'Certificado inválido: {razon}'
+        else:
+            cert_result = 'Certificado no encontrado'
+    except Exception as e:
+        cert_result = f'Error verificando certificado: {e}'
+
     # Mostrar resultados al usuario
     print('\n=== Resultado de verificación ===')
     print(f"vote_id: {mac_obj['vote_id']}")
     print(f"HMAC: {'válido' if hmac_valido else 'inválido'}")
     print(f"Firma usuario: {user_sig_result}")
+    print(f"Certificado: {cert_result}")
 
     # Registrar la verificación en un log de auditoría
     try:
@@ -190,6 +216,7 @@ def solicitar_verificacion(usuario_actual):
             'vote_id': mac_obj['vote_id'],
             'hmac': 'válido' if hmac_valido else 'inválido',
             'user_sig': user_sig_result,
+            'certificado': cert_result,
         }
         with open('json/verification_log.jsonl', 'a', encoding='utf-8') as vf:
             vf.write(json.dumps(ver_log, ensure_ascii=False) + '\n')

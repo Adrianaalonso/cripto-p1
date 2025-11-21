@@ -84,5 +84,23 @@
     "fecha_registro": "2025-11-20T20:00:59.177881",
     "mac": "Yo6u1P1x6upZe9QWpjye7MEweono2Ajr8Pnb4m5/v8I=",
     "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAquhRsjzS7CmTJ9eGCaLz\njBS8BxzKPBXEZFUhL+Y0NKbmlB3cwVXOai1zyr5+5jXiZfRtFKrEYE6Wmud8tK6Z\nA7scM1tEA71thrjQmhpGcjli+Wu/To1b46h07dCLIE5P+6OhygzDJEEBMLZkd10Z\nwi/dcCXDGI26Ixu/Y/GFgCsuyPAMqrEu1RhW5MKvQNkGKYdtAHfi02Dayuv8Y2p1\nhECSUWMnCSo8HS+qXkH1fuoTAkjYqV6ofXIQ8KlKirIlii1a3LwYJZPZGY3MhzqK\naz8FK/CpcZb/aRkQVIAcI9EvOv6+zBwr2LPezj2/ijpTOBzaAKf2nNFrc3CA/J3n\nwwIDAQAB\n-----END PUBLIC KEY-----\n"
+  },
+  "MARI": {
+    "email": "m@gmail.com",
+    "password": "pbkdf2$sha256$200000$1TB46JqufYN+kzrclqlqzA==$FrPwBSVhZ++UWBoBz9/zHNNI8WPX5egE+guYE3JITy4=",
+    "fecha_registro": "2025-11-21T16:11:00.340497",
+    "mac": "9qBFSfOClkacQCjVUm+bY1afiCGuozx4o7yUZRHxtBs=",
+    "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAx7WlPbnAZY23ZUYRYXqD\nKgQUqaLWcf59fBGd/L/SKg9KIgQVDxjnPPuIn/g2EYEZrEDBksHGo8zDRoXQ0WBm\nKR4TVpqdwLzdfULgzuQVs4lc8V5z87N8HB0gVxDAGd7Zuj+PGyEYO4P/sfH/3Lvo\nsLqhxvOUgTJQ3Bok+box+qVCOkA3l1rpV1SX038P2g8egdPhWOdB+4QVUfgQXYQ4\nn+ICvB/ph5ydvR7+pWjuaqt47EmnxGJP5h6OHXMfuiCE3hEQdBt4mRuRbyyVHIGS\n77U1fxKxleZB0DpX5UurgR42UHuYCc3zqU6oqQ9CHHaTu/1KThR77eBIN+MfqZmh\nyQIDAQAB\n-----END PUBLIC KEY-----\n",
+    "cert_path": "json/user_certs\\MARI.pem",
+    "cert_serial": "492590082429004046291811153733279843268393676297"
+  },
+  "cri": {
+    "email": "c@gmail.com",
+    "password": "pbkdf2$sha256$200000$rDd3MzssjnLU9SPlSdIf3w==$vWw0HryB4SJ9dBcMuGtkIVsT2G9yHBLVnpzJLiyKfj4=",
+    "fecha_registro": "2025-11-21T16:14:49.324816",
+    "mac": "7GRUfi9wOZ+xXIyLSdaqqoL85G+fS9hFbJhmwZ6/GjQ=",
+    "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtZyLMW0x15L2b1vpiTm3\nXx9YNjrwxNk3iUmfkP+zgTocup7saF3tc/yuwyiiQWWg0vY7MnVOaQF23g5j7eEx\nFNZH/VES6+1k6dCx3fhw44L18t8zQA0UXTdvQBOcM6UGd4MZGstTu/VkG8jKW8uf\nzifCVeMrNMIU1QjN9iaI0FiOZQC1EuwAn1Gb6FmjO8QZigzpuc1TOSgWVmtaTOo2\naEkZSKM9XcwHtYSFH5TMS9UfglnXl5y3/ywwZPnBmKtRcUFfdphSjUH07hxYAwrf\nfJWexzACg3h04CWl4ubYTdwZ5P7wAgpNIK/+ioOrwGnndWWWqwDzi3fez0LY5uAP\nUQIDAQAB\n-----END PUBLIC KEY-----\n",
+    "cert_path": "json/user_certs\\cri.pem",
+    "cert_serial": "579519984566016165227636102152100796437670068305"
   }
 }
