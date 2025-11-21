@@ -17,6 +17,10 @@ from crypto.signature_rsa import generar_par_claves_rsa, guardar_clave_privada, 
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends import default_backend
 import base64
+from crypto import verificar_hmac_sha256, cargar_o_crear_clave_mac
+from crypto.signature_rsa import verificar
+import json
+from datetime import datetime
 
 def votar(usuario_actual, opciones_votacion, archivo_votos):
     """funcion para votar"""
@@ -114,3 +118,87 @@ def mostrar_resultados(archivo_votos):
     print("="*40)
     from data import msj_espera
     msj_espera.pause()
+
+
+def solicitar_verificacion(usuario_actual):
+    """Permite al usuario solicitar la verificación de la firma de su voto."""
+    archivo_votos_cifrados = "json/votos_cifrados.jsonl"
+    if not os.path.exists(archivo_votos_cifrados):
+        print("No hay votos registrados todavía.")
+        return
+
+    ultima_entrada = None
+    with open(archivo_votos_cifrados, 'r', encoding='utf-8') as f:
+        for line in f:
+            if not line.strip():
+                continue
+            try:
+                rec = json.loads(line)
+            except Exception:
+                continue
+            if rec.get('usuario') == usuario_actual:
+                ultima_entrada = rec
+
+    if ultima_entrada is None:
+        print("No se encontró ningún voto asociado a su usuario.")
+        return
+
+    # Reconstruir contenido canónico
+    mac_obj = {
+        "vote_id": ultima_entrada.get("vote_id", ""),
+        "voto_cifrado": ultima_entrada.get("voto_cifrado", ""),
+        "iv": ultima_entrada.get("iv", ""),
+        "tag": ultima_entrada.get("tag", ""),
+        "clave_sim_cifrada": ultima_entrada.get("clave_sim_cifrada", ""),
+        "timestamp": ultima_entrada.get("timestamp", ""),
+    }
+    contenido_para_firma = json.dumps(mac_obj, sort_keys=True, separators=(',',':'), ensure_ascii=False).encode('utf-8')
+
+    # Verificar HMAC
+    clave_mac = cargar_o_crear_clave_mac("json/clave_mac_logs.bin")
+    contenido_para_mac = json.dumps(mac_obj, sort_keys=True, separators=(',',':'), ensure_ascii=False)
+    hmac_valido = verificar_hmac_sha256(clave_mac, contenido_para_mac, ultima_entrada.get('mac', ''))
+
+    # Verificar firma del usuario
+    user_sig = ultima_entrada.get('user_sig')
+    user_sig_result = 'No presente'
+    if user_sig:
+        usuarios_reg = cargar_usuarios('json/usuarios.json')
+        pub_pem = usuarios_reg.get(usuario_actual, {}).get('public_key_pem')
+        if pub_pem:
+            try:
+                pub_obj = serialization.load_pem_public_key(pub_pem.encode('utf-8'), backend=default_backend())
+                ok = verificar(pub_obj, contenido_para_firma, user_sig)
+                user_sig_result = 'Firma usuario válida' if ok else 'Firma usuario inválida'
+            except Exception as e:
+                user_sig_result = f'Error verificando firma: {e}'
+        else:
+            user_sig_result = 'Clave pública de usuario no encontrada'
+
+    # Mostrar resultados al usuario
+    print('\n=== Resultado de verificación ===')
+    print(f"vote_id: {mac_obj['vote_id']}")
+    print(f"HMAC: {'válido' if hmac_valido else 'inválido'}")
+    print(f"Firma usuario: {user_sig_result}")
+
+    # Registrar la verificación en un log de auditoría
+    try:
+        os.makedirs('json', exist_ok=True)
+        ver_log = {
+            'when': datetime.now().isoformat(),
+            'user': usuario_actual,
+            'vote_id': mac_obj['vote_id'],
+            'hmac': 'válido' if hmac_valido else 'inválido',
+            'user_sig': user_sig_result,
+        }
+        with open('json/verification_log.jsonl', 'a', encoding='utf-8') as vf:
+            vf.write(json.dumps(ver_log, ensure_ascii=False) + '\n')
+    except Exception:
+        pass
+
+    # Pausa para que el usuario pueda leer el resultado antes de que el menú lo reescriba
+    try:
+        input('\nPresione Enter para continuar...')
+    except Exception:
+        # En entornos no interactivos simplemente continue
+        pass

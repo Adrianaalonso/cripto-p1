@@ -1,6 +1,6 @@
 # Archivo principal 
 from mfa import registrar_usuario, iniciar_sesion, iniciar_sesion_admin
-from sistema_votos import votar, mostrar_resultados
+from sistema_votos import votar, mostrar_resultados, solicitar_verificacion
 from admin import ejecutar_panel_admin
 from data import msj_comunes as msj
 
@@ -32,6 +32,7 @@ class SistemaVotacion:
         print(msj.LINEA_VOTACION)
         print(msj.OP_VOTAR)
         print(msj.OP_VER_RESULTADOS)
+        print(msj.OP_VERIFICAR_VOTO)
         print(msj.OP_CERRAR_SESION)
         print(msj.LINEA_VOTACION)
     
@@ -81,6 +82,8 @@ class SistemaVotacion:
                     elif opcion == "2":
                         mostrar_resultados(self.archivo_votos)
                     elif opcion == "3":
+                        solicitar_verificacion(self.usuario_actual)
+                    elif opcion == "4":
                         print(msj.despedida(self.usuario_actual))
                         self.usuario_actual = None
                     else:
