@@ -102,5 +102,14 @@
     "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtZyLMW0x15L2b1vpiTm3\nXx9YNjrwxNk3iUmfkP+zgTocup7saF3tc/yuwyiiQWWg0vY7MnVOaQF23g5j7eEx\nFNZH/VES6+1k6dCx3fhw44L18t8zQA0UXTdvQBOcM6UGd4MZGstTu/VkG8jKW8uf\nzifCVeMrNMIU1QjN9iaI0FiOZQC1EuwAn1Gb6FmjO8QZigzpuc1TOSgWVmtaTOo2\naEkZSKM9XcwHtYSFH5TMS9UfglnXl5y3/ywwZPnBmKtRcUFfdphSjUH07hxYAwrf\nfJWexzACg3h04CWl4ubYTdwZ5P7wAgpNIK/+ioOrwGnndWWWqwDzi3fez0LY5uAP\nUQIDAQAB\n-----END PUBLIC KEY-----\n",
     "cert_path": "json/user_certs\\cri.pem",
     "cert_serial": "579519984566016165227636102152100796437670068305"
+  },
+  "rit": {
+    "email": "r@gmail.com",
+    "password": "pbkdf2$sha256$200000$2d3/d3eSdfrATqC6z9Ww+A==$3ayk+om6fWYlsEtKl1mYGWadkdPlgxoE+SE1aZ8vmSs=",
+    "fecha_registro": "2025-11-21T18:24:16.895827",
+    "mac": "JCw6mb02iBZ3v0PFLKULEcjxSXGihpt2EI/8ENhsA9Y=",
+    "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvtTgecqIfE8mkVLbmFkI\nZ8xCiVd5ybGSA9I0og+vQb0RSMqG37WST7mTtIgmbrf2r/RiMbS8Pl+caPAawiee\nAIRA0Ub4cwSkTvtzF94njbvrLAS429sOG+mqXcA2HlxSYokWZSrVEEWCi0Vxf+eL\nrjW7REl1cYFfew7zdrm+0Fmh6zSZgoiVtnCHi3LQJ6VuB9yUtaZ/LHRt/2DuCDyP\nzI0U+LYi2I8C/wNhDJoBNQ6/0kax5VvYdIp+wCSSs5iiegyjUAw5bYImvCv0WB4l\n0pfKDZleoxa/NEi/2YM1aMyAonDo09CKuAc7j2PkSA/jqzgl/FQn2MdSzyfbkXye\nJwIDAQAB\n-----END PUBLIC KEY-----\n",
+    "cert_path": "json/user_certs\\rit.pem",
+    "cert_serial": "711219157660735162755027221617216542774889767569"
   }
 }

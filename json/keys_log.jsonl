@@ -1,2 +1,3 @@
 {"when": "2025-11-21T15:11:44.695123", "user": "MARI", "serial": "492590082429004046291811153733279843268393676297", "issuer": "CN=AC2 SubCA", "subject": "CN=MARI", "algoritmo": "RSA", "longitud_clave": 2048}
 {"when": "2025-11-21T15:15:08.959010+00:00", "user": "cri", "serial": "579519984566016165227636102152100796437670068305", "issuer": "CN=AC2 SubCA", "subject": "CN=cri", "algoritmo": "RSA", "longitud_clave": 2048}
+{"when": "2025-11-21T17:24:50.006773+00:00", "user": "rit", "serial": "711219157660735162755027221617216542774889767569", "issuer": "CN=AC2 SubCA", "subject": "CN=rit", "algoritmo": "RSA", "longitud_clave": 2048}

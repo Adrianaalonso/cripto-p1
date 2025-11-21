@@ -3,3 +3,4 @@
 {"when": "2025-11-21T13:58:29.733917", "user": "adri", "vote_id": "8c3d810251ad4eebbd59008e5e86c72f", "hmac": "válido", "user_sig": "Firma usuario válida"}
 {"when": "2025-11-21T16:11:58.948509", "user": "MARI", "vote_id": "03d90e73e16c4f2383ed671dae22a9ce", "hmac": "válido", "user_sig": "Firma usuario válida", "certificado": "Certificado válido"}
 {"when": "2025-11-21T16:15:18.394212", "user": "cri", "vote_id": "887cad57bc074057aa70faf6160afde4", "hmac": "válido", "user_sig": "Firma usuario válida", "certificado": "Certificado válido"}
+{"when": "2025-11-21T18:25:06.602196", "user": "rit", "vote_id": "7130ce5b32b44286a2297c35abd0a215", "hmac": "válido", "user_sig": "Firma usuario válida", "certificado": "Certificado válido"}

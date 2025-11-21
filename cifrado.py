@@ -21,7 +21,7 @@ from data import msj_comunes as msj
 import uuid
 
 
-def exportar_log_descifrado(archivo_log_cifrado, archivo_clave, salida="log_descifrado.jsonl", admin_mode=False):
+def exportar_log_descifrado(archivo_log_cifrado, archivo_clave, salida="json/log_descifrado.jsonl", admin_mode=False):
     # Solicitar clave de administrador solo si no es modo admin
     if not admin_mode:
         print(msj.ACCESO_ADMIN)
