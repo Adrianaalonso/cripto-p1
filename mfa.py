@@ -159,54 +159,33 @@ def registrar_usuario(archivo_usuarios):
 
     guardar_usuarios(usuarios, archivo_usuarios)
     print(f"Usuario '{usuario}' registrado exitosamente!")
-    # Ofrecer generar par RSA y crear PFX protegido por passphrase en el registro
+    # Pedir al usuario una passphrase para proteger su PFX en el futuro.
+    # NO generamos claves ni firmamos aquí; solo guardamos la passphrase
+    # para usarla cuando se genere el PFX al votar.
     try:
-        generar = input("¿Desea generar ahora un par RSA para firmar sus votos? (s/n): ").strip().lower()
-    except Exception:
-        generar = 'n'
-    if generar == 's':
-        try:
-            priv_pem, pub_pem = generar_par_claves_rsa(bits=2048)
-            private_key_obj = serialization.load_pem_private_key(priv_pem, password=None)
-            pub_path = f"json/user_keys/{usuario}_public.pem"
-            os.makedirs(os.path.dirname(pub_path), exist_ok=True)
-            guardar_clave_publica(pub_path, pub_pem)
-
-            # Emitir certificado y pedir passphrase para crear PFX
+        while True:
             try:
-                asegurar_pki()
-                ruta_cert, serial = emitir_certificado_usuario(usuario, pub_pem)
-                usuarios = cargar_usuarios(archivo_usuarios)
-                usuarios[usuario]['public_key_pem'] = pub_pem.decode('utf-8')
-                usuarios[usuario]['cert_path'] = ruta_cert
-                usuarios[usuario]['cert_serial'] = str(serial)
+                passwd = getpass.getpass('Ingrese una passphrase para proteger su PFX (mínimo 12 caracteres): ')
+            except Exception:
+                passwd = ''
+            if len(passwd) < 12:
+                print('La passphrase debe tener al menos 12 caracteres.')
+                continue
+            try:
+                confirm = getpass.getpass('Confirme la passphrase: ')
+            except Exception:
+                confirm = ''
+            if passwd != confirm:
+                print('Las passphrases no coinciden. Intente de nuevo.')
+                continue
+            break
 
-                # Pedir passphrase y confirmar
-                while True:
-                    try:
-                        passwd = getpass.getpass('Ingrese una passphrase para proteger su PFX (mínimo 12 caracteres): ')
-                    except Exception:
-                        passwd = ''
-                    if len(passwd) < 12:
-                        print('La passphrase debe tener al menos 12 caracteres.')
-                        continue
-                    try:
-                        confirm = getpass.getpass('Confirme la passphrase: ')
-                    except Exception:
-                        confirm = ''
-                    if passwd != confirm:
-                        print('Las passphrases no coinciden. Intente de nuevo.')
-                        continue
-                    break
-
-                pfx_path = exportar_usuario_a_pfx(usuario, private_key_obj, ruta_cert, passwd)
-                usuarios[usuario]['pfx_path'] = pfx_path
-                guardar_usuarios(usuarios, archivo_usuarios)
-                print(f"PFX creado y almacenado en servidor: {pfx_path}. Descárguelo y guárdelo en un lugar seguro.")
-            except Exception as e:
-                print(f"Advertencia: no se pudo emitir certificado o crear PFX: {e}")
-        except Exception as e:
-            print(f"Error generando claves: {e}")
+        usuarios = cargar_usuarios(archivo_usuarios)
+        usuarios[usuario]['pfx_passphrase'] = passwd
+        guardar_usuarios(usuarios, archivo_usuarios)
+        print('Passphrase registrada. La generación de claves para firmar se solicitará al votar.')
+    except Exception as e:
+        print(f"No se pudo guardar la passphrase: {e}")
 
     return True
 

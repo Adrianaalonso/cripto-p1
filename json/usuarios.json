@@ -131,5 +131,41 @@
     "cert_path": "json/user_certs\\cre.pem",
     "cert_serial": "722975087913602679005001178549996025330516537050",
     "pfx_path": "json\\user_keys\\cre.pfx"
+  },
+  "tra": {
+    "email": "t@gmail.com",
+    "password": "pbkdf2$sha256$200000$C89I8qv8g7Zr9GZOyORbzg==$3Wv4+wz+ROCPDV1mmZpeZD2ecL06Z/iSeThmofk3x0A=",
+    "fecha_registro": "2025-12-01T18:38:16.624587",
+    "mac": "xpLSp3eaOjENIsp1q9Nn0OcvFmUg2bKyKPZ8aka9Kpc=",
+    "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4jThMbG2MVtlB0E0avdw\nG7cnQFk6jGoRegPshA+8VKbaDw9O9XlaBFEQ/w0EnNnPSFqjAJc1BVH258u0xzvx\nqlR5A6NXTejmA1s+Md0hB+1Dy1rgdEVTujsrOvXvNqJ2Aq3WKmocNXt1jQG+4vAT\nHnxkWgnBJfvOzfnBzmMw8iHFSDK5bRwRB251oaFBNyvO4lK/wyiK5HXjhB1gAVke\nYL+qTUacd5Wf/Sutm4COvzxhgjlW4vVq8JvpyutWXsmtUlBOQjAxHFMi6kydNAhe\n5ePqZS7h0lRdE3xodX64CcF6z1qDs1q7QjNlfGbqKdlEzAHsQSeXaOER7PI/vZw/\nQQIDAQAB\n-----END PUBLIC KEY-----\n",
+    "cert_path": "json/user_certs\\tra.pem",
+    "cert_serial": "462517785621067524798993951933176174478169165975",
+    "pfx_path": "json\\user_keys\\tra.pfx"
+  },
+  "yrr": {
+    "email": "y@gmail.com",
+    "password": "pbkdf2$sha256$200000$vIKcajrMnuR8zqPEyB+YAg==$Dao8Zje9ZxUatPLNm+j1do99pw7Gmy8kUrmZ3e40i7A=",
+    "fecha_registro": "2025-12-01T18:48:29.588209",
+    "mac": "RZRFRNH2GjaI31BZ8dGnjCdK/njzWNwY5pQg4y7J2dY=",
+    "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtt20x9LZbReYm55XwKMn\nnXdCfo26dKtMRDUHWT5jKFuaxHzYCBm4rk69r68oD6IiTIxWQB6GXx8YYv7i9ogk\n57n8DqruAttXTHnjJtpD9sMRCJR5rUXqVmgMlI5q6vL9pIMyYvan5qqVa4SO4hA7\n6c7QDdxxCLHXRAJlOc7Nh6RCMSB2FxHBtlHg3CSFcGEwuw76qwSDcwUbqckp3LpP\nGQxRwNYHtUP4ho4po927vCZI0nf0ox9QuFy8yI1N10knTGNDPHKBRYWtX9MVXhvT\naLzetnEStj/6OPWKbYtJnl+VkxxZZe7RAv886TfyW9iAezLNtFlLdkt9NZXU8GGj\nkQIDAQAB\n-----END PUBLIC KEY-----\n",
+    "cert_path": "json/user_certs\\yrr.pem",
+    "cert_serial": "34351704657538449043236692827682017790742201908",
+    "pfx_path": "json\\user_keys\\yrr.pfx"
+  },
+  "pin": {
+    "email": "p@gmail.com",
+    "password": "pbkdf2$sha256$200000$h8P6ofNTPQZMwPQiTve32A==$4CdOzJbOC3XLYb1TsXFWerM5uLYn/GOED9WvlNq0NrA=",
+    "fecha_registro": "2025-12-01T18:57:40.306698",
+    "mac": "4u0cLpbyoK5x697qU2irn6FI4lsTQHOByoqUNuEHSVo=",
+    "pfx_passphrase": "123456789123",
+    "pfx_path": "json\\user_keys\\pin.pfx"
+  },
+  "pon": {
+    "email": "p@gmail.com",
+    "password": "pbkdf2$sha256$200000$OY4Gpm3okQ+mYQtH0l9QCw==$ieKs7jvukz9sz1xY/GgTFpfFC23Ou/b5VtD3DHmxdu4=",
+    "fecha_registro": "2025-12-01T18:59:18.500520",
+    "mac": "VfTHeYDgsij/8OadYlSe8ixh19oOsiDN1aXM9OE0/PI=",
+    "pfx_passphrase": "123456789123",
+    "pfx_path": "json\\user_keys\\pon.pfx"
   }
 }

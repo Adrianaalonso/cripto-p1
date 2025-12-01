@@ -1,7 +1,4 @@
-"""Paquete de utilidades criptográficas, dividido en módulos pequeños.
-
-Este paquete reexporta las funciones usadas por el resto del proyecto.
-No cambian las firmas públicas, solo se mejora la organización.
+"""Paquete de utilidades criptográficas, dividido en módulos.
 """
 
 from .hash_contraseña import pbkdf2_hash, verificar_password, generar_clave_aes

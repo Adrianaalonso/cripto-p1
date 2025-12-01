@@ -90,27 +90,38 @@ def votar(usuario_actual, opciones_votacion, archivo_votos):
                                 usuarios_reg[usuario_actual]['cert_path'] = ruta_cert
                                 usuarios_reg[usuario_actual]['cert_serial'] = str(serial)
                                 print(f"Certificado de usuario emitido y guardado en: {ruta_cert}")
-                                # Pedir passphrase para proteger el PFX (servidor guarda copia cifrada)
-                                while True:
-                                    try:
-                                        passwd = getpass.getpass('Ingrese una passphrase para proteger su PFX (mínimo 12 caracteres): ')
-                                    except Exception:
-                                        passwd = ''
-                                    if len(passwd) < 12:
-                                        print('La passphrase debe tener al menos 12 caracteres.')
-                                        continue
-                                    try:
-                                        confirm = getpass.getpass('Confirme la passphrase: ')
-                                    except Exception:
-                                        confirm = ''
-                                    if passwd != confirm:
-                                        print('Las passphrases no coinciden. Intente de nuevo.')
-                                        continue
-                                    break
+                                # Usar la passphrase registrada durante el registro si existe,
+                                # si no, pedirla ahora.
+                                passwd = None
+                                try:
+                                    usuarios_reg = cargar_usuarios('json/usuarios.json')
+                                    passwd = usuarios_reg.get(usuario_actual, {}).get('pfx_passphrase')
+                                except Exception:
+                                    passwd = None
+
+                                if not passwd or len(passwd) < 12:
+                                    # Pedir passphrase al usuario como fallback
+                                    while True:
+                                        try:
+                                            passwd = getpass.getpass('Ingrese una passphrase para proteger su PFX (mínimo 12 caracteres): ')
+                                        except Exception:
+                                            passwd = ''
+                                        if len(passwd) < 12:
+                                            print('La passphrase debe tener al menos 12 caracteres.')
+                                            continue
+                                        try:
+                                            confirm = getpass.getpass('Confirme la passphrase: ')
+                                        except Exception:
+                                            confirm = ''
+                                        if passwd != confirm:
+                                            print('Las passphrases no coinciden. Intente de nuevo.')
+                                            continue
+                                        break
 
                                 # Exportar a PFX y guardar en json/user_keys/
                                 pfx_path = exportar_usuario_a_pfx(usuario_actual, private_key_obj, ruta_cert, passwd)
                                 usuarios_reg[usuario_actual]['pfx_path'] = pfx_path
+                                # Si no existía, no sobrescribimos la passphrase almacenada
                                 print(f"PFX creado y almacenado en servidor: {pfx_path} (puede descargarlo en el registro).")
                             except Exception as ee:
                                 print(f"Advertencia: no se pudo emitir certificado o crear PFX: {ee}")
@@ -123,9 +134,13 @@ def votar(usuario_actual, opciones_votacion, archivo_votos):
 
         # Registrar voto usando el helper unificado (cifrado híbrido + HMAC + firma)
         archivo_votos_cifrados = "json/votos_cifrados.jsonl"
-        registrar_log_hibrido_hmac(usuario_actual, seleccion, archivo_votos_cifrados)
+        success = registrar_log_hibrido_hmac(usuario_actual, seleccion, archivo_votos_cifrados)
 
-        #conteo para resultados
+        if not success:
+            print("No se pudo registrar el voto en el log híbrido. El voto NO será contabilizado.")
+            return None
+
+        # conteo para resultados (solo si el log híbrido fue escrito correctamente)
         votos[seleccion] += 1
         votos["usuarios_votaron"].append(usuario_actual)
         guardar_votos(votos, archivo_votos)

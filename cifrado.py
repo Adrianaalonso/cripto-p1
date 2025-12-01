@@ -120,11 +120,10 @@ def exportar_log_descifrado(archivo_log_cifrado, archivo_clave, salida="json/log
 # ===== CIFRADO HÍBRIDO + HMAC UNIFICADO =====
 
 def registrar_log_hibrido_hmac(usuario: str, seleccion: str, archivo_log_cifrado):
-
-    #primero creamos claves RSA si no existen
+    # primero creamos claves RSA si no existen
     archivo_priv, archivo_pub = crear_claves_administrador()
 
-    #preparamos el mensaje del voto (ANÓNIMO: sólo la selección, no incluir usuario)
+    # preparamos el mensaje del voto (ANÓNIMO: sólo la selección, no incluir usuario)
     mensaje = f"{seleccion}"
 
     print(msj.CIFRADO_HIBRIDO_FMT.format(seleccion=seleccion))
@@ -226,9 +225,14 @@ def registrar_log_hibrido_hmac(usuario: str, seleccion: str, archivo_log_cifrado
     }
 
     # guardamos en un archivo el log unificado
-    with open(archivo_log_cifrado, "a", encoding="utf-8") as f:
-        f.write(json.dumps(linea_unificada, ensure_ascii=False) + "\n")
+    try:
+        with open(archivo_log_cifrado, "a", encoding="utf-8") as f:
+            f.write(json.dumps(linea_unificada, ensure_ascii=False) + "\n")
 
-    print(msj.CIFRADO_OK)
-    print(msj.HMAC_OK)
-    print(msj.GUARDADO_HIBRIDO_FMT.format(archivo=archivo_log_cifrado))
+        print(msj.CIFRADO_OK)
+        print(msj.HMAC_OK)
+        print(msj.GUARDADO_HIBRIDO_FMT.format(archivo=archivo_log_cifrado))
+        return True
+    except Exception as e:
+        print(f"Error registrando voto híbrido: {e}")
+        return False

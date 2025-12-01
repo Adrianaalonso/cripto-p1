@@ -4,3 +4,7 @@
 {"when": "2025-11-21T22:39:48.869956+00:00", "user": "cra", "serial": "282611846880098432710841294648028555647247100362", "issuer": "CN=AC2 SubCA", "subject": "CN=cra", "algoritmo": "RSA", "longitud_clave": 2048}
 {"when": "2025-11-21T22:46:01.004514+00:00", "user": "cre", "serial": "722975087913602679005001178549996025330516537050", "issuer": "CN=AC2 SubCA", "subject": "CN=cre", "algoritmo": "RSA", "longitud_clave": 2048}
 {"when": "2025-11-21T22:46:42.468581+00:00", "user": "cre", "serial": "441865210297873048509148851173381411445517934917", "issuer": "CN=AC2 SubCA", "subject": "CN=cre", "algoritmo": "RSA", "longitud_clave": 2048}
+{"when": "2025-12-01T17:38:25.725858+00:00", "user": "tra", "serial": "462517785621067524798993951933176174478169165975", "issuer": "CN=AC2 SubCA", "subject": "CN=tra", "algoritmo": "RSA", "longitud_clave": 2048}
+{"when": "2025-12-01T17:49:00.811454+00:00", "user": "yrr", "serial": "34351704657538449043236692827682017790742201908", "issuer": "CN=AC2 SubCA", "subject": "CN=yrr", "algoritmo": "RSA", "longitud_clave": 2048}
+{"when": "2025-12-01T17:58:34.708999+00:00", "user": "pin", "serial": "314806971815406424079486051686188210500605992939", "issuer": "CN=AC2 SubCA", "subject": "CN=pin", "algoritmo": "RSA", "longitud_clave": 2048}
+{"when": "2025-12-01T18:00:08.569732+00:00", "user": "pon", "serial": "679673368320406308498468630892880558076883108585", "issuer": "CN=AC2 SubCA", "subject": "CN=pon", "algoritmo": "RSA", "longitud_clave": 2048}
