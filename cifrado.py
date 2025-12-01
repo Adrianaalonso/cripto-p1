@@ -181,7 +181,7 @@ def registrar_log_hibrido_hmac(usuario: str, seleccion: str, archivo_log_cifrado
                 user_priv = cargar_clave_desde_pfx(pfx_path, pwd)
                 if user_priv is not None:
                     user_sig_b64 = firmar(user_priv, contenido_para_firma)
-                    user_sig_key_id = f"user-{usuario}-rsa-pfx-v1"
+                    user_sig_key_id = "user-rsa-pfx-v1"
                     ok = True
                     break
             except Exception as e:
@@ -193,7 +193,8 @@ def registrar_log_hibrido_hmac(usuario: str, seleccion: str, archivo_log_cifrado
         try:
             user_priv = cargar_clave_privada(pem_path, password=None)
             user_sig_b64 = firmar(user_priv, contenido_para_firma)
-            user_sig_key_id = f"user-{usuario}-rsa-v1"
+            # Generic key id without username to avoid leaking identity
+            user_sig_key_id = "user-rsa-v1"
         except Exception:
             user_sig_b64 = None
             user_sig_key_id = None

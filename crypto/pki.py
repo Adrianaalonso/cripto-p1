@@ -4,11 +4,11 @@ Implementa una CA raíz y una CA subordinada, emisión de certificados X.509
 para usuarios, verificación de cadena simple y revocación básica.
 
 Archivos usados:
-- json/pki/root_key.pem, root_cert.pem
-- json/pki/sub_key.pem, sub_cert.pem
+- json/pki/AC1_key.pem, AC1_cert.pem
+- json/pki/AC2_key.pem, AC2_cert.pem
 - json/pki/revoked_certs.json
 - json/user_certs/<usuario>.pem
-- json/keys_log.jsonl (registro de emisiones)
+- json/logs/keys_log.jsonl (registro de emisiones)
 """
 import os
 import json
@@ -66,8 +66,8 @@ def crear_ca_raiz(nombre_comun: str = "AC1 Root", bits: int = 2048, dias: int = 
         .sign(clave, hashes.SHA256(), default_backend())
     )
 
-    ruta_clave = os.path.join(PKI_DIR, "root_key.pem")
-    ruta_cert = os.path.join(PKI_DIR, "root_cert.pem")
+    ruta_clave = os.path.join(PKI_DIR, "AC1_key.pem")
+    ruta_cert = os.path.join(PKI_DIR, "AC1_cert.pem")
     _guardar_pem(ruta_clave, clave.private_bytes(encoding=serialization.Encoding.PEM,
                                                 format=serialization.PrivateFormat.PKCS8,
                                                 encryption_algorithm=serialization.NoEncryption()))
@@ -100,8 +100,8 @@ def crear_ca_subordinada(ruta_clave_raiz: str, ruta_cert_raiz: str, nombre_comun
         .sign(clave_raiz, hashes.SHA256(), default_backend())
     )
 
-    ruta_clave_sub = os.path.join(PKI_DIR, "sub_key.pem")
-    ruta_cert_sub = os.path.join(PKI_DIR, "sub_cert.pem")
+    ruta_clave_sub = os.path.join(PKI_DIR, "AC2_key.pem")
+    ruta_cert_sub = os.path.join(PKI_DIR, "AC2_cert.pem")
     _guardar_pem(ruta_clave_sub, clave_sub.private_bytes(encoding=serialization.Encoding.PEM,
                                                         format=serialization.PrivateFormat.PKCS8,
                                                         encryption_algorithm=serialization.NoEncryption()))
@@ -112,10 +112,10 @@ def crear_ca_subordinada(ruta_clave_raiz: str, ruta_cert_raiz: str, nombre_comun
 def asegurar_pki() -> bool:
     """Asegura que existan la CA raíz y la CA subordinada; las crea si faltan."""
     _asegurar_carpetas()
-    ruta_clave_raiz = os.path.join(PKI_DIR, "root_key.pem")
-    ruta_cert_raiz = os.path.join(PKI_DIR, "root_cert.pem")
-    ruta_clave_sub = os.path.join(PKI_DIR, "sub_key.pem")
-    ruta_cert_sub = os.path.join(PKI_DIR, "sub_cert.pem")
+    ruta_clave_raiz = os.path.join(PKI_DIR, "AC1_key.pem")
+    ruta_cert_raiz = os.path.join(PKI_DIR, "AC1_cert.pem")
+    ruta_clave_sub = os.path.join(PKI_DIR, "AC2_key.pem")
+    ruta_cert_sub = os.path.join(PKI_DIR, "AC2_cert.pem")
     if not os.path.exists(ruta_clave_raiz) or not os.path.exists(ruta_cert_raiz):
         crear_ca_raiz()
     if not os.path.exists(ruta_clave_sub) or not os.path.exists(ruta_cert_sub):
@@ -136,9 +136,9 @@ def emitir_certificado_usuario(usuario: str, public_key_pem: bytes, dias: int = 
     """Emite un certificado X.509 para la clave pública del usuario y devuelve (ruta_cert, serial)."""
     asegurar_pki()
     if ruta_clave_emisor is None:
-        ruta_clave_emisor = os.path.join(PKI_DIR, "sub_key.pem")
+        ruta_clave_emisor = os.path.join(PKI_DIR, "AC2_key.pem")
     if ruta_cert_emisor is None:
-        ruta_cert_emisor = os.path.join(PKI_DIR, "sub_cert.pem")
+        ruta_cert_emisor = os.path.join(PKI_DIR, "AC2_cert.pem")
 
     clave_emisor = serialization.load_pem_private_key(_leer_pem(ruta_clave_emisor), password=None, backend=default_backend())
     cert_emisor = x509.load_pem_x509_certificate(_leer_pem(ruta_cert_emisor), backend=default_backend())
@@ -217,8 +217,8 @@ def verificar_cadena_certificado(cert_pem: bytes) -> Tuple[bool, str]:
     asegurar_pki()
     try:
         cert_usuario = x509.load_pem_x509_certificate(cert_pem, backend=default_backend())
-        cert_sub = x509.load_pem_x509_certificate(_leer_pem(os.path.join(PKI_DIR, "sub_cert.pem")), backend=default_backend())
-        cert_root = x509.load_pem_x509_certificate(_leer_pem(os.path.join(PKI_DIR, "root_cert.pem")), backend=default_backend())
+        cert_sub = x509.load_pem_x509_certificate(_leer_pem(os.path.join(PKI_DIR, "AC2_cert.pem")), backend=default_backend())
+        cert_root = x509.load_pem_x509_certificate(_leer_pem(os.path.join(PKI_DIR, "AC1_cert.pem")), backend=default_backend())
 
         ahora = datetime.datetime.now(datetime.timezone.utc)
         # use UTC-aware properties to avoid CryptographyDeprecationWarning
@@ -277,12 +277,12 @@ def exportar_usuario_a_pfx(usuario: str, private_key_obj, ruta_cert_usuario: str
     # Intentar cargar certificados adicionales (sub + root) para incluir en el PFX
     additional = []
     try:
-        sub_p = _leer_pem(os.path.join(PKI_DIR, 'sub_cert.pem'))
+        sub_p = _leer_pem(os.path.join(PKI_DIR, 'AC2_cert.pem'))
         additional.append(x509.load_pem_x509_certificate(sub_p, backend=default_backend()))
     except Exception:
         pass
     try:
-        root_p = _leer_pem(os.path.join(PKI_DIR, 'root_cert.pem'))
+        root_p = _leer_pem(os.path.join(PKI_DIR, 'AC1_cert.pem'))
         additional.append(x509.load_pem_x509_certificate(root_p, backend=default_backend()))
     except Exception:
         pass

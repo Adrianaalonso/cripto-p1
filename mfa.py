@@ -165,7 +165,7 @@ def registrar_usuario(archivo_usuarios):
     try:
         while True:
             try:
-                passwd = getpass.getpass('Ingrese una passphrase para proteger su PFX (mínimo 12 caracteres): ')
+                passwd = getpass.getpass('Ingrese una passphrase para proteger su voto (mínimo 12 caracteres): ')
             except Exception:
                 passwd = ''
             if len(passwd) < 12:
@@ -183,7 +183,7 @@ def registrar_usuario(archivo_usuarios):
         usuarios = cargar_usuarios(archivo_usuarios)
         usuarios[usuario]['pfx_passphrase'] = passwd
         guardar_usuarios(usuarios, archivo_usuarios)
-        print('Passphrase registrada. La generación de claves para firmar se solicitará al votar.')
+        print('Passphrase registrada para proteger su voto. La generación de claves para firmar se solicitará al votar.')
     except Exception as e:
         print(f"No se pudo guardar la passphrase: {e}")
 

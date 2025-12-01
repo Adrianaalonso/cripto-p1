@@ -175,5 +175,21 @@
     "mac": "BjogBbKGGFI4yysnYj1Ry1bsghbhby1S7aHdd5lnArc=",
     "pfx_passphrase": "123456789123",
     "pfx_path": "json\\user_keys\\pun.pfx"
+  },
+  "alejandra": {
+    "email": "a@gmail.com",
+    "password": "pbkdf2$sha256$200000$2buEI/KK0kjUCrQHfDgmRQ==$A1wh7aSVwIivUfsZL9VaKpXKv86OrAqZ22nqF8KbyBA=",
+    "fecha_registro": "2025-12-01T19:26:07.491764",
+    "mac": "Tn37kb1+f30vegNEGV0f9em4hhocT09SBERmGPKT9Xc=",
+    "pfx_passphrase": "123456789123",
+    "pfx_path": "json\\user_keys\\alejandra.pfx"
+  },
+  "adriana": {
+    "email": "a@gmail.com",
+    "password": "pbkdf2$sha256$200000$qHHx8XuZj+Mn1tDRMhUJXw==$wQdAH5lM1/KbpCJGHvJqaqhfsnfOXpyf9cQhTyEfZKM=",
+    "fecha_registro": "2025-12-01T22:32:33.940077",
+    "mac": "BA2aJSooN2CU1ZWyYSPt5jwFQbAAIrQwGn1duwxpbgw=",
+    "pfx_passphrase": "123456789123",
+    "pfx_path": "json\\user_keys\\adriana.pfx"
   }
 }
