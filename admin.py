@@ -43,7 +43,7 @@ def ejecutar_panel_admin(usuario_admin):
 
 def descifrar_votos_hibridos_con_hmac():
     """Descifrar votos con cifrado híbrido+HMAC"""
-    archivo_votos_cifrados = "json/votos_cifrados.jsonl"
+    archivo_votos_cifrados = "json/votos/votos_cifrados.jsonl"
     archivo_clave_privada = "admin_private_key.pem"
     
     if not os.path.exists(archivo_votos_cifrados):
@@ -59,8 +59,8 @@ def descifrar_votos_hibridos_con_hmac():
         return
     print("Descifrado de votos híbridos anónimos...")
     
-    # Cargar clave HMAC (clave en json/)
-    clave_mac = cargar_o_crear_clave_mac("json/clave_mac_logs.bin")
+    # Cargar clave HMAC (clave en json/logs/)
+    clave_mac = cargar_o_crear_clave_mac("json/logs/clave_mac_logs.bin")
     #comprobamos la integridad de la estructura almacenada, si el HMAC coincide, el fichero no ha sido alterado
     votos_descifrados = []
     try:
@@ -140,10 +140,10 @@ def descifrar_votos_hibridos_con_hmac():
                     
                     continue
         
-        # Guardar votos descifrados
-        archivo_salida = "json/votos_descifrados.json"
+        # Guardar votos descifrados (en carpeta votos)
+        archivo_salida = "json/votos/votos_descifrados.json"
         try:
-            os.makedirs("json", exist_ok=True)
+            os.makedirs(os.path.dirname(archivo_salida), exist_ok=True)
         except Exception:
             pass
         with open(archivo_salida, "w", encoding="utf-8") as f:

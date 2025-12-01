@@ -167,5 +167,13 @@
     "mac": "VfTHeYDgsij/8OadYlSe8ixh19oOsiDN1aXM9OE0/PI=",
     "pfx_passphrase": "123456789123",
     "pfx_path": "json\\user_keys\\pon.pfx"
+  },
+  "pun": {
+    "email": "p@gmail.com",
+    "password": "pbkdf2$sha256$200000$7sxVbeploQLNSyNSAua9nQ==$JIe65XIWPEmZmK7Ahg23pzJiRrxvRiM+Fc9/bFfK1hs=",
+    "fecha_registro": "2025-12-01T19:15:29.536256",
+    "mac": "BjogBbKGGFI4yysnYj1Ry1bsghbhby1S7aHdd5lnArc=",
+    "pfx_passphrase": "123456789123",
+    "pfx_path": "json\\user_keys\\pun.pfx"
   }
 }

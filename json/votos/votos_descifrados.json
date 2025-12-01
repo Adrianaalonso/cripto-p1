@@ -6,7 +6,7 @@
     "algoritmo_simetrico": "AES-GCM-256",
     "algoritmo_asimetrico": "RSA-2048-OAEP",
     "mac_algoritmo": "HMAC-SHA256",
-    "mac_verificacion": "HMAC válido",
+    "mac_verificacion": "HMAC inválido",
     "user_sig_verificacion": "No verificable"
   },
   {
@@ -26,7 +26,7 @@
     "algoritmo_simetrico": "AES-GCM-256",
     "algoritmo_asimetrico": "RSA-2048-OAEP",
     "mac_algoritmo": "HMAC-SHA256",
-    "mac_verificacion": "HMAC válido",
+    "mac_verificacion": "HMAC inválido",
     "user_sig_verificacion": "No verificable"
   },
   {
@@ -36,7 +36,7 @@
     "algoritmo_simetrico": "AES-GCM-256",
     "algoritmo_asimetrico": "RSA-2048-OAEP",
     "mac_algoritmo": "HMAC-SHA256",
-    "mac_verificacion": "HMAC válido",
+    "mac_verificacion": "HMAC inválido",
     "user_sig_verificacion": "Firma usuario válida"
   },
   {
@@ -46,7 +46,7 @@
     "algoritmo_simetrico": "AES-GCM-256",
     "algoritmo_asimetrico": "RSA-2048-OAEP",
     "mac_algoritmo": "HMAC-SHA256",
-    "mac_verificacion": "HMAC válido",
+    "mac_verificacion": "HMAC inválido",
     "user_sig_verificacion": "Firma usuario válida"
   },
   {
@@ -56,7 +56,7 @@
     "algoritmo_simetrico": "AES-GCM-256",
     "algoritmo_asimetrico": "RSA-2048-OAEP",
     "mac_algoritmo": "HMAC-SHA256",
-    "mac_verificacion": "HMAC válido",
+    "mac_verificacion": "HMAC inválido",
     "user_sig_verificacion": "Firma usuario válida"
   },
   {
@@ -66,7 +66,7 @@
     "algoritmo_simetrico": "AES-GCM-256",
     "algoritmo_asimetrico": "RSA-2048-OAEP",
     "mac_algoritmo": "HMAC-SHA256",
-    "mac_verificacion": "HMAC válido",
+    "mac_verificacion": "HMAC inválido",
     "user_sig_verificacion": "Firma usuario válida"
   },
   {
@@ -76,7 +76,67 @@
     "algoritmo_simetrico": "AES-GCM-256",
     "algoritmo_asimetrico": "RSA-2048-OAEP",
     "mac_algoritmo": "HMAC-SHA256",
-    "mac_verificacion": "HMAC válido",
+    "mac_verificacion": "HMAC inválido",
     "user_sig_verificacion": "Firma usuario válida"
+  },
+  {
+    "vote_id": "cce79c606e9a42b8b5eaa953bf49dd5d",
+    "timestamp": "2025-11-21T23:40:30",
+    "voto_descifrado": "Opción B",
+    "algoritmo_simetrico": "AES-GCM-256",
+    "algoritmo_asimetrico": "RSA-2048-OAEP",
+    "mac_algoritmo": "HMAC-SHA256",
+    "mac_verificacion": "HMAC inválido",
+    "user_sig_verificacion": "Firma usuario válida"
+  },
+  {
+    "vote_id": "b0be08d56a5c43038fbaf5e9e1a45915",
+    "timestamp": "2025-11-21T23:50:33",
+    "voto_descifrado": "Opción B",
+    "algoritmo_simetrico": "AES-GCM-256",
+    "algoritmo_asimetrico": "RSA-2048-OAEP",
+    "mac_algoritmo": "HMAC-SHA256",
+    "mac_verificacion": "HMAC inválido",
+    "user_sig_verificacion": "Firma usuario válida"
+  },
+  {
+    "vote_id": "f41831215ebb4ba6a396bf4fa66a44af",
+    "timestamp": "2025-12-01T18:41:25",
+    "voto_descifrado": "Opción B",
+    "algoritmo_simetrico": "AES-GCM-256",
+    "algoritmo_asimetrico": "RSA-2048-OAEP",
+    "mac_algoritmo": "HMAC-SHA256",
+    "mac_verificacion": "HMAC inválido",
+    "user_sig_verificacion": "Firma usuario válida"
+  },
+  {
+    "vote_id": "7680b10905c443c2ac18a27a3f50a077",
+    "timestamp": "2025-12-01T18:58:34",
+    "voto_descifrado": "Opción B",
+    "algoritmo_simetrico": "AES-GCM-256",
+    "algoritmo_asimetrico": "RSA-2048-OAEP",
+    "mac_algoritmo": "HMAC-SHA256",
+    "mac_verificacion": "HMAC inválido",
+    "user_sig_verificacion": "Clave pública de usuario no encontrada"
+  },
+  {
+    "vote_id": "45f0823b83534158b1197ae0a7118a08",
+    "timestamp": "2025-12-01T19:00:08",
+    "voto_descifrado": "Opción B",
+    "algoritmo_simetrico": "AES-GCM-256",
+    "algoritmo_asimetrico": "RSA-2048-OAEP",
+    "mac_algoritmo": "HMAC-SHA256",
+    "mac_verificacion": "HMAC inválido",
+    "user_sig_verificacion": "Clave pública de usuario no encontrada"
+  },
+  {
+    "vote_id": "ced0c81a0122425da273b065421ed55f",
+    "timestamp": "2025-12-01T19:16:15",
+    "voto_descifrado": "Opción B",
+    "algoritmo_simetrico": "AES-GCM-256",
+    "algoritmo_asimetrico": "RSA-2048-OAEP",
+    "mac_algoritmo": "HMAC-SHA256",
+    "mac_verificacion": "HMAC inválido",
+    "user_sig_verificacion": "Clave pública de usuario no encontrada"
   }
 ]

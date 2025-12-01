@@ -43,8 +43,8 @@ def mostrar_codigo_ventana(codigo):
 def guardar_codigo_mfa(usuario, codigo):
     """Guarda código MFA temporalmente"""
     codigos = {}
-    if os.path.exists("json/codigos_mfa.json"):
-        with open("json/codigos_mfa.json", 'r', encoding='utf-8') as f:
+    if os.path.exists("json/codigos/codigos_mfa.json"):
+        with open("json/codigos/codigos_mfa.json", 'r', encoding='utf-8') as f:
             codigos = json.load(f)
 
     codigos[usuario] = {
@@ -54,19 +54,19 @@ def guardar_codigo_mfa(usuario, codigo):
 
     # Asegurar carpeta json/
     try:
-        os.makedirs("json", exist_ok=True)
+        os.makedirs(os.path.join("json", "codigos"), exist_ok=True)
     except Exception:
         pass
-    with open("json/codigos_mfa.json", 'w', encoding='utf-8') as f:
+    with open(os.path.join("json", "codigos", "codigos_mfa.json"), 'w', encoding='utf-8') as f:
         json.dump(codigos, f, indent=2)
 
 
 def verificar_codigo_mfa(usuario, codigo_ingresado):
     """Verifica que el código MFA coincide"""
-    if not os.path.exists("json/codigos_mfa.json"):
+    if not os.path.exists(os.path.join("json", "codigos", "codigos_mfa.json")):
         return False, "No hay código pendiente"
 
-    with open("json/codigos_mfa.json", 'r', encoding='utf-8') as f:
+    with open(os.path.join("json", "codigos", "codigos_mfa.json"), 'r', encoding='utf-8') as f:
         codigos = json.load(f)
 
     if usuario not in codigos:
@@ -77,10 +77,10 @@ def verificar_codigo_mfa(usuario, codigo_ingresado):
     if time.time() - codigo_info["timestamp"] > 150:
         del codigos[usuario]
         try:
-            os.makedirs("json", exist_ok=True)
+            os.makedirs(os.path.join("json", "codigos"), exist_ok=True)
         except Exception:
             pass
-        with open("json/codigos_mfa.json", 'w', encoding='utf-8') as f:
+        with open(os.path.join("json", "codigos", "codigos_mfa.json"), 'w', encoding='utf-8') as f:
             json.dump(codigos, f, indent=2)
         return False, "Código expirado"
 
@@ -88,10 +88,10 @@ def verificar_codigo_mfa(usuario, codigo_ingresado):
     if codigo_info["codigo"] == codigo_ingresado:
         del codigos[usuario]
         try:
-            os.makedirs("json", exist_ok=True)
+            os.makedirs(os.path.join("json", "codigos"), exist_ok=True)
         except Exception:
             pass
-        with open("json/codigos_mfa.json", 'w', encoding='utf-8') as f:
+        with open(os.path.join("json", "codigos", "codigos_mfa.json"), 'w', encoding='utf-8') as f:
             json.dump(codigos, f, indent=2)
         return True, "Código correcto"
 

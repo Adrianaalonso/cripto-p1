@@ -371,8 +371,13 @@ class TestMFA(TempCwdMixin, unittest.TestCase):
 
     def test_mfa_expira(self):
         codigo = self.gen()
+        # ensure folder exists like the application expects
+        try:
+            os.makedirs(os.path.join("json", "codigos"), exist_ok=True)
+        except Exception:
+            pass
         json.dump({"adri": {"codigo": codigo, "timestamp": time.time() - 999}},
-        open("json/codigos_mfa.json", "w", encoding="utf-8"), indent=2)
+        open(os.path.join("json", "codigos", "codigos_mfa.json"), "w", encoding="utf-8"), indent=2)
         ok, msg = self.verificar("adri", codigo)
         self.assertFalse(ok)
 

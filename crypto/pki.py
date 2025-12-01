@@ -25,7 +25,7 @@ from cryptography.hazmat.primitives.serialization import pkcs12
 
 PKI_DIR = "json/pki"
 CARPETA_CERT_USUARIOS = "json/user_certs"
-REGISTRO_CLAVES = "json/keys_log.jsonl"
+REGISTRO_CLAVES = "json/logs/keys_log.jsonl"
 FICHERO_REVOKED = os.path.join(PKI_DIR, "revoked_certs.json")
 
 

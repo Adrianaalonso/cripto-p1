@@ -1,6 +1,6 @@
 {
   "Opción A": 8,
-  "Opción B": 14,
+  "Opción B": 15,
   "usuarios_votaron": [
     "lal",
     "funciona",
@@ -22,6 +22,7 @@
     "cre",
     "tra",
     "pin",
-    "pon"
+    "pon",
+    "pun"
   ]
 }
