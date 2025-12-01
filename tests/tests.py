@@ -300,8 +300,8 @@ class TestAdminClavePrivada(TempCwdMixin, unittest.TestCase):
         super().tearDown()
 
     def test_ausente(self):
-        # Registrar crea un fichero cifrado (usar carpeta json/)
-        self.registrar("u", "Opción A", "json/votos_cifrados.jsonl")
+        # Registrar crea un fichero cifrado
+        self.registrar("u", "Opción A", "votos_cifrados.jsonl")
 
         # Si existe clave privada, renombrarla para simular ausencia
         pk = Path("admin_private_key.pem")
@@ -325,11 +325,11 @@ class TestAdminClavePrivada(TempCwdMixin, unittest.TestCase):
                     buf = io.StringIO()
                     with contextlib.redirect_stdout(buf):
                         try:
-                            export("json/votos_cifrados.jsonl", "clave_aes.bin", salida="json/out.jsonl", admin_mode=True)
+                            export("votos_cifrados.jsonl", "clave_aes.bin", salida="out.jsonl", admin_mode=True)
                         except TypeError:
                             # firma alternativa: intentar sin archivo_clave si la firma difiere
                             try:
-                                export("json/votos_cifrados.jsonl", salida="json/out.jsonl", admin_mode=True)
+                                export("votos_cifrados.jsonl", salida="out.jsonl", admin_mode=True)
                             except Exception:
                                 pass
                 except Exception:
