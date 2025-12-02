@@ -1,14 +1,5 @@
-"""Módulo PKI (todo en español).
-
+"""Módulo PKI 
 Implementa una CA raíz y una CA subordinada, emisión de certificados X.509
-para usuarios, verificación de cadena simple y revocación básica.
-
-Archivos usados:
-- json/pki/AC1_key.pem, AC1_cert.pem
-- json/pki/AC2_key.pem, AC2_cert.pem
-- json/pki/revoked_certs.json
-- json/user_certs/<usuario>.pem
-- json/logs/keys_log.jsonl (registro de emisiones)
 """
 import os
 import json
@@ -22,30 +13,37 @@ from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.serialization import pkcs12
 
-
+#direcciones de los ficheros json 
 PKI_DIR = "json/pki"
+# Carpeta donde guardamos los certificados generados para usuarios
 CARPETA_CERT_USUARIOS = "json/user_certs"
 REGISTRO_CLAVES = "json/logs/keys_log.jsonl"
+# Fichero JSON con la lista de certificados revocados
 FICHERO_REVOKED = os.path.join(PKI_DIR, "revoked_certs.json")
 
 
 def _asegurar_carpetas():
+    # Crear las carpetas necesarias si no existen.
     os.makedirs(PKI_DIR, exist_ok=True)
     os.makedirs(CARPETA_CERT_USUARIOS, exist_ok=True)
 
 
 def _guardar_pem(ruta: str, datos: bytes) -> None:
+    # Guardar claves privadas o certificados.
     with open(ruta, "wb") as f:
         f.write(datos)
 
 
 def _leer_pem(ruta: str) -> bytes:
+    # Lee el fichero PEM 
     with open(ruta, "rb") as f:
         return f.read()
 
 
 def crear_ca_raiz(nombre_comun: str = "AC1 Root", bits: int = 2048, dias: int = 3650) -> Tuple[str, str]:
-    """Crea una CA raíz autofirmada y devuelve (ruta_clave_privada, ruta_cert_pem)."""
+    # Crear una CA raíz autofirmada.
+    # Generamos una clave privada y un certificado autofirmado que  actúa como la "autoridad de confianza" AC1 del sistema.
+
     _asegurar_carpetas()
     clave = rsa.generate_private_key(public_exponent=65537, key_size=bits, backend=default_backend())
     sujeto = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, nombre_comun)])
@@ -76,7 +74,9 @@ def crear_ca_raiz(nombre_comun: str = "AC1 Root", bits: int = 2048, dias: int = 
 
 
 def crear_ca_subordinada(ruta_clave_raiz: str, ruta_cert_raiz: str, nombre_comun: str = "AC2 SubCA", bits: int = 2048, dias: int = 1825) -> Tuple[str, str]:
-    """Crea una CA subordinada firmada por la CA raíz proporcionada."""
+    # Crear una CA subordinada y firmarla con la CA raíz.
+    # La CA subordinada es la que firmará los certificados de usuarios.
+
     _asegurar_carpetas()
     clave_raiz = serialization.load_pem_private_key(_leer_pem(ruta_clave_raiz), password=None, backend=default_backend())
     cert_raiz = x509.load_pem_x509_certificate(_leer_pem(ruta_cert_raiz), backend=default_backend())
@@ -110,7 +110,7 @@ def crear_ca_subordinada(ruta_clave_raiz: str, ruta_cert_raiz: str, nombre_comun
 
 
 def asegurar_pki() -> bool:
-    """Asegura que existan la CA raíz y la CA subordinada; las crea si faltan."""
+    # Si faltan las CAs las crea y también inicializa la lista de revocados.
     _asegurar_carpetas()
     ruta_clave_raiz = os.path.join(PKI_DIR, "AC1_key.pem")
     ruta_cert_raiz = os.path.join(PKI_DIR, "AC1_cert.pem")
@@ -127,13 +127,16 @@ def asegurar_pki() -> bool:
 
 
 def _anotar_emision(metadata: dict) -> None:
+    # Anota la emisión de un certificado en el fichero de registro.
     os.makedirs(os.path.dirname(REGISTRO_CLAVES), exist_ok=True)
     with open(REGISTRO_CLAVES, "a", encoding="utf-8") as f:
         f.write(json.dumps(metadata, ensure_ascii=False) + "\n")
 
 
 def emitir_certificado_usuario(usuario: str, public_key_pem: bytes, dias: int = 730, ruta_clave_emisor: str = None, ruta_cert_emisor: str = None) -> Tuple[str, int]:
-    """Emite un certificado X.509 para la clave pública del usuario y devuelve (ruta_cert, serial)."""
+    # Emite un certificado para la clave pública de cada usuario.
+    # Asegura PKI, cargar la clave del emisor AC2, crea el certificado X.509 firmado y lo guarfa en `json/user_certs/<usuario>.pem`.
+
     asegurar_pki()
     if ruta_clave_emisor is None:
         ruta_clave_emisor = os.path.join(PKI_DIR, "AC2_key.pem")
@@ -167,7 +170,7 @@ def emitir_certificado_usuario(usuario: str, public_key_pem: bytes, dias: int = 
     ruta_cert_usuario = os.path.join(CARPETA_CERT_USUARIOS, f"{usuario}.pem")
     _guardar_pem(ruta_cert_usuario, certificado_pem)
 
-    # Registrar metadatos
+    # Registrar datos en el log
     metadata = {
         "when": ahora.isoformat(),
         "user": usuario,
@@ -182,6 +185,8 @@ def emitir_certificado_usuario(usuario: str, public_key_pem: bytes, dias: int = 
 
 
 def _esta_revocado(serial) -> bool:
+    # Comprueba si un certificado está revocado.
+    # Devuelve True si el está en la lista de revocados.
     if not os.path.exists(FICHERO_REVOKED):
         return False
     try:
@@ -193,6 +198,8 @@ def _esta_revocado(serial) -> bool:
 
 
 def revocar_certificado(serial) -> bool:
+    # Marca un certificado como revocado añadiendo 
+    # Si ya está revocado devuelve False, si se añade correctamente devuelve True.
     _asegurar_carpetas()
     if not os.path.exists(FICHERO_REVOKED):
         with open(FICHERO_REVOKED, "w", encoding="utf-8") as f:
@@ -211,9 +218,9 @@ def revocar_certificado(serial) -> bool:
 
 
 def verificar_cadena_certificado(cert_pem: bytes) -> Tuple[bool, str]:
-    """Verifica la cadena usuario->subCA->root, validez temporal y revocación.
-    Devuelve (True, '') o (False, motivo).
-    """
+    # Verifica si un certificado de usuario es válido.
+    # Comprueba las fechas de validez, revocación y que la firma del certificado fue hecha por la AC2, y que la subordinada fue firmada por la AC1.
+
     asegurar_pki()
     try:
         cert_usuario = x509.load_pem_x509_certificate(cert_pem, backend=default_backend())
@@ -221,11 +228,9 @@ def verificar_cadena_certificado(cert_pem: bytes) -> Tuple[bool, str]:
         cert_root = x509.load_pem_x509_certificate(_leer_pem(os.path.join(PKI_DIR, "AC1_cert.pem")), backend=default_backend())
 
         ahora = datetime.datetime.now(datetime.timezone.utc)
-        # use UTC-aware properties to avoid CryptographyDeprecationWarning
         not_before = getattr(cert_usuario, 'not_valid_before_utc', None)
         not_after = getattr(cert_usuario, 'not_valid_after_utc', None)
         if not_before is None or not_after is None:
-            # fallback to older properties (should be rare); make them timezone-aware
             not_before = cert_usuario.not_valid_before.replace(tzinfo=datetime.timezone.utc)
             not_after = cert_usuario.not_valid_after.replace(tzinfo=datetime.timezone.utc)
         if not_before > ahora or not_after < ahora:
@@ -262,9 +267,7 @@ def verificar_cadena_certificado(cert_pem: bytes) -> Tuple[bool, str]:
 
 
 def exportar_usuario_a_pfx(usuario: str, private_key_obj, ruta_cert_usuario: str, passphrase: str, destino: str = None) -> str:
-    """Exporta la clave privada y el certificado del usuario a un archivo PKCS#12 (.pfx) protegido por passphrase.
-    Devuelve la ruta del PFX creado.
-    """
+    # Guarda la clave privada y el certificado en un archivo PFX protegido con una contraseña. 
     _asegurar_carpetas()
     os.makedirs(os.path.join('json', 'user_keys'), exist_ok=True)
     if destino is None:
@@ -273,8 +276,6 @@ def exportar_usuario_a_pfx(usuario: str, private_key_obj, ruta_cert_usuario: str
     # Cargar certificado de usuario
     cert_bytes = _leer_pem(ruta_cert_usuario)
     cert_obj = x509.load_pem_x509_certificate(cert_bytes, backend=default_backend())
-
-    # Intentar cargar certificados adicionales (sub + root) para incluir en el PFX
     additional = []
     try:
         sub_p = _leer_pem(os.path.join(PKI_DIR, 'AC2_cert.pem'))
@@ -307,9 +308,8 @@ def exportar_usuario_a_pfx(usuario: str, private_key_obj, ruta_cert_usuario: str
 
 
 def cargar_clave_desde_pfx(ruta_pfx: str, passphrase: str):
-    """Carga la clave privada desde un archivo PKCS#12 (.pfx) y devuelve el objeto private_key.
-    Si la passphrase es incorrecta lanzará excepción.
-    """
+    # Carga la clave privada desde el archivo .pfx. Si la contraseña es incorrecta la librería lanza una excepción ( se prueba en tests).
+
     with open(ruta_pfx, 'rb') as f:
         data = f.read()
     pass_bytes = passphrase.encode('utf-8') if passphrase is not None else None
