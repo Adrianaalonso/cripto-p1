@@ -6,4 +6,5 @@ pip install cryptography
 
 - Para iniciar sesión como admin: usuario:admin, contraseña:admin123
 
-- 
+- Para ejecutar los tests:
+python tests/tests.py

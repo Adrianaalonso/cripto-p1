@@ -1,6 +1,3 @@
-# test_suite_unittest.py
-# Suite de pruebas adaptada al layout actual del proyecto.
-# Solo se modificó este archivo para adaptarlo a los nombres/paquetes del repo.
 import os
 import re
 import json
@@ -15,13 +12,9 @@ import contextlib
 from importlib import import_module
 import sys
 from pathlib import Path as _Path
-
-# Asegurar que la raíz del proyecto esté en sys.path antes de importar módulos del repo.
-# Esto evita que la carpeta de datos `json/` creada por los tests interfiera con la
-# resolución de módulos (p. ej. que Python trate de interpretar `json.archivos_json`).
 sys.path.insert(0, str(_Path(__file__).resolve().parents[1]))
 
-# Utilidades comunes para los tests (importan dinámicamente y se saltan si falta algo)
+# Utilidades comunes para los tests 
 class TempCwdMixin:
     def setUp(self):
         # Guardar cwd original y crear un tmpdir aislado (mkdtemp para control explícito)
@@ -376,8 +369,8 @@ class TestMFA(TempCwdMixin, unittest.TestCase):
             os.makedirs(os.path.join("json", "codigos"), exist_ok=True)
         except Exception:
             pass
-        json.dump({"adri": {"codigo": codigo, "timestamp": time.time() - 999}},
-        open(os.path.join("json", "codigos", "codigos_mfa.json"), "w", encoding="utf-8"), indent=2)
+        with open(os.path.join("json", "codigos", "codigos_mfa.json"), "w", encoding="utf-8") as f:
+            json.dump({"adri": {"codigo": codigo, "timestamp": time.time() - 999}}, f, indent=2)
         ok, msg = self.verificar("adri", codigo)
         self.assertFalse(ok)
 
@@ -437,6 +430,155 @@ class TestRegistrarYExportadorHibrido(TempCwdMixin, unittest.TestCase):
         else:
             self.fail("No se generó json/out.jsonl")
 
+
+# ---------- Tests RSA Signatures & PKI ----------
+class TestSignatureAndPKI(TempCwdMixin, unittest.TestCase):
+    def setUp(self):
+        super().setUp()
+        self.sig = _import_or_skip(self, "crypto.signature_rsa")
+        self.pki = _import_or_skip(self, "crypto.pki")
+        # helpers
+        self.generar_par = _getattr_or_skip(self, self.sig, "generar_par_claves_rsa", "generar_par_claves_rsa")
+        self.firmar = _getattr_or_skip(self, self.sig, "firmar", "firmar")
+        self.verificar_sig = _getattr_or_skip(self, self.sig, "verificar", "verificar")
+        self.asegurar_pki = _getattr_or_skip(self, self.pki, "asegurar_pki", "asegurar_pki")
+        self.emitir = _getattr_or_skip(self, self.pki, "emitir_certificado_usuario", "emitir_certificado_usuario")
+        self.verificar_cadena = _getattr_or_skip(self, self.pki, "verificar_cadena_certificado", "verificar_cadena_certificado")
+        self.revocar = _getattr_or_skip(self, self.pki, "revocar_certificado", "revocar_certificado")
+        self.exportar_pfx = _getattr_or_skip(self, self.pki, "exportar_usuario_a_pfx", "exportar_usuario_a_pfx")
+        self.cargar_pfx = _getattr_or_skip(self, self.pki, "cargar_clave_desde_pfx", "cargar_clave_desde_pfx")
+
+    def test_rsa_sign_verify_roundtrip(self):
+        # generar par RSA y firmar/verificar
+        priv_pem, pub_pem = self.generar_par(bits=2048)
+        # cargar objetos crypto necesarios
+        from cryptography.hazmat.primitives import serialization
+        from cryptography.hazmat.backends import default_backend
+
+        priv_obj = serialization.load_pem_private_key(priv_pem, password=None, backend=default_backend())
+        pub_obj = serialization.load_pem_public_key(pub_pem, backend=default_backend())
+
+        mensaje = b"mensaje prueba firma"
+        sig_b64 = self.firmar(priv_obj, mensaje)
+        ok = self.verificar_sig(pub_obj, mensaje, sig_b64)
+        self.assertTrue(ok, "Firma RSA-PSS no verificada correctamente")
+
+    def test_pki_emit_verify_and_revoke(self):
+        # Asegurar PKI y emitir certificado de usuario
+        self.asegurar_pki()
+        priv_pem, pub_pem = self.generar_par(bits=2048)
+
+        # emitir certificado
+        ruta_cert, serial = self.emitir("prueba_usuario", pub_pem)
+        self.assertTrue(os.path.exists(ruta_cert), "No se generó el certificado del usuario")
+
+        # verificar cadena válida
+        with open(ruta_cert, 'rb') as f:
+            cert_pem = f.read()
+        ok, razon = self.verificar_cadena(cert_pem)
+        self.assertTrue(ok, f"La cadena de certificados no es válida: {razon}")
+
+        # exportar a PFX y recargar la clave desde PFX
+        from cryptography.hazmat.primitives import serialization as _serial
+        from cryptography.hazmat.backends import default_backend as _default_backend
+        priv_obj = _serial.load_pem_private_key(priv_pem, password=None, backend=_default_backend())
+        pfx_path = self.exportar_pfx("prueba_usuario", priv_obj, ruta_cert, passphrase="testpass123")
+        self.assertTrue(os.path.exists(pfx_path), "No se creó el archivo PFX")
+
+        loaded = self.cargar_pfx(pfx_path, "testpass123")
+        self.assertIsNotNone(loaded, "No se pudo cargar la clave desde el PFX")
+
+        # revocar y comprobar verificación falla por revocado
+        revoked = self.revocar(serial)
+        self.assertTrue(revoked, "No se pudo revocar el certificado")
+        ok2, razon2 = self.verificar_cadena(cert_pem)
+        self.assertFalse(ok2)
+        self.assertIn("revocado", razon2.lower())
+
+    def test_firma_detecta_mensaje_alterado_y_signature_corrupta(self):
+        # comprobar que si se altera el mensaje la verificación falla
+        priv_pem, pub_pem = self.generar_par(bits=2048)
+        from cryptography.hazmat.primitives import serialization
+        from cryptography.hazmat.backends import default_backend
+        priv_obj = serialization.load_pem_private_key(priv_pem, password=None, backend=default_backend())
+        pub_obj = serialization.load_pem_public_key(pub_pem, backend=default_backend())
+
+        mensaje = b"mensaje para firmar"
+        sig_b64 = self.firmar(priv_obj, mensaje)
+        # verificación válida
+        self.assertTrue(self.verificar_sig(pub_obj, mensaje, sig_b64))
+
+        # alterar mensaje -> debe fallar
+        mensaje_mod = b"mensaje para firmar modificado"
+        self.assertFalse(self.verificar_sig(pub_obj, mensaje_mod, sig_b64))
+
+        # alterar firma -> debe fallar (manipulación de bytes)
+        import base64
+        sig_bytes = bytearray(base64.b64decode(sig_b64))
+        # flip simple
+        sig_bytes[0] ^= 0x01
+        sig_bad = base64.b64encode(bytes(sig_bytes)).decode()
+        # dependiendo de la implementación puede lanzar o devolver False; aceptamos cualquiera
+        try:
+            ok = self.verificar_sig(pub_obj, mensaje, sig_bad)
+            self.assertFalse(ok)
+        except Exception:
+            # si lanza, también es correcto
+            pass
+
+    def test_pfx_contrasena_incorrecta_produce_error(self):
+        # Asegurar PKI, generar claves, emitir y exportar PFX
+        self.asegurar_pki()
+        priv_pem, pub_pem = self.generar_par(bits=2048)
+        ruta_cert, serial = self.emitir("usuario_pfx", pub_pem)
+        from cryptography.hazmat.primitives import serialization as _serial
+        from cryptography.hazmat.backends import default_backend as _default_backend
+        priv_obj = _serial.load_pem_private_key(priv_pem, password=None, backend=_default_backend())
+        pfx_path = self.exportar_pfx("usuario_pfx", priv_obj, ruta_cert, passphrase="correcthorsebattery")
+        self.assertTrue(os.path.exists(pfx_path))
+        # intentar cargar con contraseña incorrecta -> se espera excepción
+        with self.assertRaises(Exception):
+            self.cargar_pfx(pfx_path, "malacontraseña")
+
+    def test_certificado_expirado_detectado(self):
+        # emitir certificado con validez negativa para hacerlo expirado
+        self.asegurar_pki()
+        priv_pem, pub_pem = self.generar_par(bits=2048)
+        ruta_cert, serial = self.emitir("usuario_expirado", pub_pem, dias=-1)
+        cert_pem = None
+        with open(ruta_cert, 'rb') as f:
+            cert_pem = f.read()
+        ok, razon = self.verificar_cadena(cert_pem)
+        self.assertFalse(ok)
+        self.assertIn("fuera", razon.lower())
+
+
+class TestHMACRotation(TempCwdMixin, unittest.TestCase):
+    def setUp(self):
+        super().setUp()
+        self.files = _import_or_skip(self, "archivos_json")
+        self.guardar = _getattr_or_skip(self, self.files, "guardar_votos_con_mac", "guardar_votos")
+        self.cargar = _getattr_or_skip(self, self.files, "cargar_votos_con_mac", "cargar_votos")
+
+    def test_hmac_key_rotation_mismatch(self):
+        # preparar votos y guardar con MAC usando la clave actual
+        votos = {"Opción A": 5, "Opción B": 2, "usuarios_votaron": ["adri"]}
+        os.makedirs(os.path.join("json"), exist_ok=True)
+        self.guardar(votos, "json/votos.json")
+
+        # forzar rotación/escritura de otra clave MAC diferente
+        # la implementación usa json/clave_mac_votos.bin
+        key_path = os.path.join("json", "clave_mac_votos.bin")
+        # asegurarnos de que exista
+        self.assertTrue(os.path.exists(key_path), "La clave MAC esperada no existe tras guardar")
+        # sobrescribir con otra clave
+        with open(key_path, "wb") as f:
+            f.write(os.urandom(32))
+
+        # ahora la verificación debe fallar y devolver los defaults (0s)
+        out = self.cargar("json/votos.json")
+        self.assertEqual(out.get("Opción A", 0), 0)
+        self.assertEqual(out.get("Opción B", 0), 0)
 
 # Ejecutar tests
 if __name__ == "__main__":
