@@ -191,5 +191,29 @@
     "mac": "BA2aJSooN2CU1ZWyYSPt5jwFQbAAIrQwGn1duwxpbgw=",
     "pfx_passphrase": "123456789123",
     "pfx_path": "json\\user_keys\\adriana.pfx"
+  },
+  "marin": {
+    "email": "m@gmail.com",
+    "password": "pbkdf2$sha256$200000$rDsu2Gc8khRVOyFX5dYu0A==$23VXe5sri2ho4PGAzOTliqh6Rhf9Whli91uoPtBo5cs=",
+    "fecha_registro": "2025-12-02T11:12:33.612756",
+    "mac": "Mni+LWCmFTdMFPJPNfimZDkCCa3uWUeh9M1KRjyQ2uU=",
+    "pfx_passphrase": "123456789123",
+    "pfx_path": "json\\user_keys\\marin.pfx"
+  },
+  "crl": {
+    "email": "c@gmail.com",
+    "password": "pbkdf2$sha256$200000$OSlLkeLCKR2xj+IMxhrKAw==$4trV1Q9h6kDn6+M8HtuaYY1uUib/iOru9vvkOrXWKs0=",
+    "fecha_registro": "2025-12-02T11:22:21.436223",
+    "mac": "rdu76FA/Hq54LZ4fyCe5VkLgRSmrIGNEzwM0Y0czjP0=",
+    "pfx_passphrase": "123456789123",
+    "pfx_path": "json\\user_keys\\crl.pfx"
+  },
+  "tim": {
+    "email": "t@gmail.com",
+    "password": "pbkdf2$sha256$200000$m81K7357lQOCgIe19tsd+g==$YcfsX8DlRXyhe0k/UD32Ln9rGJCfaCmiU3Pdf9smOm0=",
+    "fecha_registro": "2025-12-02T11:31:40.994180",
+    "mac": "6oBAf5E/541diog8cmuZ1ALgc3bPU/UC3OtnJusCEGE=",
+    "pfx_passphrase": "123456789123",
+    "pfx_path": "json\\user_keys\\tim.pfx"
   }
 }

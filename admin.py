@@ -60,7 +60,7 @@ def descifrar_votos_hibridos_con_hmac():
     print("Descifrado de votos híbridos anónimos...")
     
     # Cargar clave HMAC (clave en json/logs/)
-    clave_mac = cargar_o_crear_clave_mac("json/logs/clave_mac_logs.bin")
+    clave_mac = cargar_o_crear_clave_mac("json/clave_mac_logs.bin")
     #comprobamos la integridad de la estructura almacenada, si el HMAC coincide, el fichero no ha sido alterado
     votos_descifrados = []
     try:
@@ -109,9 +109,28 @@ def descifrar_votos_hibridos_con_hmac():
                                 try:
                                     usuarios_reg = cargar_usuarios("json/usuarios.json")
                                     usuario_nombre = voto_cifrado.get("usuario")
+                                    pub_obj = None
+
+                                    # 1) intentar campo inline en usuarios.json
                                     if usuario_nombre in usuarios_reg and usuarios_reg[usuario_nombre].get("public_key_pem"):
-                                        pub_pem_str = usuarios_reg[usuario_nombre].get("public_key_pem")
-                                        pub_obj = serialization.load_pem_public_key(pub_pem_str.encode('utf-8'), backend=default_backend())
+                                        try:
+                                            pub_pem_str = usuarios_reg[usuario_nombre].get("public_key_pem")
+                                            pub_obj = serialization.load_pem_public_key(pub_pem_str.encode('utf-8'), backend=default_backend())
+                                        except Exception:
+                                            pub_obj = None
+
+                                    # 2) fallback: archivo en json/user_keys/<usuario>_public.pem
+                                    if pub_obj is None:
+                                        pub_path = os.path.join("json", "user_keys", f"{usuario_nombre}_public.pem")
+                                        if os.path.exists(pub_path):
+                                            try:
+                                                with open(pub_path, 'rb') as pf:
+                                                    pub_bytes = pf.read()
+                                                pub_obj = serialization.load_pem_public_key(pub_bytes, backend=default_backend())
+                                            except Exception:
+                                                pub_obj = None
+
+                                    if pub_obj is not None:
                                         contenido_para_firma = json.dumps(mac_obj, sort_keys=True, separators=(',',':'), ensure_ascii=False).encode('utf-8')
                                         ok_user = verificar(pub_obj, contenido_para_firma, voto_cifrado.get("user_sig"))
                                         user_sig_verificacion = "Firma usuario válida" if ok_user else "Firma usuario inválida"

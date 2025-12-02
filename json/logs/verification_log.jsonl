@@ -6,3 +6,6 @@
 {"when": "2025-11-21T18:25:06.602196", "user": "rit", "vote_id": "7130ce5b32b44286a2297c35abd0a215", "hmac": "válido", "user_sig": "Firma usuario válida", "certificado": "Certificado válido"}
 {"when": "2025-11-21T23:40:44.991523", "user": "cra", "vote_id": "cce79c606e9a42b8b5eaa953bf49dd5d", "hmac": "válido", "user_sig": "Firma usuario válida", "certificado": "Certificado válido"}
 {"when": "2025-11-21T23:50:53.451208", "user": "cre", "vote_id": "b0be08d56a5c43038fbaf5e9e1a45915", "hmac": "válido", "user_sig": "Firma usuario válida", "certificado": "Certificado válido"}
+{"when": "2025-12-02T11:13:10.237969", "user": "marin", "vote_id": "ecee4ad070154fd6ba3d0b176da0a064", "hmac": "inválido", "user_sig": "Firma usuario válida", "certificado": "Certificado no encontrado"}
+{"when": "2025-12-02T11:22:56.602639", "user": "crl", "vote_id": "82bfb605c5444c0f96653e278a9a8dd8", "hmac": "inválido", "user_sig": "Firma usuario válida", "certificado": "Certificado válido"}
+{"when": "2025-12-02T11:32:20.427631", "user": "tim", "vote_id": "9f5b067f7db54d888626cd11aa00f62e", "hmac": "válido", "user_sig": "Firma usuario válida", "certificado": "Certificado válido"}

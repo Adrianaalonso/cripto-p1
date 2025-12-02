@@ -117,7 +117,7 @@
     "algoritmo_asimetrico": "RSA-2048-OAEP",
     "mac_algoritmo": "HMAC-SHA256",
     "mac_verificacion": "HMAC inválido",
-    "user_sig_verificacion": "Clave pública de usuario no encontrada"
+    "user_sig_verificacion": "Firma usuario válida"
   },
   {
     "vote_id": "45f0823b83534158b1197ae0a7118a08",
@@ -127,7 +127,7 @@
     "algoritmo_asimetrico": "RSA-2048-OAEP",
     "mac_algoritmo": "HMAC-SHA256",
     "mac_verificacion": "HMAC inválido",
-    "user_sig_verificacion": "Clave pública de usuario no encontrada"
+    "user_sig_verificacion": "Firma usuario válida"
   },
   {
     "vote_id": "ced0c81a0122425da273b065421ed55f",
@@ -137,6 +137,56 @@
     "algoritmo_asimetrico": "RSA-2048-OAEP",
     "mac_algoritmo": "HMAC-SHA256",
     "mac_verificacion": "HMAC inválido",
-    "user_sig_verificacion": "Clave pública de usuario no encontrada"
+    "user_sig_verificacion": "Firma usuario válida"
+  },
+  {
+    "vote_id": "2ecb892ac94d41408e6483234744103a",
+    "timestamp": "2025-12-01T19:26:49",
+    "voto_descifrado": "Opción B",
+    "algoritmo_simetrico": "AES-GCM-256",
+    "algoritmo_asimetrico": "RSA-2048-OAEP",
+    "mac_algoritmo": "HMAC-SHA256",
+    "mac_verificacion": "HMAC válido",
+    "user_sig_verificacion": "Firma usuario válida"
+  },
+  {
+    "vote_id": "fcf0beeef3b841ce9c145ed25acdf4af",
+    "timestamp": "2025-12-01T22:34:44",
+    "voto_descifrado": "Opción B",
+    "algoritmo_simetrico": "AES-GCM-256",
+    "algoritmo_asimetrico": "RSA-2048-OAEP",
+    "mac_algoritmo": "HMAC-SHA256",
+    "mac_verificacion": "HMAC válido",
+    "user_sig_verificacion": "Firma usuario válida"
+  },
+  {
+    "vote_id": "ecee4ad070154fd6ba3d0b176da0a064",
+    "timestamp": "2025-12-02T11:13:03",
+    "voto_descifrado": "Opción B",
+    "algoritmo_simetrico": "AES-GCM-256",
+    "algoritmo_asimetrico": "RSA-2048-OAEP",
+    "mac_algoritmo": "HMAC-SHA256",
+    "mac_verificacion": "HMAC válido",
+    "user_sig_verificacion": "Firma usuario válida"
+  },
+  {
+    "vote_id": "82bfb605c5444c0f96653e278a9a8dd8",
+    "timestamp": "2025-12-02T11:22:49",
+    "voto_descifrado": "Opción A",
+    "algoritmo_simetrico": "AES-GCM-256",
+    "algoritmo_asimetrico": "RSA-2048-OAEP",
+    "mac_algoritmo": "HMAC-SHA256",
+    "mac_verificacion": "HMAC válido",
+    "user_sig_verificacion": "Firma usuario válida"
+  },
+  {
+    "vote_id": "9f5b067f7db54d888626cd11aa00f62e",
+    "timestamp": "2025-12-02T11:32:13",
+    "voto_descifrado": "Opción B",
+    "algoritmo_simetrico": "AES-GCM-256",
+    "algoritmo_asimetrico": "RSA-2048-OAEP",
+    "mac_algoritmo": "HMAC-SHA256",
+    "mac_verificacion": "HMAC válido",
+    "user_sig_verificacion": "Firma usuario válida"
   }
 ]

@@ -206,7 +206,7 @@ def solicitar_verificacion(usuario_actual):
     contenido_para_firma = json.dumps(mac_obj, sort_keys=True, separators=(',',':'), ensure_ascii=False).encode('utf-8')
 
     # Verificar HMAC (clave en logs)
-    clave_mac = cargar_o_crear_clave_mac("json/logs/clave_mac_logs.bin")
+    clave_mac = cargar_o_crear_clave_mac("json/clave_mac_logs.bin")
     contenido_para_mac = json.dumps(mac_obj, sort_keys=True, separators=(',',':'), ensure_ascii=False)
     hmac_valido = verificar_hmac_sha256(clave_mac, contenido_para_mac, ultima_entrada.get('mac', ''))
 
@@ -215,25 +215,64 @@ def solicitar_verificacion(usuario_actual):
     user_sig_result = 'No presente'
     if user_sig:
         usuarios_reg = cargar_usuarios('json/usuarios.json')
-        pub_pem = usuarios_reg.get(usuario_actual, {}).get('public_key_pem')
-        if pub_pem:
-            try:
-                pub_obj = serialization.load_pem_public_key(pub_pem.encode('utf-8'), backend=default_backend())
-                ok = verificar(pub_obj, contenido_para_firma, user_sig)
-                user_sig_result = 'Firma usuario válida' if ok else 'Firma usuario inválida'
-            except Exception as e:
-                user_sig_result = f'Error verificando firma: {e}'
-        else:
-            user_sig_result = 'Clave pública de usuario no encontrada'
+        pub_obj = None
+        try:
+            # 1) intentar campo inline
+            pub_pem = usuarios_reg.get(usuario_actual, {}).get('public_key_pem')
+            if pub_pem:
+                try:
+                    pub_obj = serialization.load_pem_public_key(pub_pem.encode('utf-8'), backend=default_backend())
+                except Exception:
+                    pub_obj = None
+
+            # 2) fallback a json/user_keys/<usuario>_public.pem
+            if pub_obj is None:
+                pub_path = os.path.join('json', 'user_keys', f"{usuario_actual}_public.pem")
+                if os.path.exists(pub_path):
+                    try:
+                        with open(pub_path, 'rb') as pf:
+                            pub_bytes = pf.read()
+                        pub_obj = serialization.load_pem_public_key(pub_bytes, backend=default_backend())
+                    except Exception:
+                        pub_obj = None
+
+            if pub_obj is not None:
+                try:
+                    ok = verificar(pub_obj, contenido_para_firma, user_sig)
+                    user_sig_result = 'Firma usuario válida' if ok else 'Firma usuario inválida'
+                except Exception as e:
+                    user_sig_result = f'Error verificando firma: {e}'
+            else:
+                user_sig_result = 'Clave pública de usuario no encontrada'
+        except Exception as e:
+            user_sig_result = f'Error verificando firma: {e}'
 
     # Verificar certificado del usuario (cadena y revocación)
     cert_result = 'No presente'
     try:
         usuarios_reg = cargar_usuarios('json/usuarios.json')
         ruta_cert = usuarios_reg.get(usuario_actual, {}).get('cert_path')
+
+        cert_pem = None
+        # Si ruta_cert existe y apunta a fichero existente, usarla
         if ruta_cert and os.path.exists(ruta_cert):
-            with open(ruta_cert, 'rb') as cf:
-                cert_pem = cf.read()
+            try:
+                with open(ruta_cert, 'rb') as cf:
+                    cert_pem = cf.read()
+            except Exception:
+                cert_pem = None
+
+        # Si no, usar ruta canónica json/user_certs/<usuario>.pem
+        if cert_pem is None:
+            candidate = os.path.join('json', 'user_certs', f"{usuario_actual}.pem")
+            if os.path.exists(candidate):
+                try:
+                    with open(candidate, 'rb') as cf:
+                        cert_pem = cf.read()
+                except Exception:
+                    cert_pem = None
+
+        if cert_pem:
             ok_cert, razon = verificar_cadena_certificado(cert_pem)
             cert_result = 'Certificado válido' if ok_cert else f'Certificado inválido: {razon}'
         else:
