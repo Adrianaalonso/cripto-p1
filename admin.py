@@ -87,8 +87,7 @@ def descifrar_votos_hibridos_con_hmac():
                     except Exception as e:
                         seleccion_descifrada = f"[ERROR DESCIFRADO] {e}"
                     
-                    # Verificar HMAC reconstruyendo la misma estructura usada al crear el voto en sistema_votos, 
-                    # para comprobar que la estructura es la original
+                    # Verificar HMAC y firma del usuario 
                     mac_verificacion = "No verificable (voto anónimo)"
                     user_sig_verificacion = "No verificable"
                     if "mac" in voto_cifrado:
@@ -111,7 +110,6 @@ def descifrar_votos_hibridos_con_hmac():
                                     usuario_nombre = voto_cifrado.get("usuario")
                                     pub_obj = None
 
-                                    # 1) intentar campo inline en usuarios.json
                                     if usuario_nombre in usuarios_reg and usuarios_reg[usuario_nombre].get("public_key_pem"):
                                         try:
                                             pub_pem_str = usuarios_reg[usuario_nombre].get("public_key_pem")
@@ -119,7 +117,6 @@ def descifrar_votos_hibridos_con_hmac():
                                         except Exception:
                                             pub_obj = None
 
-                                    # 2) fallback: archivo en json/user_keys/<usuario>_public.pem
                                     if pub_obj is None:
                                         pub_path = os.path.join("json", "user_keys", f"{usuario_nombre}_public.pem")
                                         if os.path.exists(pub_path):
@@ -172,13 +169,13 @@ def descifrar_votos_hibridos_con_hmac():
         print(f" {len(votos_descifrados)} votos anónimos descifrados exitosamente")
         print(f" Guardado en: {archivo_salida}")
         
-        # Mostrar resumen ANÓNIMO
+        # Mostrar resumen 
         if votos_descifrados:
             print("\nResumen de votos anónimos:")
             for i, voto in enumerate(votos_descifrados, 1):
                 print(f"  • Voto #{i}: {voto['voto_descifrado']} ({voto['timestamp']})")
         
-        # Estadísticas: contamos el num de HMAC válidos / inválidos
+        # contamos el num de HMAC válidos / inválidos
         con_hmac_validos = sum(1 for v in votos_descifrados if v.get('mac_verificacion') == "HMAC válido")
         con_hmac_invalidos = sum(1 for v in votos_descifrados if v.get('mac_verificacion') == "HMAC inválido")
         if con_hmac_validos > 0:
