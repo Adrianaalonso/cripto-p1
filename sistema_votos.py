@@ -66,7 +66,7 @@ def votar(usuario_actual, opciones_votacion, archivo_votos):
         # El usuario ya creó su PFX en el registro: no solicitar generación aquí
         pass
     else:
-        # Si no existe PFX ni PEM público, ofrecer generar ahora (esto es excepcional)
+        # Si no existe PFX ni PEM público, ofrecer firmar el voto generando par RSA
         if not os.path.exists(pem_pub_path):
             try:
                 generar = input("¿Desea generar ahora un par RSA para firmar sus votos? (s/n): ").strip().lower()
@@ -103,7 +103,7 @@ def votar(usuario_actual, opciones_votacion, archivo_votos):
                                 passwd = None
 
                             if not passwd or len(passwd) < 12:
-                                # Pedir passphrase al usuario como fallback
+                                # Pedir passphrase al usuario 
                                 while True:
                                     try:
                                         passwd = getpass.getpass('Ingrese una passphrase para proteger su PFX (mínimo 12 caracteres): ')
@@ -124,7 +124,6 @@ def votar(usuario_actual, opciones_votacion, archivo_votos):
                             # Exportar a PFX y guardar en json/user_keys/
                             pfx_path = exportar_usuario_a_pfx(usuario_actual, private_key_obj, ruta_cert, passwd)
                             usuarios_reg[usuario_actual]['pfx_path'] = pfx_path
-                            # Si no existía, no sobrescribimos la passphrase almacenada
                             print(f"PFX creado y almacenado en servidor: {pfx_path} (puede descargarlo en el registro).")
                         except Exception as ee:
                             print(f"Advertencia: no se pudo emitir certificado o crear PFX: {ee}")
@@ -135,15 +134,13 @@ def votar(usuario_actual, opciones_votacion, archivo_votos):
                 except Exception as e:
                     print(f"Error generando claves RSA: {e}")
 
-    # Registrar voto usando el helper unificado (cifrado híbrido + HMAC + firma)
+    # Registrar voto 
     archivo_votos_cifrados = "json/votos/votos_cifrados.jsonl"
     success = registrar_log_hibrido_hmac(usuario_actual, seleccion, archivo_votos_cifrados)
 
     if not success:
         print("No se pudo registrar el voto en el log híbrido. El voto NO será contabilizado.")
-        return None
-
-    # conteo para resultados (solo si el log híbrido fue escrito correctamente)
+        return None 
     votos[seleccion] += 1
     votos["usuarios_votaron"].append(usuario_actual)
     guardar_votos(votos, archivo_votos)
@@ -151,7 +148,7 @@ def votar(usuario_actual, opciones_votacion, archivo_votos):
     return seleccion
 
 def mostrar_resultados(archivo_votos):
-    """mostrar resultados de los votos (conteo)"""
+    """mostrar resultados de los votos registrados"""
     votos = cargar_votos(archivo_votos)
     total_votos = votos["Opción A"] + votos["Opción B"]
     
@@ -194,7 +191,7 @@ def solicitar_verificacion(usuario_actual):
         print("No se encontró ningún voto asociado a su usuario.")
         return
 
-    # Reconstruir contenido canónico
+    #  HMAC
     mac_obj = {
         "vote_id": ultima_entrada.get("vote_id", ""),
         "voto_cifrado": ultima_entrada.get("voto_cifrado", ""),
@@ -205,7 +202,7 @@ def solicitar_verificacion(usuario_actual):
     }
     contenido_para_firma = json.dumps(mac_obj, sort_keys=True, separators=(',',':'), ensure_ascii=False).encode('utf-8')
 
-    # Verificar HMAC (clave en logs)
+    # Verificar HMAC 
     clave_mac = cargar_o_crear_clave_mac("json/clave_mac_logs.bin")
     contenido_para_mac = json.dumps(mac_obj, sort_keys=True, separators=(',',':'), ensure_ascii=False)
     hmac_valido = verificar_hmac_sha256(clave_mac, contenido_para_mac, ultima_entrada.get('mac', ''))
@@ -217,7 +214,6 @@ def solicitar_verificacion(usuario_actual):
         usuarios_reg = cargar_usuarios('json/usuarios.json')
         pub_obj = None
         try:
-            # 1) intentar campo inline
             pub_pem = usuarios_reg.get(usuario_actual, {}).get('public_key_pem')
             if pub_pem:
                 try:
@@ -225,7 +221,6 @@ def solicitar_verificacion(usuario_actual):
                 except Exception:
                     pub_obj = None
 
-            # 2) fallback a json/user_keys/<usuario>_public.pem
             if pub_obj is None:
                 pub_path = os.path.join('json', 'user_keys', f"{usuario_actual}_public.pem")
                 if os.path.exists(pub_path):
@@ -247,14 +242,13 @@ def solicitar_verificacion(usuario_actual):
         except Exception as e:
             user_sig_result = f'Error verificando firma: {e}'
 
-    # Verificar certificado del usuario (cadena y revocación)
+    # Verificar certificado del usuario 
     cert_result = 'No presente'
     try:
         usuarios_reg = cargar_usuarios('json/usuarios.json')
         ruta_cert = usuarios_reg.get(usuario_actual, {}).get('cert_path')
 
         cert_pem = None
-        # Si ruta_cert existe y apunta a fichero existente, usarla
         if ruta_cert and os.path.exists(ruta_cert):
             try:
                 with open(ruta_cert, 'rb') as cf:
@@ -262,7 +256,6 @@ def solicitar_verificacion(usuario_actual):
             except Exception:
                 cert_pem = None
 
-        # Si no, usar ruta canónica json/user_certs/<usuario>.pem
         if cert_pem is None:
             candidate = os.path.join('json', 'user_certs', f"{usuario_actual}.pem")
             if os.path.exists(candidate):
@@ -287,7 +280,7 @@ def solicitar_verificacion(usuario_actual):
     print(f"Firma usuario: {user_sig_result}")
     print(f"Certificado: {cert_result}")
 
-    # Registrar la verificación en un log de auditoría
+    # Registrar la verificación en el log de verificaciones
     try:
         os.makedirs(os.path.dirname('json/logs/verification_log.jsonl'), exist_ok=True)
         ver_log = {
@@ -303,9 +296,7 @@ def solicitar_verificacion(usuario_actual):
     except Exception:
         pass
 
-    # Pausa para que el usuario pueda leer el resultado antes de que el menú lo reescriba
     try:
         input('\nPresione Enter para continuar...')
     except Exception:
-        # En entornos no interactivos simplemente continue
         pass

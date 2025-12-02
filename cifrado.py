@@ -117,7 +117,7 @@ def exportar_log_descifrado(archivo_log_cifrado, archivo_clave, salida="json/log
     msj_espera.pause()
 
 
-# ===== CIFRADO HÍBRIDO + HMAC UNIFICADO =====
+# ===== CIFRADO HÍBRIDO + HMAC =====
 
 def registrar_log_hibrido_hmac(usuario: str, seleccion: str, archivo_log_cifrado):
     # primero creamos claves RSA si no existen

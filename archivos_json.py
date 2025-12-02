@@ -35,7 +35,6 @@ def guardar_votos(votos, archivo_votos):
     with open(archivo_votos, 'w', encoding='utf-8') as f:
         json.dump(votos, f, indent=2, ensure_ascii=False)
 
-# ===== FUNCIONES CON AUTENTICACIÓN MAC =====
 
 def guardar_usuarios_con_mac(usuarios, archivo_usuarios):
     """Guardar usuarios con autenticación HMAC-SHA256"""
