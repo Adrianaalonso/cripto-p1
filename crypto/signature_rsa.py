@@ -1,7 +1,4 @@
-"""RSA-PSS signature helpers (RSA key generation, sign, verify).
-
-Uses cryptography. Implements generation of RSA keys, signing with PSS+SHA256
-and verification. Exposes simple save/load helpers that write PEM files.
+"""RSA-PSS implementacion, firma y verificación de firmas digitales.
 """
 import base64
 import os
@@ -13,7 +10,7 @@ from cryptography.hazmat.backends import default_backend
 
 
 def generar_par_claves_rsa(bits: int = 2048) -> Tuple[bytes, bytes]:
-    """Genera un par RSA y devuelve (pem_privado, pem_publico) en bytes."""
+    """Genera un par RSA"""
     private_key = rsa.generate_private_key(public_exponent=65537, key_size=bits, backend=default_backend())
     private_pem = private_key.private_bytes(
         encoding=serialization.Encoding.PEM,
@@ -28,7 +25,7 @@ def generar_par_claves_rsa(bits: int = 2048) -> Tuple[bytes, bytes]:
 
 
 def guardar_clave_privada(ruta: str, private_key_obj, passphrase: bytes | None = None) -> None:
-    """Guardar clave privada en `ruta`. Si se proporciona passphrase, se cifra el PEM."""
+    """Guarda la clave privada en la ruta especificada. Si se proporciona passphrase, se cifra la clave privada."""
     if passphrase:
         enc = serialization.BestAvailableEncryption(passphrase)
     else:
@@ -44,25 +41,28 @@ def guardar_clave_privada(ruta: str, private_key_obj, passphrase: bytes | None =
 
 
 def guardar_clave_publica(ruta: str, public_pem: bytes) -> None:
+    """Guarda la clave pública en la ruta especificada."""
     os.makedirs(os.path.dirname(ruta) or ".", exist_ok=True)
     with open(ruta, "wb") as f:
         f.write(public_pem)
 
 
 def cargar_clave_privada(ruta: str, password: bytes | None = None):
+    """Carga la clave privada desde la ruta especificada. Si la clave está cifrada, se debe proporcionar la contraseña."""
     with open(ruta, "rb") as f:
         data = f.read()
     return serialization.load_pem_private_key(data, password=password, backend=default_backend())
 
 
 def cargar_clave_publica(ruta: str):
+    """Carga la clave pública desde la ruta especificada."""
     with open(ruta, "rb") as f:
         data = f.read()
     return serialization.load_pem_public_key(data, backend=default_backend())
 
 
 def firmar(private_key_obj, mensaje: bytes) -> str:
-    """Firma los bytes `mensaje` y devuelve la firma en base64 (RSA-PSS + SHA256)."""
+    """Firma los datos y devuelve la firma"""
     sig = private_key_obj.sign(
         mensaje,
         padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH),
@@ -72,7 +72,7 @@ def firmar(private_key_obj, mensaje: bytes) -> str:
 
 
 def verificar(public_key_obj, mensaje: bytes, firma_b64: str) -> bool:
-    """Verifica la firma base64 contra `mensaje`. Devuelve True si OK, False en caso contrario."""
+    """Verifica la firma. Devuelve True si es válida, False en caso contrario."""
     try:
         sig = base64.b64decode(firma_b64)
         public_key_obj.verify(
