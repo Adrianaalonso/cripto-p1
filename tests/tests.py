@@ -437,7 +437,6 @@ class TestSignatureAndPKI(TempCwdMixin, unittest.TestCase):
         super().setUp()
         self.sig = _import_or_skip(self, "crypto.signature_rsa")
         self.pki = _import_or_skip(self, "crypto.pki")
-        # helpers
         self.generar_par = _getattr_or_skip(self, self.sig, "generar_par_claves_rsa", "generar_par_claves_rsa")
         self.firmar = _getattr_or_skip(self, self.sig, "firmar", "firmar")
         self.verificar_sig = _getattr_or_skip(self, self.sig, "verificar", "verificar")
@@ -448,7 +447,7 @@ class TestSignatureAndPKI(TempCwdMixin, unittest.TestCase):
         self.exportar_pfx = _getattr_or_skip(self, self.pki, "exportar_usuario_a_pfx", "exportar_usuario_a_pfx")
         self.cargar_pfx = _getattr_or_skip(self, self.pki, "cargar_clave_desde_pfx", "cargar_clave_desde_pfx")
 
-    def test_rsa_sign_verify_roundtrip(self):
+    def test_rsa_firma_y_verificacion(self):
         # generar par RSA y firmar/verificar
         priv_pem, pub_pem = self.generar_par(bits=2048)
         # cargar objetos crypto necesarios
@@ -463,7 +462,7 @@ class TestSignatureAndPKI(TempCwdMixin, unittest.TestCase):
         ok = self.verificar_sig(pub_obj, mensaje, sig_b64)
         self.assertTrue(ok, "Firma RSA-PSS no verificada correctamente")
 
-    def test_pki_emit_verify_and_revoke(self):
+    def test_pki_emitir_verificar_revocar(self):
         # Asegurar PKI y emitir certificado de usuario
         self.asegurar_pki()
         priv_pem, pub_pem = self.generar_par(bits=2048)
@@ -495,7 +494,7 @@ class TestSignatureAndPKI(TempCwdMixin, unittest.TestCase):
         self.assertFalse(ok2)
         self.assertIn("revocado", razon2.lower())
 
-    def test_firma_detecta_mensaje_alterado_y_signature_corrupta(self):
+    def test_firma_detecta_manipulacion(self):
         # comprobar que si se altera el mensaje la verificación falla
         priv_pem, pub_pem = self.generar_par(bits=2048)
         from cryptography.hazmat.primitives import serialization
@@ -526,7 +525,7 @@ class TestSignatureAndPKI(TempCwdMixin, unittest.TestCase):
             # si lanza, también es correcto
             pass
 
-    def test_pfx_contrasena_incorrecta_produce_error(self):
+    def test_pfx_contrasena_invalida(self):
         # Asegurar PKI, generar claves, emitir y exportar PFX
         self.asegurar_pki()
         priv_pem, pub_pem = self.generar_par(bits=2048)
@@ -540,7 +539,7 @@ class TestSignatureAndPKI(TempCwdMixin, unittest.TestCase):
         with self.assertRaises(Exception):
             self.cargar_pfx(pfx_path, "malacontraseña")
 
-    def test_certificado_expirado_detectado(self):
+    def test_certificado_expirado(self):
         # emitir certificado con validez negativa para hacerlo expirado
         self.asegurar_pki()
         priv_pem, pub_pem = self.generar_par(bits=2048)
@@ -560,7 +559,7 @@ class TestHMACRotation(TempCwdMixin, unittest.TestCase):
         self.guardar = _getattr_or_skip(self, self.files, "guardar_votos_con_mac", "guardar_votos")
         self.cargar = _getattr_or_skip(self, self.files, "cargar_votos_con_mac", "cargar_votos")
 
-    def test_hmac_key_rotation_mismatch(self):
+    def test_hmac_clave_invalida(self):
         # preparar votos y guardar con MAC usando la clave actual
         votos = {"Opción A": 5, "Opción B": 2, "usuarios_votaron": ["adri"]}
         os.makedirs(os.path.join("json"), exist_ok=True)
