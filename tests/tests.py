@@ -517,12 +517,10 @@ class TestSignatureAndPKI(TempCwdMixin, unittest.TestCase):
         # flip simple
         sig_bytes[0] ^= 0x01
         sig_bad = base64.b64encode(bytes(sig_bytes)).decode()
-        # dependiendo de la implementación puede lanzar o devolver False; aceptamos cualquiera
         try:
             ok = self.verificar_sig(pub_obj, mensaje, sig_bad)
             self.assertFalse(ok)
         except Exception:
-            # si lanza, también es correcto
             pass
 
     def test_pfx_contrasena_invalida(self):
@@ -535,7 +533,7 @@ class TestSignatureAndPKI(TempCwdMixin, unittest.TestCase):
         priv_obj = _serial.load_pem_private_key(priv_pem, password=None, backend=_default_backend())
         pfx_path = self.exportar_pfx("usuario_pfx", priv_obj, ruta_cert, passphrase="correcthorsebattery")
         self.assertTrue(os.path.exists(pfx_path))
-        # intentar cargar con contraseña incorrecta -> se espera excepción
+        # intentar cargar con contraseña incorrecta 
         with self.assertRaises(Exception):
             self.cargar_pfx(pfx_path, "malacontraseña")
 
@@ -565,8 +563,7 @@ class TestHMACRotation(TempCwdMixin, unittest.TestCase):
         os.makedirs(os.path.join("json"), exist_ok=True)
         self.guardar(votos, "json/votos.json")
 
-        # forzar rotación/escritura de otra clave MAC diferente
-        # la implementación usa json/clave_mac_votos.bin
+        # forzar escritura de otra clave MAC diferente
         key_path = os.path.join("json", "clave_mac_votos.bin")
         # asegurarnos de que exista
         self.assertTrue(os.path.exists(key_path), "La clave MAC esperada no existe tras guardar")
@@ -574,7 +571,7 @@ class TestHMACRotation(TempCwdMixin, unittest.TestCase):
         with open(key_path, "wb") as f:
             f.write(os.urandom(32))
 
-        # ahora la verificación debe fallar y devolver los defaults (0s)
+        # ahora la verificación debe fallar 
         out = self.cargar("json/votos.json")
         self.assertEqual(out.get("Opción A", 0), 0)
         self.assertEqual(out.get("Opción B", 0), 0)
